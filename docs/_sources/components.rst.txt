@@ -1,0 +1,39 @@
+components
+==================
+
+Imagen
+------------------------
+
+.. automodule:: components.Imagen
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Unet
+----------------------
+
+.. automodule:: components.Unet
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Diffusion Model
+----------------------------------
+
+.. automodule:: components.diffusion_model
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+T5
+--------------------
+
+.. automodule:: components.t5
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pkg
+--------------------
+
+.. automodule:: minimal_imagen
