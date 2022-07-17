@@ -1,9 +1,10 @@
 from setuptools import setup, find_packages
-import codecs
-import os
 
-VERSION = '0.0.1'
+VERSION = '0.0.4'
 DESCRIPTION = 'Minimal Imagen text-to-image model implementation'
+
+with open('requirements.txt') as f:
+    required = f.read().splitlines()
 
 # Setting up
 setup(
@@ -13,7 +14,7 @@ setup(
     author_email="<ryan@assemblyai.com>",
     description=DESCRIPTION,
     packages=find_packages(),
-    install_requires=['torch', 'torchvision', 'einops', 'einops-exts', 'resize-right', 'typing', 'transformers'],
+    install_requires=required,
     keywords=['python', 'imagen', 'text-to-image', 'diffusion model', 'super resolution', 'image generation', 'machine learning', 'deep learning'],
     classifiers=[
         "Intended Audience :: Developers",
