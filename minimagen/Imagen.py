@@ -41,12 +41,12 @@ class Imagen(nn.Module):
             only_train_unet_number: int = None
     ):
         """
-        :param unets: :class:`Unet(s) <.components.Unet.Unet>`, where the first element in the argument is the base
+        :param unets: :class:`Unet(s) <.minimagen.Unet.Unet>`, where the first element in the argument is the base
             model (image generator), and the following Unets are super-resolution models (if provided).
         :param image_sizes: The side length of the images input to each unet. Same length as :code:`unets`.
-        :param text_encoder_name: The name of the T5 text encoder to use. See :func:`.components.t5.t5_encode_text`
+        :param text_encoder_name: The name of the T5 text encoder to use. See :func:`.minimagen.t5.t5_encode_text`
         :param text_embed_dim: Embedding dimension of text encoder. Do not set if using a built-in T5 from the list
-            in :func:`.components.t5.t5_encode_text` (will be set automatically).
+            in :func:`.minimagen.t5.t5_encode_text` (will be set automatically).
         :param channels: Number of channels in images.
         :param timesteps: Number of timesteps in the `Diffusion Process <https://www.assemblyai.com/blog/diffusion-models-for-machine-learning-introduction/>`_.
             Either one value used for every Unet in Imagen, or a list/tuple of values, one for each Unet in Imagen.
@@ -274,9 +274,9 @@ class Imagen(nn.Module):
         Predicts noise component of `x` with `unet`, and then returns the corresponding forward process posterior
             parameters given the predictions.
 
-        .. image:: minimal_imagen/components/images/q_posterior.png
-        .. image:: minimal_imagen/components/images/q_posterior_mean.png
-        .. image:: minimal_imagen/components/images/posterior_variance.png
+        .. image:: minimal_imagen/minimagen/images/q_posterior.png
+        .. image:: minimal_imagen/minimagen/images/q_posterior_mean.png
+        .. image:: minimal_imagen/minimagen/images/posterior_variance.png
 
 
         :param unet: Unet that predicts either the noise component of noised images
@@ -342,7 +342,7 @@ class Imagen(nn.Module):
         Given a denoising Unet and noisy images, takes one step back in time in the diffusion model. I.e. given
         a noisy image x_t, `_p_sample` samples from q(x_{t-1}|x_t) to get a slightly denoised image x_{t-1}.
 
-        .. image:: minimal_imagen/components/images/x_tm1.png
+        .. image:: minimal_imagen/minimagen/images/x_tm1.png
 
         :param unet: Unet for denoising.
         :param x: Noisy images. Shape (b, c, s, s)

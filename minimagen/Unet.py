@@ -25,7 +25,7 @@ from .t5 import get_encoded_dim
 class Unet(nn.Module):
     """
     `U-Net <https://arxiv.org/abs/1505.04597>`_ for use as a denoising model trained via `Diffusion <https://www.assemblyai.com/blog/diffusion-models-for-machine-learning-introduction/>`_.
-    See also :class:`.components.diffusion_model.GaussianDiffusion`
+    See also :class:`.minimagen.diffusion_model.GaussianDiffusion`
     """
 
     def __init__(
@@ -58,7 +58,7 @@ class Unet(nn.Module):
         :param channels: Number of channels in the input image.
         :param channels_out: Number of channels in the output image. Defaults to :code:`channels`.
         :param cond_dim: Conditioning dimensionality. Defaults to :code:`dim`.
-        :param text_embed_dim: Dimensionality of the text embeddings. See :func:`.components.t5.t5_encode_text.
+        :param text_embed_dim: Dimensionality of the text embeddings. See :func:`.minimagen.t5.t5_encode_text.
         :param num_resnet_blocks: How many ResNet blocks exist at each layer of the Unet (besides an initial
             unique block). Either one value for all resolutions or a tuple of values, one for each resolution.
         :param layer_attns: Whether to add self attention (via Transformer encoder) at the end of a a given layer of
@@ -70,7 +70,7 @@ class Unet(nn.Module):
             models.
         :param memory_efficient: Whether to downsample at the beginning rather than end of a given layer in the
             U-Net. Saves memory.
-        :param attend_at_middle: Whether to have an :class:`minimal_imagen.components.layers.Attention` at the
+        :param attend_at_middle: Whether to have an :class:`minimal_imagen.minimagen.layers.Attention` at the
             bottleneck. Can turn off for higher resolution Unets in `cascading DDPM <https://cascaded-diffusion.github.io/assets/cascaded_diffusion.pdf>`_.
         """
         super().__init__()
@@ -371,7 +371,7 @@ class Unet(nn.Module):
         :param lowres_noise_times: Time to noise to for low-res `noise conditioning augmentation <https://www.assemblyai.com/blog/how-imagen-actually-works/#robust-cascaded-diffusion-models>`_.
             Shape (b,).
         :param text_embeds: Conditioning text embeddings. Size (b, 256, embedding_dim). See
-            :func:`.components.t5.t5_encode_text`.
+            :func:`.minimagen.t5.t5_encode_text`.
         :param text_mask: Text mask for text embeddings. Shape (b, 256)
         :param cond_drop_prob: Probability of dropping conditioning info for `classifier-free guidance <https://www.assemblyai.com/blog/how-imagen-actually-works/#classifier-free-guidance>`_. Generally in
             the range [0.1, 0.2].
@@ -556,7 +556,7 @@ class Unet(nn.Module):
         :param batch_size: Size of the batch/number of captions
         :param cond_drop_prob: Probability of conditional dropout for `classifier-free guidance <https://www.assemblyai.com/blog/how-imagen-actually-works/#classifier-free-guidance>`_
         :param device: Device to use.
-        :param text_mask: Text mask for text embeddings. Shape (b, components.t5.MAX_LENGTH)
+        :param text_mask: Text mask for text embeddings. Shape (b, minimagen.t5.MAX_LENGTH)
         :param t: Time conditioning tensor.
         :param time_tokens: Time conditioning tokens.
         :return: tuple(t, c)

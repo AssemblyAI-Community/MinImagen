@@ -1,9 +1,9 @@
 import torch
 from torch import optim
 
-from components.Imagen import Imagen
-from components.Unet import Unet
-from components.t5 import get_encoded_dim
+from minimagen.Imagen import Imagen
+from minimagen.Unet import Unet
+from minimagen.t5 import get_encoded_dim
 
 # Constants
 BATCH_SIZE = 4  # Batch size training data
