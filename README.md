@@ -1,7 +1,9 @@
 # MinImagen
 ### A Minimal implementation of the [Imagen](https://imagen.research.google/) text-to-image model.
 
-![Imagen model structure](./images/model_structure.png?raw=True)
+<p align="center"><img src="./images/model_structure.png?raw=True" width="700"/></p>
+
+### For a tutorial on building this model, see [here](www.assemblyai.com/blog/build-your-own-imagen-text-to-image-model/).
 
 Given a caption of an image, Imagen will generate an image that reflects the caption. The model is a simple [cascading diffusion model](https://arxiv.org/abs/2106.15282), using a T5 text encoder to encode the captions which conditions a base image generator, and then a sequence of super-resolution models.
 
