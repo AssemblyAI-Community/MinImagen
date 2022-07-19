@@ -100,7 +100,7 @@ def resize_image_to_square(image: torch.tensor,
 
 class MinimagenDataset(torch.utils.data.Dataset):
 
-    def __init__(self, hf_dataset, encoder_name, train = True, img_transform = None):
+    def __init__(self, hf_dataset, *, encoder_name, max_length, train = True, img_transform = None):
         """
         MinImagen Dataset
 
@@ -112,7 +112,7 @@ class MinimagenDataset(torch.utils.data.Dataset):
         split = "train" if train else "validation"
 
         self.urls = dset[f"{split}"]['image_url']
-        self.encoding, self.mask = t5_encode_text(dset[f"{split}"]['caption'], encoder_name)
+        self.encoding, self.mask = t5_encode_text(dset[f"{split}"]['caption'], encoder_name, max_length)
         self.img_transform = img_transform
 
     def __len__(self):
@@ -164,7 +164,7 @@ if TESTING:
     print(dset['train']['caption'])
 
 # Torch train/valid dataset
-dataset_train_valid = MinimagenDataset(dset, encoder_name=T5_NAME, train=True,
+dataset_train_valid = MinimagenDataset(dset, max_length=MAX_NUM_WORDS, encoder_name=T5_NAME, train=True,
                                        img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)]))
 
 # Split into train/valid
@@ -173,7 +173,7 @@ valid_size = len(dataset_train_valid) - train_size
 train_dataset, valid_dataset = torch.utils.data.random_split(dataset_train_valid, [train_size, valid_size])
 
 # Torch test dataset
-test_dataset = MinimagenDataset(dset, train=False, encoder_name=T5_NAME,
+test_dataset = MinimagenDataset(dset, max_length=MAX_NUM_WORDS, train=False, encoder_name=T5_NAME,
                                 img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)]))
 # Safe dataloaders
 dl_opts = {'batch_size': BATCH_SIZE, 'shuffle': True, 'num_workers': 0, 'drop_last':True}

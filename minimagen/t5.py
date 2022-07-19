@@ -28,7 +28,7 @@ def _check_downloads(name):
         T5_VERSIONS[name]['model'] = T5EncoderModel.from_pretrained(T5_VERSIONS[name]['handle'])
 
 
-def t5_encode_text(text, name: str = 't5_base'):
+def t5_encode_text(text, name: str = 't5_base', max_length=MAX_LENGTH):
     """
     Encodes a sequence of text with a T5 text encoder.
 
@@ -63,7 +63,7 @@ def t5_encode_text(text, name: str = 't5_base'):
     tokenized = tokenizer.batch_encode_plus(
         text,
         padding='longest',
-        max_length=MAX_LENGTH,
+        max_length=max_length,
         truncation=True,
         return_tensors="pt",  # Returns torch.tensor instead of python integers
     )
