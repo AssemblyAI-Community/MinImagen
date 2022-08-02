@@ -141,6 +141,7 @@ EPOCHS = 5  # Number of epochs to train from
 T5_NAME = "t5_small"  # Name of the T5 encoder to use
 TRAIN_VALID_FRAC = 0.8 #Change to 0.8
 TIMESTEPS = 250
+OPTIM_LR = 0.0001
 TESTING = True
 
 # Get encoding dimension of the text encoder
@@ -223,7 +224,7 @@ imagen = Imagen(
 ).to(device)
 print("Created Imagen")
 
-optimizer = optim.Adam(imagen.parameters(), lr=0.01)
+optimizer = optim.Adam(imagen.parameters(), lr=OPTIM_LR)
 print("Created optimzer")
 
 best_loss = [9999999 for i in range(len(unets))]
