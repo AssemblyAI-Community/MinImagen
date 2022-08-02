@@ -134,7 +134,7 @@ class MinimagenDataset(torch.utils.data.Dataset):
 
 
 # Constants
-BATCH_SIZE = 4  # Batch size training data
+BATCH_SIZE = 32  # Batch size training data
 MAX_NUM_WORDS = 64  # Max number of words allowed in a caption
 IMG_SIDE_LEN = 128  # Side length of the training images/final output image from Imagen
 EPOCHS = 5  # Number of epochs to train from
@@ -151,7 +151,7 @@ text_embed_dim = get_encoded_dim(T5_NAME)
 dset = load_dataset("conceptual_captions")
 # Cut down size for testing
 if TESTING:
-    num = 100
+    num = 256
     vi = dset['validation']['image_url'][:num]
     vc = dset['validation']['caption'][:num]
     ti = dset['train']['image_url'][:num]
