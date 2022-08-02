@@ -25,6 +25,9 @@ This implementation is largely based on Phil Wang's [Imagen implementation](http
 ```bash
 $ pip install minimagen
 ```
+In order to use the `training.py` file, you will also need to install `datasets`.
+
+Note that MinImagen requires Python3.9 or higher
 ## Documentation
 Documentation can be found [here](https://assemblyai-examples.github.io/MinImagen/)
 
