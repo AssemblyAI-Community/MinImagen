@@ -140,7 +140,7 @@ IMG_SIDE_LEN = 128  # Side length of the training images/final output image from
 EPOCHS = 5  # Number of epochs to train from
 T5_NAME = "t5_small"  # Name of the T5 encoder to use
 TRAIN_VALID_FRAC = 0.5 #Change to 0.8
-TESTING = False
+TESTING = True
 
 # Get encoding dimension of the text encoder
 text_embed_dim = get_encoded_dim(T5_NAME)
@@ -217,12 +217,12 @@ print("Created Unets")
 imagen = Imagen(
     unets=unets,
     image_sizes=(32, 128),
-    timesteps=10,
+    timesteps=25,  # has to be at least 20.
     cond_drop_prob=0.1
 ).to(device)
 print("Created Imagen")
 
-optimizer = optim.Adam(imagen.parameters())
+optimizer = optim.Adam(imagen.parameters(), lr=0.01)
 print("Created optimzer")
 
 best_loss = [9999999 for i in range(len(unets))]
@@ -247,6 +247,7 @@ for epoch in range(EPOCHS):
             loss.backward()
             torch.nn.utils.clip_grad_norm_(imagen.parameters(), 50)
             optimizer.step()
+        print(f'LOSSES: {losses}')
 
     # Compute average loss across validation batches for each unet
     running_vloss = [0. for i in range(len(unets))]
