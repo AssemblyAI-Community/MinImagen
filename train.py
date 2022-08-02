@@ -139,7 +139,8 @@ MAX_NUM_WORDS = 64  # Max number of words allowed in a caption
 IMG_SIDE_LEN = 128  # Side length of the training images/final output image from Imagen
 EPOCHS = 5  # Number of epochs to train from
 T5_NAME = "t5_small"  # Name of the T5 encoder to use
-TRAIN_VALID_FRAC = 0.5 #Change to 0.8
+TRAIN_VALID_FRAC = 0.8 #Change to 0.8
+TIMESTEPS = 250
 TESTING = True
 
 # Get encoding dimension of the text encoder
@@ -149,7 +150,7 @@ text_embed_dim = get_encoded_dim(T5_NAME)
 dset = load_dataset("conceptual_captions")
 # Cut down size for testing
 if TESTING:
-    num = 8
+    num = 100
     vi = dset['validation']['image_url'][:num]
     vc = dset['validation']['caption'][:num]
     ti = dset['train']['image_url'][:num]
@@ -217,7 +218,7 @@ print("Created Unets")
 imagen = Imagen(
     unets=unets,
     image_sizes=(32, 128),
-    timesteps=25,  # has to be at least 20.
+    timesteps=TIMESTEPS,  # has to be at least 20.
     cond_drop_prob=0.1
 ).to(device)
 print("Created Imagen")
