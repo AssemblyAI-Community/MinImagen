@@ -201,6 +201,7 @@ test_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(test_dataset), **dl
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # Create Unets
+'''
 base_unet = Unet(
     dim=128,
     text_embed_dim=text_embed_dim,
@@ -222,6 +223,29 @@ super_res_unet = Unet(
     layer_cross_attns=(False, False, True),
     attend_at_middle=False
 )
+'''
+base_unet = Unet(
+    dim=128,
+    text_embed_dim=text_embed_dim,
+    cond_dim=64,
+    dim_mults=(1, 2),
+    num_resnet_blocks=2,
+    layer_attns=(False, True),
+    layer_cross_attns=(False, True),
+    attend_at_middle=True
+)
+
+super_res_unet = Unet(
+    dim=128,
+    text_embed_dim=text_embed_dim,
+    cond_dim=512,
+    dim_mults=(1, 2),
+    num_resnet_blocks=(2, 4),
+    layer_attns=(False, True),
+    layer_cross_attns=(False, True),
+    attend_at_middle=False
+)
+
 unets = (base_unet, super_res_unet)
 print("Created Unets")
 
@@ -279,11 +303,8 @@ for epoch in range(EPOCHS):
         print(f"Unet {i} avg validation loss: ", l)
         if l < best_loss[i]:
             best_loss[i] = l
-        model_path = f"imagen_{timestamp}_{i}_{epoch+1}.pth"
-        torch.save(imagen.unets[i].state_dict(), model_path)
-
-
-
+            model_path = f"imagen_{timestamp}_{i}_{epoch+1}_{l:.3f}.pth"
+            torch.save(imagen.unets[i].state_dict(), model_path)
 
 
 # Generate images with "trained" model
