@@ -134,7 +134,7 @@ class MinimagenDataset(torch.utils.data.Dataset):
 
 
 # Constants
-BATCH_SIZE = 32  # Batch size training data
+BATCH_SIZE = 4  # Batch size training data
 MAX_NUM_WORDS = 64  # Max number of words allowed in a caption
 IMG_SIDE_LEN = 128  # Side length of the training images/final output image from Imagen
 EPOCHS = 5  # Number of epochs to train from
@@ -179,9 +179,14 @@ test_dataset = MinimagenDataset(dset, max_length=MAX_NUM_WORDS, train=False, enc
                                 img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)]))
 # Safe dataloaders
 dl_opts = {'batch_size': BATCH_SIZE, 'shuffle': True, 'num_workers': 0, 'drop_last':True}
-train_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(train_dataset), **dl_opts)
-valid_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(valid_dataset), **dl_opts)
-test_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(test_dataset), **dl_opts)
+
+train_dataloader = nc.SafeDataLoader(nc.SafeDataset(train_dataset), **dl_opts)
+valid_dataloader = nc.SafeDataLoader(nc.SafeDataset(valid_dataset), **dl_opts)
+test_dataloader = nc.SafeDataLoader(nc.SafeDataset(test_dataset), **dl_opts)
+
+#train_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(train_dataset), **dl_opts)
+#valid_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(valid_dataset), **dl_opts)
+#test_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(test_dataset), **dl_opts)
 
 # Value min is -0.0461 and max is 1.0819 - should either be in [0,1] or [-1,1]
 #for batch in train_dataloader:
