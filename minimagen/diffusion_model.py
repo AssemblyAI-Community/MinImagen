@@ -20,6 +20,8 @@ class GaussianDiffusion(nn.Module):
         """
         super().__init__()
 
+        # Timesteps < 20 => scale > 50 => beta_end > 1 => alphas[-1] < 0 => sqrt_alphas_cumprod[-1] is NaN
+        assert not timesteps < 20,  f'timsteps must be at least 20'
         self.num_timesteps = timesteps
 
         # Create variance schedule.
