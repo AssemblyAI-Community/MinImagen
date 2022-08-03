@@ -132,6 +132,9 @@ class MinimagenDataset(torch.utils.data.Dataset):
 
         return {'image': img, 'encoding': self.encoding[idx], 'mask': self.mask[idx]}
 
+def collate(batch):
+    batch = filter (lambda x: x is not None, batch)
+    return batch
 
 # Constants
 BATCH_SIZE = 4  # Batch size training data
@@ -139,7 +142,7 @@ MAX_NUM_WORDS = 64  # Max number of words allowed in a caption
 IMG_SIDE_LEN = 128  # Side length of the training images/final output image from Imagen
 EPOCHS = 5  # Number of epochs to train from
 T5_NAME = "t5_small"  # Name of the T5 encoder to use
-TRAIN_VALID_FRAC = 0.8 #Change to 0.8
+TRAIN_VALID_FRAC = 0.5 # TODO: Change to 0.8
 TIMESTEPS = 250
 OPTIM_LR = 0.0001
 TESTING = True
@@ -151,7 +154,7 @@ text_embed_dim = get_encoded_dim(T5_NAME)
 dset = load_dataset("conceptual_captions")
 # Cut down size for testing
 if TESTING:
-    num = 12
+    num = 16
     vi = dset['validation']['image_url'][:num]
     vc = dset['validation']['caption'][:num]
     ti = dset['train']['image_url'][:num]
@@ -178,7 +181,7 @@ train_dataset, valid_dataset = torch.utils.data.random_split(dataset_train_valid
 test_dataset = MinimagenDataset(dset, max_length=MAX_NUM_WORDS, train=False, encoder_name=T5_NAME,
                                 img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)]))
 # Safe dataloaders
-dl_opts = {'batch_size': BATCH_SIZE, 'shuffle': False, 'num_workers': 0, 'drop_last':True}
+dl_opts = {'batch_size': BATCH_SIZE, 'shuffle': False, 'num_workers': 0, 'drop_last':True, 'collate_fn':collate}
 
 # Problems with SafeDataLoaders - may need to downgrade to torch 1.2.0
 #train_dataloader = nc.SafeDataLoader(nc.SafeDataset(train_dataset), **dl_opts)
