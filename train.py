@@ -151,7 +151,7 @@ text_embed_dim = get_encoded_dim(T5_NAME)
 dset = load_dataset("conceptual_captions")
 # Cut down size for testing
 if TESTING:
-    num = 256
+    num = 12
     vi = dset['validation']['image_url'][:num]
     vc = dset['validation']['caption'][:num]
     ti = dset['train']['image_url'][:num]
@@ -178,15 +178,17 @@ train_dataset, valid_dataset = torch.utils.data.random_split(dataset_train_valid
 test_dataset = MinimagenDataset(dset, max_length=MAX_NUM_WORDS, train=False, encoder_name=T5_NAME,
                                 img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)]))
 # Safe dataloaders
-dl_opts = {'batch_size': BATCH_SIZE, 'shuffle': True, 'num_workers': 0, 'drop_last':True}
+dl_opts = {'batch_size': BATCH_SIZE, 'shuffle': False, 'num_workers': 0, 'drop_last':True}
 
-train_dataloader = nc.SafeDataLoader(nc.SafeDataset(train_dataset), **dl_opts)
-valid_dataloader = nc.SafeDataLoader(nc.SafeDataset(valid_dataset), **dl_opts)
-test_dataloader = nc.SafeDataLoader(nc.SafeDataset(test_dataset), **dl_opts)
+# Problems with SafeDataLoaders - may need to downgrade to torch 1.2.0
+#train_dataloader = nc.SafeDataLoader(nc.SafeDataset(train_dataset), **dl_opts)
+#valid_dataloader = nc.SafeDataLoader(nc.SafeDataset(valid_dataset), **dl_opts)
+#test_dataloader = nc.SafeDataLoader(nc.SafeDataset(test_dataset), **dl_opts)
 
-#train_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(train_dataset), **dl_opts)
-#valid_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(valid_dataset), **dl_opts)
-#test_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(test_dataset), **dl_opts)
+
+train_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(train_dataset), **dl_opts)
+valid_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(valid_dataset), **dl_opts)
+test_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(test_dataset), **dl_opts)
 
 # Value min is -0.0461 and max is 1.0819 - should either be in [0,1] or [-1,1]
 #for batch in train_dataloader:
