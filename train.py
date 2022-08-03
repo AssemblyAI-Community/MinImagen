@@ -133,10 +133,8 @@ class MinimagenDataset(torch.utils.data.Dataset):
         return {'image': img, 'encoding': self.encoding[idx], 'mask': self.mask[idx]}
 
 def collate(batch):
-    print(batch)
     batch = list(filter(lambda x: x['image'] is not None, batch))
-    print(batch)
-    return batch
+    return torch.utils.data.dataloader.default_collate(batch)
 
 # Constants
 BATCH_SIZE = 4  # Batch size training data
