@@ -133,7 +133,9 @@ class MinimagenDataset(torch.utils.data.Dataset):
         return {'image': img, 'encoding': self.encoding[idx], 'mask': self.mask[idx]}
 
 def collate(batch):
+    print(batch)
     batch = list(filter(lambda x: x['image'] is not None, batch))
+    print(batch)
     return batch
 
 # Constants
