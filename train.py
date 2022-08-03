@@ -253,6 +253,7 @@ for epoch in range(EPOCHS):
 
         losses = [0. for i in range(len(unets))]
         for unet_idx in range(len(unets)):
+            torch.cuda.empty_cache()
             optimizer.zero_grad()
             loss = imagen(images, text_embeds=encoding, text_masks=mask, unet_number=unet_idx+1)
             losses[unet_idx] += loss
