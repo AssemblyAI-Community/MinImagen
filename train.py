@@ -1,3 +1,5 @@
+import json
+import sys
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from functools import partial
@@ -11,6 +13,7 @@ import PIL.Image
 from einops import rearrange
 import torch.utils.data
 from torch import optim
+import torch.nn.functional as F
 from torchvision.transforms import Compose, ToTensor
 
 from datasets import load_dataset
@@ -111,9 +114,15 @@ class MinimagenDataset(torch.utils.data.Dataset):
 
         split = "train" if train else "validation"
 
-        self.urls = dset[f"{split}"]['image_url']
-        self.encoding, self.mask = t5_encode_text(dset[f"{split}"]['caption'], encoder_name, max_length)
+        self.urls = hf_dataset[f"{split}"]['image_url']
+        self.captions = hf_dataset[f"{split}"]['caption']
+        # TODO: Memory not large enough to store entire encoding (~434 GB), but calculating encoding on the fly
+        #   too slow? Does it push through each image in series or does DataLoader make them a batch
+        #   Also have to recalculate each epoch which is slower
+        #self.encoding, self.mask = t5_encode_text(hf_dataset[f"{split}"]['caption'], encoder_name, max_length)
         self.img_transform = img_transform
+        self.encoder_name = encoder_name
+        self.max_length = max_length
 
     def __len__(self):
         return len(self.urls)
@@ -130,17 +139,35 @@ class MinimagenDataset(torch.utils.data.Dataset):
         if img.shape[0] != 3:
             return None
 
-        return {'image': img, 'encoding': self.encoding[idx], 'mask': self.mask[idx]}
+        print(self.captions[idx])
+        encoding, mask = t5_encode_text([self.captions[idx]], self.encoder_name, self.max_length)
+
+        return {'image': img, 'encoding': encoding, 'mask': mask}
 
 def collate(batch):
+    # Filter out None instances or those in which the image could not be fetched
+    batch = list(filter(lambda x: x is not None, batch))
     batch = list(filter(lambda x: x['image'] is not None, batch))
+
+    # Expand mask and encodings to len of elt in batch with greatest number of words
+    max_len = max([batch[i]['mask'].shape[1] for i in range(len(batch))])
+
+    for elt in batch:
+        length = elt['mask'].shape[1]
+        rem = max_len - length
+        elt['mask'] = torch.squeeze(elt['mask'])
+        elt['encoding'] = torch.squeeze(elt['encoding'])
+        if rem > 0:
+            elt['mask'] = F.pad(elt['mask'], (0, rem), 'constant', 0)
+            elt['encoding'] = F.pad(elt['encoding'], (0, 0, 0, rem), 'constant', False)
+
     return torch.utils.data.dataloader.default_collate(batch)
 
 # Constants
 BATCH_SIZE = 4  # Batch size training data
 MAX_NUM_WORDS = 64  # Max number of words allowed in a caption
 IMG_SIDE_LEN = 128  # Side length of the training images/final output image from Imagen
-EPOCHS = 5  # Number of epochs to train from
+EPOCHS = 1  # Number of epochs to train from
 T5_NAME = "t5_small"  # Name of the T5 encoder to use
 TRAIN_VALID_FRAC = 0.5 # TODO: Change to 0.8
 TIMESTEPS = 250
@@ -152,6 +179,7 @@ text_embed_dim = get_encoded_dim(T5_NAME)
 
 # HuggingFace dataset
 dset = load_dataset("conceptual_captions")
+print(sys.getsizeof(dset))
 # Cut down size for testing
 if TESTING:
     num = 16
@@ -171,6 +199,7 @@ if TESTING:
 # Torch train/valid dataset
 dataset_train_valid = MinimagenDataset(dset, max_length=MAX_NUM_WORDS, encoder_name=T5_NAME, train=True,
                                        img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)]))
+print(sys.getsizeof(dataset_train_valid))
 
 # Split into train/valid
 train_size = int(TRAIN_VALID_FRAC * len(dataset_train_valid))
@@ -189,9 +218,13 @@ dl_opts = {'batch_size': BATCH_SIZE, 'shuffle': False, 'num_workers': 0, 'drop_l
 #test_dataloader = nc.SafeDataLoader(nc.SafeDataset(test_dataset), **dl_opts)
 
 
-train_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(train_dataset), **dl_opts)
-valid_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(valid_dataset), **dl_opts)
-test_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(test_dataset), **dl_opts)
+#train_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(train_dataset), **dl_opts)
+#valid_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(valid_dataset), **dl_opts)
+#test_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(test_dataset), **dl_opts)
+
+train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts)
+valid_dataloader = torch.utils.data.DataLoader(valid_dataset, **dl_opts)
+test_dataloader = torch.utils.data.DataLoader(test_dataset, **dl_opts)
 
 # Value min is -0.0461 and max is 1.0819 - should either be in [0,1] or [-1,1]
 #for batch in train_dataloader:
@@ -224,7 +257,8 @@ super_res_unet = Unet(
     attend_at_middle=False
 )
 '''
-base_unet = Unet(
+# Versions used for downloaded state dicts:
+base_unet_params = dict(
     dim=128,
     text_embed_dim=text_embed_dim,
     cond_dim=64,
@@ -234,8 +268,9 @@ base_unet = Unet(
     layer_cross_attns=(False, True),
     attend_at_middle=True
 )
+base_unet = Unet(**base_unet_params)
 
-super_res_unet = Unet(
+super_res_params = dict(
     dim=128,
     text_embed_dim=text_embed_dim,
     cond_dim=512,
@@ -246,24 +281,35 @@ super_res_unet = Unet(
     attend_at_middle=False
 )
 
+super_res_unet = Unet(**super_res_params)
+
 unets = (base_unet, super_res_unet)
 print("Created Unets")
 
 # Create Imagen from Unets
-imagen = Imagen(
-    unets=unets,
+imagen_params = dict(
     image_sizes=(32, 128),
     timesteps=TIMESTEPS,  # has to be at least 20.
     cond_drop_prob=0.1
-).to(device)
+)
+imagen = Imagen(unets=unets, **imagen_params).to(device)
 print("Created Imagen")
 
 optimizer = optim.Adam(imagen.parameters(), lr=OPTIM_LR)
 print("Created optimzer")
 
-best_loss = [9999999 for i in range(len(unets))]
-
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+# Save parameters
+with open(f'base_params_{timestamp}.json', 'w') as f:
+    f.write(json.dumps(base_unet_params))
+with open(f'super_params_{timestamp}.json', 'w') as f:
+    f.write(json.dumps(super_res_params))
+with open(f'imagen_params_{timestamp}.json', 'w') as f:
+    f.write(json.dumps(imagen_params))
+
+# Train
+best_loss = [9999999 for i in range(len(unets))]
 for epoch in range(EPOCHS):
     print(f'\nEPOCH {epoch+1}\n')
 
