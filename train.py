@@ -329,11 +329,11 @@ if not PARAMETERS:
     base_unet_params = dict(
         dim=128,
         text_embed_dim=text_embed_dim,
-        cond_dim=64,
-        dim_mults=(1, 2),
-        num_resnet_blocks=2,
-        layer_attns=(False, True),
-        layer_cross_attns=(False, True),
+        cond_dim=256,
+        dim_mults=(1, 2, 4),
+        num_resnet_blocks=3,
+        layer_attns=(False, True, True),
+        layer_cross_attns=(False, True, True),
         attend_at_middle=True
     )
 
@@ -341,10 +341,10 @@ if not PARAMETERS:
         dim=128,
         text_embed_dim=text_embed_dim,
         cond_dim=512,
-        dim_mults=(1, 2),
-        num_resnet_blocks=(2, 4),
-        layer_attns=(False, True),
-        layer_cross_attns=(False, True),
+        dim_mults=(1, 2, 4),
+        num_resnet_blocks=(2, 4, 8),
+        layer_attns=(False, False, True),
+        layer_cross_attns=(False, False, True),
         attend_at_middle=False
     )
 
