@@ -408,7 +408,7 @@ for epoch in range(EPOCHS):
         for unet_idx in range(len(unets)):
             optimizer.zero_grad()
             loss = imagen(images, text_embeds=encoding, text_masks=mask, unet_number=unet_idx+1)
-            running_train_loss[unet_idx] += loss
+            running_train_loss[unet_idx] += loss.detach()
             loss.backward()
             torch.nn.utils.clip_grad_norm_(imagen.parameters(), 50)
             optimizer.step()
@@ -435,7 +435,7 @@ for epoch in range(EPOCHS):
         mask = vbatch['mask']
 
         for unet_idx in range(len(unets)):
-            running_valid_loss[unet_idx] += imagen(images, text_embeds=encoding, text_masks=mask, unet_number=unet_idx + 1)
+            running_valid_loss[unet_idx] += imagen(images, text_embeds=encoding, text_masks=mask, unet_number=unet_idx + 1).detach()
 
     avg_loss = [i/len(valid_dataloader) for i in running_valid_loss]
     with training_dir():
