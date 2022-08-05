@@ -274,16 +274,6 @@ test_dataset = MinimagenDataset(dset, max_length=MAX_NUM_WORDS, train=False, enc
 # Safe dataloaders
 dl_opts = {'batch_size': BATCH_SIZE, 'shuffle': False, 'num_workers': 0, 'drop_last':True, 'collate_fn':collate}
 
-# Problems with SafeDataLoaders - may need to downgrade to torch 1.2.0
-#train_dataloader = nc.SafeDataLoader(nc.SafeDataset(train_dataset), **dl_opts)
-#valid_dataloader = nc.SafeDataLoader(nc.SafeDataset(valid_dataset), **dl_opts)
-#test_dataloader = nc.SafeDataLoader(nc.SafeDataset(test_dataset), **dl_opts)
-
-
-#train_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(train_dataset), **dl_opts)
-#valid_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(valid_dataset), **dl_opts)
-#test_dataloader = torch.utils.data.DataLoader(nc.SafeDataset(test_dataset), **dl_opts)
-
 train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts)
 valid_dataloader = torch.utils.data.DataLoader(valid_dataset, **dl_opts)
 test_dataloader = torch.utils.data.DataLoader(test_dataset, **dl_opts)
