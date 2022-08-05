@@ -89,7 +89,11 @@ class Rescale:
         elif not len(sample.shape) == 3:
             raise ValueError("Improperly shaped image for rescaling")
 
-        return resize_image_to_square(sample, self.side_length)
+        sample = resize_image_to_square(sample, self.side_length)
+        # Rescaling max push images out of [0,1] range, so have to standardize:
+        sample -= sample.min()
+        sample /= sample.max()
+        return sample
 
 
 def collate(batch):
@@ -271,16 +275,11 @@ train_dataset, valid_dataset = torch.utils.data.random_split(dataset_train_valid
 # Torch test dataset
 test_dataset = MinimagenDataset(dset, max_length=MAX_NUM_WORDS, train=False, encoder_name=T5_NAME,
                                 img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)]))
-# Safe dataloaders
+# Create dataloaders
 dl_opts = {'batch_size': BATCH_SIZE, 'shuffle': False, 'num_workers': 0, 'drop_last':True, 'collate_fn':collate}
-
 train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts)
 valid_dataloader = torch.utils.data.DataLoader(valid_dataset, **dl_opts)
 test_dataloader = torch.utils.data.DataLoader(test_dataset, **dl_opts)
-
-# Value min is -0.0461 and max is 1.0819 - should either be in [0,1] or [-1,1]
-#for batch in train_dataloader:
-#    print(torch.min(batch['image']), torch.max(batch['image']))
 
 # Get device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
