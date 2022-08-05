@@ -9,6 +9,7 @@ from functools import partial
 import io
 import urllib
 from typing import Literal
+from tqdm import tqdm
 
 import datasets
 import PIL.Image
@@ -26,9 +27,6 @@ from minimagen.Imagen import Imagen
 from minimagen.Unet import Unet
 from minimagen.helpers import exists
 from minimagen.t5 import get_encoded_dim, t5_encode_text
-
-
-# TODO: ADD LOGGING THAT KEEPS TRACK OF TRAINING/VALID LOSSES AND TESTING LOSS
 
 USER_AGENT = get_datasets_user_agent()
 
@@ -186,6 +184,23 @@ def create_directory(dir_path):
         os.chdir(original_dir)
     return cm
 
+
+def make_params(parameters_dir):
+    im_params = None
+    unets_params = []
+
+    # Find appropriate files
+    for file in os.listdir(parameters_dir):
+        if file.startswith('imagen'):
+            im_params = file
+        elif file.startswith('unet_'):
+            unets_params.append(file)
+
+    # Make sure UNets params are sorted properly
+    unets_params = sorted(unets_params, key=lambda x: int(x.split('_')[1]))
+
+    return unets_params, im_params
+
 # Training timestamp
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -194,6 +209,7 @@ dir_path = f"./training_{timestamp}"
 training_dir = create_directory(dir_path)
 
 # Optionally hard-code values (will overwrite command-line)
+PARAMETERS = None
 BATCH_SIZE = None
 MAX_NUM_WORDS = None
 IMG_SIDE_LEN = None
@@ -206,6 +222,7 @@ TESTING = True
 
 # Command line argument parser
 parser = ArgumentParser()
+parser.add_argument("-p", "--PARAMETERS", dest="PARAMETERS", help="Parameters directory", default=None)
 parser.add_argument("-b", "--BATCH_SIZE", dest="BATCH_SIZE", help="Batch size", default=8)
 parser.add_argument("-mw", "--MAX_NUM_WORDS", dest="MAX_NUM_WORDS", help="Maximum number of words allowed in a caption", default=64)
 parser.add_argument("-s", "--IMG_SIDE_LEN", dest="IMG_SIDE_LEN", help="Side length of square Imagen output images", default=128)
@@ -308,41 +325,54 @@ super_res_unet = Unet(
     attend_at_middle=False
 )
 '''
-# Versions used for downloaded state dicts:
-base_unet_params = dict(
-    dim=128,
-    text_embed_dim=text_embed_dim,
-    cond_dim=64,
-    dim_mults=(1, 2),
-    num_resnet_blocks=2,
-    layer_attns=(False, True),
-    layer_cross_attns=(False, True),
-    attend_at_middle=True
-)
-base_unet = Unet(**base_unet_params)
+if not PARAMETERS:
+    # Defaults if UNET_PARAMS are not passed in
+    base_unet_params = dict(
+        dim=128,
+        text_embed_dim=text_embed_dim,
+        cond_dim=64,
+        dim_mults=(1, 2),
+        num_resnet_blocks=2,
+        layer_attns=(False, True),
+        layer_cross_attns=(False, True),
+        attend_at_middle=True
+    )
 
-super_res_params = dict(
-    dim=128,
-    text_embed_dim=text_embed_dim,
-    cond_dim=512,
-    dim_mults=(1, 2),
-    num_resnet_blocks=(2, 4),
-    layer_attns=(False, True),
-    layer_cross_attns=(False, True),
-    attend_at_middle=False
-)
+    super_res_params = dict(
+        dim=128,
+        text_embed_dim=text_embed_dim,
+        cond_dim=512,
+        dim_mults=(1, 2),
+        num_resnet_blocks=(2, 4),
+        layer_attns=(False, True),
+        layer_cross_attns=(False, True),
+        attend_at_middle=False
+    )
 
-super_res_unet = Unet(**super_res_params)
+    unets_params = [base_unet_params, super_res_params]
 
-unets = (base_unet, super_res_unet)
+    imagen_params = dict(
+        image_sizes=(32, 128),
+        timesteps=TIMESTEPS,  # has to be at least 20.
+        cond_drop_prob=0.1
+    )
+
+else:
+    unets_params, imagen_params = make_params(PARAMETERS)
+
+    for idx, filepath in enumerate(unets_params):
+        print(filepath)
+        with open(os.path.join(PARAMETERS, f'{filepath}'), 'r') as f:
+            unets_params[idx] = json.loads(f.read())
+
+    with open(os.path.join(PARAMETERS, f'{imagen_params}'), 'r') as f:
+        imagen_params = json.loads(f.read())
+
+# Create Unets
+unets = [Unet(**unet_params) for unet_params in unets_params]
 print("Created Unets")
 
-# Create Imagen from Unets
-imagen_params = dict(
-    image_sizes=(32, 128),
-    timesteps=TIMESTEPS,  # has to be at least 20.
-    cond_drop_prob=0.1
-)
+# Create Imagen from UNets with specified parameters
 imagen = Imagen(unets=unets, **imagen_params).to(device)
 print("Created Imagen")
 
@@ -351,48 +381,59 @@ print("Created optimzer")
 
 # Save parameters
 with training_dir("parameters"):
-    with open(f'base_params_{timestamp}.json', 'w') as f:
-        json.dump(base_unet_params, f, indent=4)
-    with open(f'super_params_{timestamp}.json', 'w') as f:
-        json.dump(super_res_params, f, indent=4)
+    for idx, param in enumerate(unets_params):
+        with open(f'unet_{idx}_params_{timestamp}.json', 'w') as f:
+            json.dump(param, f, indent=4)
     with open(f'imagen_params_{timestamp}.json', 'w') as f:
         json.dump(imagen_params, f, indent=4)
 
 # Train
 best_loss = [9999999 for i in range(len(unets))]
 for epoch in range(EPOCHS):
-    print(f'\nEPOCH {epoch+1}\n')
+    print(f'\n{"-"*20} Epoch {epoch+1} {"-"*20}')
+    with training_dir():
+        with open('training_progess.txt', 'a') as f:
+            f.write(f'EPOCH {epoch+1}\n\n' if epoch==0 else f'\n\n\nEPOCH {epoch+1}\n\n')
 
     imagen.train(True)
 
-    avg_loss = None
-    for batch in train_dataloader:
+    running_train_loss = [0. for i in range(len(unets))]
+    print('Training...')
+    for batch in tqdm(train_dataloader):
         images = batch['image']
         encoding = batch['encoding']
         mask = batch['mask']
 
         losses = [0. for i in range(len(unets))]
         for unet_idx in range(len(unets)):
-            torch.cuda.empty_cache()
             optimizer.zero_grad()
             loss = imagen(images, text_embeds=encoding, text_masks=mask, unet_number=unet_idx+1)
-            losses[unet_idx] += loss
+            running_train_loss[unet_idx] += loss
             loss.backward()
             torch.nn.utils.clip_grad_norm_(imagen.parameters(), 50)
             optimizer.step()
-        print(f'LOSSES: {losses}')
+
+    avg_loss = [i / len(train_dataloader) for i in running_train_loss]
+    with training_dir():
+        with open('training_progess.txt', 'a') as f:
+            f.write(f'U-Nets Avg Train Losses: {epoch + 1}\n')
 
     # Compute average loss across validation batches for each unet
-    running_vloss = [0. for i in range(len(unets))]
+    running_valid_loss = [0. for i in range(len(unets))]
     imagen.train(False)
-    for vbatch in valid_dataloader:
-        for unet_idx in range(len(unets)):
-            vimages = vbatch['image']
-            vencoding = vbatch['encoding']
-            vmask = vbatch['mask']
+    print('Validating...')
+    for vbatch in tqdm(valid_dataloader):
+        images = vbatch['image']
+        encoding = vbatch['encoding']
+        mask = vbatch['mask']
 
-            running_vloss[unet_idx] += imagen(vimages, text_embeds=vencoding, text_masks=vmask, unet_number=unet_idx + 1)
-    avg_loss = [i/len(valid_dataloader) for i in running_vloss]
+        for unet_idx in range(len(unets)):
+            running_valid_loss[unet_idx] += imagen(images, text_embeds=encoding, text_masks=mask, unet_number=unet_idx + 1)
+
+    avg_loss = [i/len(valid_dataloader) for i in running_valid_loss]
+    with training_dir():
+        with open('training_progess.txt', 'a') as f:
+            f.write(f'U-Nets Avg Valid Losses: {epoch + 1}\n')
 
     # If validation loss less than previous best, save the model weights
     for i, l in enumerate(avg_loss):
@@ -403,12 +444,3 @@ for epoch in range(EPOCHS):
                 model_path = f"imagen_{timestamp}_{i}_{epoch+1}_{l:.3f}.pth"
                 torch.save(imagen.unets[i].state_dict(), model_path)
 
-
-# Generate images with "trained" model
-#print("Sampling from Imagen...")
-#images = imagen.sample(texts=CAPTIONS, cond_scale=3., return_pil_images=True)
-
-# Save output PIL images
-#print("Saving Images")
-#for idx, img in enumerate(images):
-#    img.save(f'Generated_Image_{idx}.png')
