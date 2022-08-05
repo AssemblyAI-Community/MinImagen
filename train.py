@@ -218,7 +218,7 @@ T5_NAME = None
 TRAIN_VALID_FRAC = None
 TIMESTEPS = None
 OPTIM_LR = None
-TESTING = True
+TESTING = None
 
 # Command line argument parser
 parser = ArgumentParser()
