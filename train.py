@@ -218,7 +218,7 @@ T5_NAME = None
 TRAIN_VALID_FRAC = None
 TIMESTEPS = None
 OPTIM_LR = None
-TESTING = None
+TESTING = True
 
 # Command line argument parser
 parser = ArgumentParser()
@@ -261,7 +261,7 @@ if TESTING:
     MAX_NUM_WORDS = 32
     IMG_SIDE_LEN = 128
     EPOCHS = 2
-    T5_NAME = 't5_small'
+    T5_NAME = 't5_base'
     TRAIN_VALID_FRAC = 0.5
     TIMESTEPS = 25  # Do not make less than 20
     OPTIM_LR = 0.0001
@@ -353,7 +353,8 @@ if not PARAMETERS:
     imagen_params = dict(
         image_sizes=(32, 128),
         timesteps=TIMESTEPS,  # has to be at least 20.
-        cond_drop_prob=0.1
+        cond_drop_prob=0.1,
+        text_encoder_name=T5_NAME
     )
 
 else:
@@ -416,7 +417,7 @@ for epoch in range(EPOCHS):
         if batch_num % (len(train_dataloader)*0.10) == 0:
             with training_dir("tmp"):
                 for idx in range(len(unets_params)):
-                    model_path = f"unet_{idx}_{len(train_dataloader)*0.10}_percent.pth"
+                    model_path = f"unet_{idx}_{int(batch_num/len(train_dataloader))*100}_percent.pth"
                     torch.save(imagen.unets[idx].state_dict(), model_path)
 
     avg_loss = [i / len(train_dataloader) for i in running_train_loss]
