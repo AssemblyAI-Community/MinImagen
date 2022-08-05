@@ -389,10 +389,10 @@ with training_dir("parameters"):
 # Train
 best_loss = [9999999 for i in range(len(unets))]
 for epoch in range(EPOCHS):
-    print(f'\n{"-"*20} Epoch {epoch+1} {"-"*20}')
+    print(f'\n{"-"*20} EPOCH {epoch+1} {"-"*20}')
     with training_dir():
         with open('training_progess.txt', 'a') as f:
-            f.write(f'EPOCH {epoch+1}\n\n' if epoch==0 else f'\n\n\nEPOCH {epoch+1}\n\n')
+            f.write(f'{"-"*20} EPOCH {epoch+1} {"-"*20}\n')
 
     imagen.train(True)
 
@@ -415,7 +415,7 @@ for epoch in range(EPOCHS):
     avg_loss = [i / len(train_dataloader) for i in running_train_loss]
     with training_dir():
         with open('training_progess.txt', 'a') as f:
-            f.write(f'U-Nets Avg Train Losses: {epoch + 1}\n')
+            f.write(f'U-Nets Avg Train Losses: {[round(i.item(), 3) for i in avg_loss]}\n')
 
     # Compute average loss across validation batches for each unet
     running_valid_loss = [0. for i in range(len(unets))]
@@ -432,7 +432,7 @@ for epoch in range(EPOCHS):
     avg_loss = [i/len(valid_dataloader) for i in running_valid_loss]
     with training_dir():
         with open('training_progess.txt', 'a') as f:
-            f.write(f'U-Nets Avg Valid Losses: {epoch + 1}\n')
+            f.write(f'U-Nets Avg Valid Losses: {[round(i.item(), 3) for i in avg_loss]}\n\n')
 
     # If validation loss less than previous best, save the model weights
     for i, l in enumerate(avg_loss):
