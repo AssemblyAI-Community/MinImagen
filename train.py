@@ -217,16 +217,16 @@ T5_NAME = None
 TRAIN_VALID_FRAC = None
 TIMESTEPS = None
 OPTIM_LR = None
-TESTING = True
+TESTING = None
 
 # Command line argument parser
 parser = ArgumentParser()
 parser.add_argument("-p", "--PARAMETERS", dest="PARAMETERS", help="Parameters directory", default=None)
-parser.add_argument("-b", "--BATCH_SIZE", dest="BATCH_SIZE", help="Batch size", default=8)
+parser.add_argument("-b", "--BATCH_SIZE", dest="BATCH_SIZE", help="Batch size", default=16)
 parser.add_argument("-mw", "--MAX_NUM_WORDS", dest="MAX_NUM_WORDS", help="Maximum number of words allowed in a caption", default=64)
 parser.add_argument("-s", "--IMG_SIDE_LEN", dest="IMG_SIDE_LEN", help="Side length of square Imagen output images", default=128)
 parser.add_argument("-e", "--EPOCHS", dest="EPOCHS", help="Number of training epochs", default=5)
-parser.add_argument("-t5", "--T5_NAME", dest="T5_NAME", help="Name of T5 encoder to use", default='t5_small')
+parser.add_argument("-t5", "--T5_NAME", dest="T5_NAME", help="Name of T5 encoder to use", default='t5_base')
 parser.add_argument("-f", "--TRAIN_VALID_FRAC", dest="TRAIN_VALID_FRAC", help="Fraction of dataset to use for training (vs. validation)", default=0.8)
 parser.add_argument("-t", "--TIMESTEPS", dest="TIMESTEPS", help="Number of timesteps in Diffusion process", default=1000)
 parser.add_argument("-lr", "--OPTIM_LR", dest="OPTIM_LR", help="Learning rate for Adam optimizer", default=0.0001)
@@ -241,10 +241,9 @@ for i in args.__dict__.keys():
     else:
         vars()[i] = getattr(args, i)
 
-# Save the training parameters if not testing
-if not TESTING:
-    with training_dir("parameters"):
-        with open(f"training_parameters_{timestamp}.txt", "w") as f:
+# Save the training parameters
+with training_dir("parameters"):
+    with open(f"training_parameters_{timestamp}.txt", "w") as f:
             for i in args.__dict__.keys():
                 f.write(f'--{i}={vars()[i]}\n')
 
@@ -440,6 +439,6 @@ for epoch in range(EPOCHS):
         if l < best_loss[i]:
             best_loss[i] = l
             with training_dir("state_dicts"):
-                model_path = f"imagen_{timestamp}_{i}_{epoch+1}_{l:.3f}.pth"
+                model_path = f"unet_{i}_state_{timestamp}_epoch_{epoch+1}_{l:.3f}.pth"
                 torch.save(imagen.unets[i].state_dict(), model_path)
 
