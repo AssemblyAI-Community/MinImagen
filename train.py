@@ -1,6 +1,5 @@
 import json
 import os
-import sys
 from argparse import ArgumentParser
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
