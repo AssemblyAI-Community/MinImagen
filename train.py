@@ -175,6 +175,7 @@ def create_directory(dir_path):
         os.makedirs(dir_path)
         os.makedirs(os.path.join(dir_path, "parameters"))
         os.makedirs(os.path.join(dir_path, "state_dicts"))
+        os.makedirs(os.path.join(dir_path, "tmp"))
 
     @contextmanager
     def cm(subpath=""):
@@ -397,7 +398,7 @@ for epoch in range(EPOCHS):
 
     running_train_loss = [0. for i in range(len(unets))]
     print('Training...')
-    for batch in tqdm(train_dataloader):
+    for batch_num, batch in tqdm(enumerate(train_dataloader)):
         images = batch['image']
         encoding = batch['encoding']
         mask = batch['mask']
@@ -410,6 +411,13 @@ for epoch in range(EPOCHS):
             loss.backward()
             torch.nn.utils.clip_grad_norm_(imagen.parameters(), 50)
             optimizer.step()
+
+        # Every 10% of the way through epoch, save states in case of training failure
+        if batch_num % (len(train_dataloader)*0.10) == 0:
+            with training_dir("tmp"):
+                for idx in range(len(unets_params)):
+                    model_path = f"unet_{idx}_{len(train_dataloader)*0.10}_percent.pth"
+                    torch.save(imagen.unets[idx].state_dict(), model_path)
 
     avg_loss = [i / len(train_dataloader) for i in running_train_loss]
     with training_dir():
