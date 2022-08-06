@@ -287,7 +287,7 @@ if TESTING:
 
 # Torch train/valid dataset
 dataset_train_valid = MinimagenDataset(dset, max_length=MAX_NUM_WORDS, encoder_name=T5_NAME, train=True,
-                                       img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)]))
+                                       img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)])).to(device)
 
 # Split into train/valid
 train_size = int(TRAIN_VALID_FRAC * len(dataset_train_valid))
@@ -296,12 +296,7 @@ train_dataset, valid_dataset = torch.utils.data.random_split(dataset_train_valid
 
 # Torch test dataset
 test_dataset = MinimagenDataset(dset, max_length=MAX_NUM_WORDS, train=False, encoder_name=T5_NAME,
-                                img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)]))
-
-# Put on proper device
-train_dataset = train_dataset.to(device)
-valid_dataset = valid_dataset.to(device)
-test_dataset = test_dataset.to(device)
+                                img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)])).to(device)
 
 # Create dataloaders
 dl_opts = {'batch_size': BATCH_SIZE, 'shuffle': False, 'num_workers': NUM_WORKERS, 'drop_last':True, 'collate_fn':collate}
