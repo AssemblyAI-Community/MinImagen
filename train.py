@@ -261,20 +261,10 @@ for i in args.__dict__.keys():
     else:
         vars()[i] = getattr(args, i)
 
-# Save the training parameters
-with training_dir("parameters"):
-    with open(f"training_parameters_{timestamp}.txt", "w") as f:
-            for i in args.__dict__.keys():
-                f.write(f'--{i}={vars()[i]}\n')
-
-
-# Get encoding dimension of the text encoder
-text_embed_dim = get_encoded_dim(T5_NAME)
-
 # HuggingFace dataset
 dset = load_dataset("conceptual_captions")
 
-# If testing, lower parameter values for lower computational load
+# If testing, lower parameter values for lower computational load and also lower amount of data being used.
 if TESTING:
     BATCH_SIZE = 2
     MAX_NUM_WORDS = 32
@@ -297,6 +287,12 @@ if TESTING:
         'validation':{
             'image_url': ti,
             'caption': tc,}, 'num_rows':num}
+
+# Save the training parameters
+with training_dir("parameters"):
+    with open(f"training_parameters_{timestamp}.txt", "w") as f:
+        for i in args.__dict__.keys():
+            f.write(f'--{i}={vars()[i]}\n')
 
 # Torch train/valid dataset
 dataset_train_valid = MinimagenDataset(dset, max_length=MAX_NUM_WORDS, encoder_name=T5_NAME, train=True,
@@ -321,6 +317,9 @@ dl_opts = {'batch_size': BATCH_SIZE,
 train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts)
 valid_dataloader = torch.utils.data.DataLoader(valid_dataset, **dl_opts)
 test_dataloader = torch.utils.data.DataLoader(test_dataset, **dl_opts)
+
+# Get encoding dimension of the text encoder
+text_embed_dim = get_encoded_dim(T5_NAME)
 
 # Create Unets
 '''
