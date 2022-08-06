@@ -111,7 +111,9 @@ def collate(batch):
             elt['encoding'] = F.pad(elt['encoding'], (0, 0, 0, rem), 'constant', False)
 
     # TODO: Should really be passing in `device` - find a more elegant way to do this
-    batch = batch.to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
+    for didx, datum in enumerate(batch):
+        for tensor in datum.keys():
+            batch[didx][tensor] = batch[didx][tensor].to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
 
     return torch.utils.data.dataloader.default_collate(batch)
 
@@ -226,7 +228,7 @@ T5_NAME = None
 TRAIN_VALID_FRAC = None
 TIMESTEPS = None
 OPTIM_LR = None
-TESTING = None
+TESTING = True
 
 # Command line argument parser
 parser = ArgumentParser()
