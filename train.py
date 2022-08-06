@@ -201,6 +201,10 @@ def make_params(parameters_dir):
 
     return unets_params, im_params
 
+
+# Get device
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 # Training timestamp
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -210,6 +214,7 @@ training_dir = create_directory(dir_path)
 
 # Optionally hard-code values (will overwrite command-line)
 PARAMETERS = None
+NUM_WORKERS = None
 BATCH_SIZE = None
 MAX_NUM_WORDS = None
 IMG_SIDE_LEN = None
@@ -223,6 +228,7 @@ TESTING = None
 # Command line argument parser
 parser = ArgumentParser()
 parser.add_argument("-p", "--PARAMETERS", dest="PARAMETERS", help="Parameters directory", default=None)
+parser.add_argument("-n", "--NUM_WORKERS", dest="NUM_WORKERS", help="Number of workers for DataLoader", default=0)
 parser.add_argument("-b", "--BATCH_SIZE", dest="BATCH_SIZE", help="Batch size", default=16)
 parser.add_argument("-mw", "--MAX_NUM_WORDS", dest="MAX_NUM_WORDS", help="Maximum number of words allowed in a caption", default=64)
 parser.add_argument("-s", "--IMG_SIDE_LEN", dest="IMG_SIDE_LEN", help="Side length of square Imagen output images", default=128)
@@ -292,13 +298,10 @@ train_dataset, valid_dataset = torch.utils.data.random_split(dataset_train_valid
 test_dataset = MinimagenDataset(dset, max_length=MAX_NUM_WORDS, train=False, encoder_name=T5_NAME,
                                 img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)]))
 # Create dataloaders
-dl_opts = {'batch_size': BATCH_SIZE, 'shuffle': False, 'num_workers': 0, 'drop_last':True, 'collate_fn':collate}
-train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts)
-valid_dataloader = torch.utils.data.DataLoader(valid_dataset, **dl_opts)
-test_dataloader = torch.utils.data.DataLoader(test_dataset, **dl_opts)
-
-# Get device
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+dl_opts = {'batch_size': BATCH_SIZE, 'shuffle': False, 'num_workers': NUM_WORKERS, 'drop_last':True, 'collate_fn':collate}
+train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts).to(device)
+valid_dataloader = torch.utils.data.DataLoader(valid_dataset, **dl_opts).to(device)
+test_dataloader = torch.utils.data.DataLoader(test_dataset, **dl_opts).to(device)
 
 # Create Unets
 '''
