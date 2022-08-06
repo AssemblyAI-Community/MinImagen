@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.0.4'
+VERSION = '0.0.5'
 DESCRIPTION = 'Minimal Imagen text-to-image model implementation'
 
 with open('requirements.txt') as f:
@@ -15,7 +15,15 @@ setup(
     description=DESCRIPTION,
     packages=find_packages(),
     install_requires=required,
-    keywords=['python', 'imagen', 'text-to-image', 'diffusion model', 'super resolution', 'image generation', 'machine learning', 'deep learning'],
+    keywords=[ 'imagen',
+              'text-to-image',
+              'diffusion model',
+              'super resolution',
+              'image generation',
+              'machine learning',
+              'deep learning',
+              'pytorch',
+              'python'],
     classifiers=[
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3",
