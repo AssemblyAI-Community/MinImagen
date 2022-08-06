@@ -232,6 +232,7 @@ T5_NAME = None
 TRAIN_VALID_FRAC = None
 TIMESTEPS = None
 OPTIM_LR = None
+ACCUM_ITER = None
 TESTING = None
 
 # Command line argument parser
@@ -246,6 +247,7 @@ parser.add_argument("-t5", "--T5_NAME", dest="T5_NAME", help="Name of T5 encoder
 parser.add_argument("-f", "--TRAIN_VALID_FRAC", dest="TRAIN_VALID_FRAC", help="Fraction of dataset to use for training (vs. validation)", default=0.8, type=float)
 parser.add_argument("-t", "--TIMESTEPS", dest="TIMESTEPS", help="Number of timesteps in Diffusion process", default=1000, type=int)
 parser.add_argument("-lr", "--OPTIM_LR", dest="OPTIM_LR", help="Learning rate for Adam optimizer", default=0.0001, type=float)
+parser.add_argument("-ai", "--ACCUM_ITER", dest="ACCUM_ITER", help="Number of batches gor gradient accumulation", default=1, type=int)
 parser.add_argument("-test", "--TESTING", dest="TESTING", help="Whether to test with smaller dataset", default=False, type=bool)
 args = parser.parse_args()
 
@@ -440,13 +442,16 @@ for epoch in range(EPOCHS):
         mask = batch['mask']
 
         losses = [0. for i in range(len(unets))]
-        optimizer.zero_grad()
         for unet_idx in range(len(unets)):
             loss = imagen(images, text_embeds=encoding, text_masks=mask, unet_number=unet_idx+1)
             running_train_loss[unet_idx] += loss.detach()
             loss.backward()
             torch.nn.utils.clip_grad_norm_(imagen.parameters(), 50)
-        optimizer.step()
+
+        # Gradient accumulation optimizer step (first bool for logical short-circuiting)
+        if ACCUM_ITER == 1 or (batch_num % ACCUM_ITER == 0) or (batch_num + 1 == len(train_dataloader)):
+            optimizer.step()
+            optimizer.zero_grad()
 
         # Every 10% of the way through epoch, save states in case of training failure
         if batch_num % (len(train_dataloader)*0.10) == 0:
