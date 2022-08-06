@@ -232,17 +232,17 @@ TESTING = None
 
 # Command line argument parser
 parser = ArgumentParser()
-parser.add_argument("-p", "--PARAMETERS", dest="PARAMETERS", help="Parameters directory", default=None)
-parser.add_argument("-n", "--NUM_WORKERS", dest="NUM_WORKERS", help="Number of workers for DataLoader", default=0)
-parser.add_argument("-b", "--BATCH_SIZE", dest="BATCH_SIZE", help="Batch size", default=16)
-parser.add_argument("-mw", "--MAX_NUM_WORDS", dest="MAX_NUM_WORDS", help="Maximum number of words allowed in a caption", default=64)
-parser.add_argument("-s", "--IMG_SIDE_LEN", dest="IMG_SIDE_LEN", help="Side length of square Imagen output images", default=128)
-parser.add_argument("-e", "--EPOCHS", dest="EPOCHS", help="Number of training epochs", default=5)
-parser.add_argument("-t5", "--T5_NAME", dest="T5_NAME", help="Name of T5 encoder to use", default='t5_base')
-parser.add_argument("-f", "--TRAIN_VALID_FRAC", dest="TRAIN_VALID_FRAC", help="Fraction of dataset to use for training (vs. validation)", default=0.8)
-parser.add_argument("-t", "--TIMESTEPS", dest="TIMESTEPS", help="Number of timesteps in Diffusion process", default=1000)
-parser.add_argument("-lr", "--OPTIM_LR", dest="OPTIM_LR", help="Learning rate for Adam optimizer", default=0.0001)
-parser.add_argument("-test", "--TESTING", dest="TESTING", help="Whether to test with smaller dataset", default=False)
+parser.add_argument("-p", "--PARAMETERS", dest="PARAMETERS", help="Parameters directory", default=None, type=str)
+parser.add_argument("-n", "--NUM_WORKERS", dest="NUM_WORKERS", help="Number of workers for DataLoader", default=0, type=int)
+parser.add_argument("-b", "--BATCH_SIZE", dest="BATCH_SIZE", help="Batch size", default=16, type=int)
+parser.add_argument("-mw", "--MAX_NUM_WORDS", dest="MAX_NUM_WORDS", help="Maximum number of words allowed in a caption", default=64, type=int)
+parser.add_argument("-s", "--IMG_SIDE_LEN", dest="IMG_SIDE_LEN", help="Side length of square Imagen output images", default=128, type=int)
+parser.add_argument("-e", "--EPOCHS", dest="EPOCHS", help="Number of training epochs", default=5, type=int)
+parser.add_argument("-t5", "--T5_NAME", dest="T5_NAME", help="Name of T5 encoder to use", default='t5_base', type=str)
+parser.add_argument("-f", "--TRAIN_VALID_FRAC", dest="TRAIN_VALID_FRAC", help="Fraction of dataset to use for training (vs. validation)", default=0.8, type=float)
+parser.add_argument("-t", "--TIMESTEPS", dest="TIMESTEPS", help="Number of timesteps in Diffusion process", default=1000, type=int)
+parser.add_argument("-lr", "--OPTIM_LR", dest="OPTIM_LR", help="Learning rate for Adam optimizer", default=0.0001, type=float)
+parser.add_argument("-test", "--TESTING", dest="TESTING", help="Whether to test with smaller dataset", default=False, type=bool)
 args = parser.parse_args()
 
 # For each command-line argument, replace with hard-coded value if it exists
