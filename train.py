@@ -233,6 +233,7 @@ TRAIN_VALID_FRAC = None
 TIMESTEPS = None
 OPTIM_LR = None
 ACCUM_ITER = None
+CHCKPT_FRAC = None
 TESTING = None
 
 # Command line argument parser
@@ -247,7 +248,8 @@ parser.add_argument("-t5", "--T5_NAME", dest="T5_NAME", help="Name of T5 encoder
 parser.add_argument("-f", "--TRAIN_VALID_FRAC", dest="TRAIN_VALID_FRAC", help="Fraction of dataset to use for training (vs. validation)", default=0.8, type=float)
 parser.add_argument("-t", "--TIMESTEPS", dest="TIMESTEPS", help="Number of timesteps in Diffusion process", default=1000, type=int)
 parser.add_argument("-lr", "--OPTIM_LR", dest="OPTIM_LR", help="Learning rate for Adam optimizer", default=0.0001, type=float)
-parser.add_argument("-ai", "--ACCUM_ITER", dest="ACCUM_ITER", help="Number of batches gor gradient accumulation", default=1, type=int)
+parser.add_argument("-ai", "--ACCUM_ITER", dest="ACCUM_ITER", help="Number of batches for gradient accumulation", default=1, type=int)
+parser.add_argument("-cf", "--CHCKPT_FRAC", dest="CHCKPT_FRAC", help="Percentage of way through training epoch to checkpoint at", default=0.1, type=float)
 parser.add_argument("-test", "--TESTING", dest="TESTING", help="Whether to test with smaller dataset", default=False, type=bool)
 args = parser.parse_args()
 
@@ -454,7 +456,7 @@ for epoch in range(EPOCHS):
             optimizer.zero_grad()
 
         # Every 10% of the way through epoch, save states in case of training failure
-        if batch_num % (len(train_dataloader)*0.10) == 0:
+        if batch_num % (len(train_dataloader)*CHCKPT_FRAC) == 0:
             with training_dir("tmp"):
                 for idx in range(len(unets_params)):
                     model_path = f"unet_{idx}_{int(batch_num/len(train_dataloader))*100}_percent.pth"
