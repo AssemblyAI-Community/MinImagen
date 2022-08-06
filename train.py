@@ -98,6 +98,10 @@ def collate(batch):
     batch = list(filter(lambda x: x is not None, batch))
     batch = list(filter(lambda x: x['image'] is not None, batch))
 
+    # If the batch is empty after filtering
+    if not batch:
+        return None
+
     # Expand mask and encodings to len of elt in batch with greatest number of words
     max_len = max([batch[i]['mask'].shape[1] for i in range(len(batch))])
 
@@ -234,7 +238,7 @@ TESTING = None
 parser = ArgumentParser()
 parser.add_argument("-p", "--PARAMETERS", dest="PARAMETERS", help="Parameters directory", default=None, type=str)
 parser.add_argument("-n", "--NUM_WORKERS", dest="NUM_WORKERS", help="Number of workers for DataLoader", default=0, type=int)
-parser.add_argument("-b", "--BATCH_SIZE", dest="BATCH_SIZE", help="Batch size", default=16, type=int)
+parser.add_argument("-b", "--BATCH_SIZE", dest="BATCH_SIZE", help="Batch size", default=2, type=int)
 parser.add_argument("-mw", "--MAX_NUM_WORDS", dest="MAX_NUM_WORDS", help="Maximum number of words allowed in a caption", default=64, type=int)
 parser.add_argument("-s", "--IMG_SIDE_LEN", dest="IMG_SIDE_LEN", help="Side length of square Imagen output images", default=128, type=int)
 parser.add_argument("-e", "--EPOCHS", dest="EPOCHS", help="Number of training epochs", default=5, type=int)
@@ -268,7 +272,7 @@ dset = load_dataset("conceptual_captions")
 
 # If testing, lower parameter values for lower computational load
 if TESTING:
-    BATCH_SIZE = 4
+    BATCH_SIZE = 2
     MAX_NUM_WORDS = 32
     IMG_SIDE_LEN = 128
     EPOCHS = 2
@@ -427,6 +431,10 @@ for epoch in range(EPOCHS):
     running_train_loss = [0. for i in range(len(unets))]
     print('Training...')
     for batch_num, batch in tqdm(enumerate(train_dataloader)):
+        # If batch is empty, move on to the next one
+        if not batch:
+            continue
+
         images = batch['image']
         encoding = batch['encoding']
         mask = batch['mask']
@@ -457,6 +465,10 @@ for epoch in range(EPOCHS):
     imagen.train(False)
     print('Validating...')
     for vbatch in tqdm(valid_dataloader):
+        # If batch is empty, move on to the next one
+        if not batch:
+            continue
+
         images = vbatch['image']
         encoding = vbatch['encoding']
         mask = vbatch['mask']
