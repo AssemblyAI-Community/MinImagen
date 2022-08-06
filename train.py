@@ -110,6 +110,9 @@ def collate(batch):
             elt['mask'] = F.pad(elt['mask'], (0, rem), 'constant', 0)
             elt['encoding'] = F.pad(elt['encoding'], (0, 0, 0, rem), 'constant', False)
 
+    # TODO: Should really be passing in `device` - find a more elegant way to do this
+    batch = batch.to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
+
     return torch.utils.data.dataloader.default_collate(batch)
 
 
@@ -287,7 +290,7 @@ if TESTING:
 
 # Torch train/valid dataset
 dataset_train_valid = MinimagenDataset(dset, max_length=MAX_NUM_WORDS, encoder_name=T5_NAME, train=True,
-                                       img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)])).to(device)
+                                       img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)]))
 
 # Split into train/valid
 train_size = int(TRAIN_VALID_FRAC * len(dataset_train_valid))
@@ -296,10 +299,15 @@ train_dataset, valid_dataset = torch.utils.data.random_split(dataset_train_valid
 
 # Torch test dataset
 test_dataset = MinimagenDataset(dset, max_length=MAX_NUM_WORDS, train=False, encoder_name=T5_NAME,
-                                img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)])).to(device)
+                                img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)]))
 
 # Create dataloaders
-dl_opts = {'batch_size': BATCH_SIZE, 'shuffle': False, 'num_workers': NUM_WORKERS, 'drop_last':True, 'collate_fn':collate}
+dl_opts = {'batch_size': BATCH_SIZE,
+           'shuffle': False,
+           'num_workers': NUM_WORKERS,
+           'drop_last':True,
+           'collate_fn':collate}
+
 train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts)
 valid_dataloader = torch.utils.data.DataLoader(valid_dataset, **dl_opts)
 test_dataloader = torch.utils.data.DataLoader(test_dataset, **dl_opts)
