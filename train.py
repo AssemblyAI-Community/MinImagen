@@ -228,7 +228,7 @@ T5_NAME = None
 TRAIN_VALID_FRAC = None
 TIMESTEPS = None
 OPTIM_LR = None
-TESTING = True
+TESTING = None
 
 # Command line argument parser
 parser = ArgumentParser()
@@ -419,13 +419,13 @@ for epoch in range(EPOCHS):
         mask = batch['mask']
 
         losses = [0. for i in range(len(unets))]
+        optimizer.zero_grad()
         for unet_idx in range(len(unets)):
-            optimizer.zero_grad()
             loss = imagen(images, text_embeds=encoding, text_masks=mask, unet_number=unet_idx+1)
             running_train_loss[unet_idx] += loss.detach()
             loss.backward()
             torch.nn.utils.clip_grad_norm_(imagen.parameters(), 50)
-            optimizer.step()
+        optimizer.step()
 
         # Every 10% of the way through epoch, save states in case of training failure
         if batch_num % (len(train_dataloader)*0.10) == 0:
