@@ -392,7 +392,7 @@ print("Created Unets")
 imagen = Imagen(unets=unets, **imagen_params).to(device)
 print("Created Imagen")
 
-optimizer = optim.Adam(imagen.parameters(), lr=OPTIM_LR).to(device)
+optimizer = optim.Adam(imagen.parameters(), lr=OPTIM_LR)
 print("Created optimzer")
 
 # Save parameters
