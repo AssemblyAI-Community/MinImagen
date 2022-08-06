@@ -297,11 +297,17 @@ train_dataset, valid_dataset = torch.utils.data.random_split(dataset_train_valid
 # Torch test dataset
 test_dataset = MinimagenDataset(dset, max_length=MAX_NUM_WORDS, train=False, encoder_name=T5_NAME,
                                 img_transform=Compose([ToTensor(), Rescale(IMG_SIDE_LEN)]))
+
+# Put on proper device
+train_dataset = train_dataset.to(device)
+valid_dataset = valid_dataset.to(device)
+test_dataset = test_dataset.to(device)
+
 # Create dataloaders
 dl_opts = {'batch_size': BATCH_SIZE, 'shuffle': False, 'num_workers': NUM_WORKERS, 'drop_last':True, 'collate_fn':collate}
-train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts).to(device)
-valid_dataloader = torch.utils.data.DataLoader(valid_dataset, **dl_opts).to(device)
-test_dataloader = torch.utils.data.DataLoader(test_dataset, **dl_opts).to(device)
+train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts)
+valid_dataloader = torch.utils.data.DataLoader(valid_dataset, **dl_opts)
+test_dataloader = torch.utils.data.DataLoader(test_dataset, **dl_opts)
 
 # Create Unets
 '''
