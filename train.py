@@ -390,6 +390,19 @@ print("Created Unets")
 imagen = Imagen(unets=unets, **imagen_params).to(device)
 print("Created Imagen")
 
+param_size = 0
+for param in imagen.parameters():
+    param_size += param.nelement() * param.element_size()
+buffer_size = 0
+for buffer in imagen.buffers():
+    buffer_size += buffer.nelement() * buffer.element_size()
+
+size_all_mb = (param_size + buffer_size) / 1024**2
+
+with training_dir():
+    with open('training_progess.txt', 'a') as f:
+        f.write(f'model size: {size_all_mb:.3f}MB\n\n\n')
+
 optimizer = optim.Adam(imagen.parameters(), lr=OPTIM_LR)
 print("Created optimzer")
 
@@ -464,4 +477,3 @@ for epoch in range(EPOCHS):
             with training_dir("state_dicts"):
                 model_path = f"unet_{i}_state_{timestamp}_epoch_{epoch+1}_{l:.3f}.pth"
                 torch.save(imagen.unets[i].state_dict(), model_path)
-
