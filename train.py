@@ -113,7 +113,9 @@ def collate(batch):
     # TODO: Should really be passing in `device` - find a more elegant way to do this
     for didx, datum in enumerate(batch):
         for tensor in datum.keys():
+            print(torch.cuda.is_available())
             batch[didx][tensor] = batch[didx][tensor].to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
+            print(batch[didx][tensor].device)
 
     return torch.utils.data.dataloader.default_collate(batch)
 
@@ -383,7 +385,7 @@ else:
         imagen_params = json.loads(f.read())
 
 # Create Unets
-unets = [Unet(**unet_params) for unet_params in unets_params]
+unets = [Unet(**unet_params).to(device) for unet_params in unets_params]
 print("Created Unets")
 
 # Create Imagen from UNets with specified parameters
