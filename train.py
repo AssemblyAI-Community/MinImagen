@@ -64,7 +64,11 @@ class MinimagenDataset(torch.utils.data.Dataset):
             return None
         elif self.img_transform:
             img = self.img_transform(img)
-        if img.shape[0] != 3:
+
+        # Have to check None again because `Resize` transform can return None
+        if img is None:
+            return None
+        elif img.shape[0] != 3:
             return None
 
         enc, msk = t5_encode_text([self.captions[idx]], self.encoder_name, self.max_length)
