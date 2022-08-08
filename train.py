@@ -87,6 +87,11 @@ class Rescale:
             raise ValueError("Improperly shaped image for rescaling")
 
         sample = resize_image_to_square(sample, self.side_length)
+
+        # If there was an error in the resizing, return None
+        if not sample:
+            return None
+
         # Rescaling max push images out of [0,1] range, so have to standardize:
         sample -= sample.min()
         sample /= sample.max()
@@ -167,7 +172,10 @@ def resize_image_to_square(image: torch.tensor,
         return image
 
     scale_factors = (target_image_size / h_scale, target_image_size / w_scale)
-    out = resize(image, scale_factors=scale_factors, pad_mode=pad_mode)
+    try:
+        out = resize(image, scale_factors=scale_factors, pad_mode=pad_mode)
+    except:
+        return None
 
     if exists(clamp_range):
         out = out.clamp(*clamp_range)
@@ -181,6 +189,7 @@ def create_directory(dir_path):
     """
     original_dir = os.getcwd()
     if not os.path.exists(dir_path):
+        # TODO: makedirs make intermediate dirs. Try for i in [param, dic, tmp] os.make...
         os.makedirs(dir_path)
         os.makedirs(os.path.join(dir_path, "parameters"))
         os.makedirs(os.path.join(dir_path, "state_dicts"))
