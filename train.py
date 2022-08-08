@@ -89,7 +89,7 @@ class Rescale:
         sample = resize_image_to_square(sample, self.side_length)
 
         # If there was an error in the resizing, return None
-        if not sample:
+        if sample is None:
             return None
 
         # Rescaling max push images out of [0,1] range, so have to standardize:
