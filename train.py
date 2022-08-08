@@ -470,6 +470,10 @@ for epoch in range(EPOCHS):
                     model_path = f"unet_{idx}_{int(batch_num/len(train_dataloader))*100}_percent.pth"
                     torch.save(imagen.unets[idx].state_dict(), model_path)
 
+            with training_dir():
+                with open('training_progess.txt', 'a') as f:
+                    f.write(f'Checkpoint created at batch number {batch_num}\n')
+
     avg_loss = [i / len(train_dataloader) for i in running_train_loss]
     with training_dir():
         with open('training_progess.txt', 'a') as f:
