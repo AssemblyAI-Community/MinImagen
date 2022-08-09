@@ -55,7 +55,7 @@ def _instatiate_minimagen(directory):
 
     # Load U-Nets / MinImagen parameters
     unets_params = [_read_params(directory, f) for f in unets_params_files]
-    imagen_params_files = _read_params(directory, list(filter(lambda x: x.startswith("imagen_", ), files))[0])
+    imagen_params_files = _read_params(directory, list(filter(lambda x: x.startswith("imagen_"), files))[0])
 
     return Imagen(unets=[Unet(**params) for params in unets_params], **imagen_params_files)
 
@@ -72,12 +72,27 @@ def load_minimagen(directory):
     # Filepaths for all statedicts
     files = os.listdir(os.path.join(directory, "state_dicts"))
 
-    num_unets = int(max(set([i.split("_")[1] for i in list(filter(re.compile("unet_").match, files))]))) + 1
+    if files != []:
+        num_unets = int(max(set([i.split("_")[1] for i in list(filter(lambda x: x.startswith("unet_"), files))]))) + 1
 
-    # Load best state for each unet in the minimagen instance
-    unet_state_dicts = [_get_best_state_dict(i, files) for i in range(num_unets)]
-    for idx, file in enumerate(unet_state_dicts):
-        minimagen.unets[idx].load_state_dict(torch.load(os.path.join(directory, 'state_dicts', file)))
+        # Load best state for each unet in the minimagen instance
+        unet_state_dicts = [_get_best_state_dict(i, files) for i in range(num_unets)]
+        for idx, file in enumerate(unet_state_dicts):
+            minimagen.unets[idx].load_state_dict(torch.load(os.path.join(directory, 'state_dicts', file),
+                                                            map_location=map_location))
+    else:
+        print(f"\n\"state_dicts\" folder in {directory} is empty, using the most recent checkpoint from \"tmp\".\n")
+        files = os.listdir(os.path.join(directory, "tmp"))
+
+        if files == []:
+            raise ValueError(f"Both \"/state_dicts\" and \"/tmp\" in {directory} are empty. Train the model to acquire state dictionaries for inference. ")
+
+        max_prct = int(max(set([i.split("_")[-2] for i in files])))
+        num_unets = int(max(set([i.split("_")[1] for i in list(filter(lambda x: x.startswith("unet_"), files))]))) + 1
+
+        for unet_num in range(num_unets):
+            pth = os.path.join(directory, 'tmp', f"unet_{unet_num}_{max_prct}_percent.pth")
+            minimagen.unets[unet_num].load_state_dict(torch.load(pth, map_location=map_location))
 
     return minimagen
 
