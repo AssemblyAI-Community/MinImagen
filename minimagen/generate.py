@@ -22,8 +22,8 @@ def _create_directory(dir_path):
         raise FileExistsError(f"The directory {os.path.join(original_dir, img_path)} already exists and is nonempty")
 
     @contextmanager
-    def cm():
-        os.chdir(img_path)
+    def cm(subdir=""):
+        os.chdir(os.path.join(original_dir, dir_path, subdir))
         yield
         os.chdir(original_dir)
     return cm
@@ -126,13 +126,18 @@ def sample_and_save(minimagen: Imagen,
 
     cm = _create_directory(directory)
 
+    with cm():
+        with open('captions.txt', 'w') as f:
+            for caption in captions:
+                f.write(f"{caption}\n")
+
     if sequential:
         for idx, elt in enumerate(captions):
-            with cm():
+            with cm("generated_images"):
                 minimagen.sample(texts=elt, return_pil_images=True, **sample_args)[0].save(f'image_{idx}.{filetype}')
     else:
         images = minimagen.sample(texts=captions, return_pil_images=True, **sample_args)
 
-        with cm():
+        with cm("generated_images"):
             for idx, img in enumerate(images):
                 img.save(f'image_{idx}.{filetype}')
