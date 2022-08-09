@@ -2,6 +2,7 @@ import json
 import os
 import re
 from contextlib import contextmanager
+from datetime import datetime
 
 import torch
 
@@ -116,10 +117,13 @@ def sample_and_save(minimagen: Imagen,
     :param sequential: Whether to pass captions through MinImagen sequentially rather than batched. Sequential
         processing will be slower, but it circumvents storing all images at once. Should be set to True when working
         with a large number of captions or limited memory.
-    :param directory: Directory to save images to. Defaults to current directory if not supplied.
+    :param directory: Directory to save images to. Defaults to datetime-stamped directory if not specified.
     :param filetype: Filetype of saved images.
     :return:
     """
+
+    if directory is None:
+        directory = datetime.now().strftime("generated_images_%Y%m%d_%H%M%S")
 
     cm = _create_directory(directory)
 
