@@ -25,4 +25,4 @@ elif args.captions.endswith(".txt"):
 else:
     raise ValueError("Please input a valid argument for --CAPTIONS")
 
-sample_and_save(minimagen, captions, sample_args={'cond_scale':3.}, sequential=True)
+sample_and_save(minimagen, captions, sample_args={'cond_scale':3.})
