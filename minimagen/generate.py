@@ -67,6 +67,8 @@ def load_minimagen(directory):
     :param directory: MinImagen training directory as structure according to `train.py`.
     :return: MinImagen instance (ready for inference).
     """
+    map_location = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
     minimagen = _instatiate_minimagen(directory)
 
     # Filepaths for all statedicts
