@@ -357,6 +357,31 @@ print("Created optimzer")
 best_loss = [9999999 for i in range(2)]
 
 
+import signal, time
+
+class Timeout():
+  """Timeout class using ALARM signal"""
+  class Timeout(Exception): pass
+
+  def __init__(self, sec):
+    self.sec = sec
+
+  def __enter__(self):
+    signal.signal(signal.SIGALRM, self.raise_timeout)
+    signal.alarm(self.sec)
+
+  def __exit__(self, *args):
+    signal.alarm(0) # disable alarm
+
+  def raise_timeout(self, *args):
+    raise Timeout.Timeout()
+
+# Run block of code with timeouts
+
+
+
+
+
 for epoch in range(EPOCHS):
     print(f'\n{"-"*20} EPOCH {epoch+1} {"-"*20}')
     with training_dir():
@@ -367,38 +392,43 @@ for epoch in range(EPOCHS):
 
     running_train_loss = [0. for i in range(2)]
     print('Training...')
-    print(train_dataloader[4000:])
+
     for batch_num, batch in tqdm(enumerate(train_dataloader)):
-        # If batch is empty, move on to the next one
-        if not batch:
-            continue
+        try:
+            with Timeout(60*5):
 
-        images = batch['image']
-        encoding = batch['encoding']
-        mask = batch['mask']
+                # If batch is empty, move on to the next one
+                if not batch:
+                    continue
 
-        losses = [0. for i in range(2)]
-        for unet_idx in range(2):
-            loss = imagen(images, text_embeds=encoding, text_masks=mask, unet_number=unet_idx+1)
-            running_train_loss[unet_idx] += loss.detach()
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(imagen.parameters(), 50)
+                images = batch['image']
+                encoding = batch['encoding']
+                mask = batch['mask']
 
-        # Gradient accumulation optimizer step (first bool for logical short-circuiting)
-        if ACCUM_ITER == 1 or (batch_num % ACCUM_ITER == 0) or (batch_num + 1 == len(train_dataloader)):
-            optimizer.step()
-            optimizer.zero_grad()
+                losses = [0. for i in range(2)]
+                for unet_idx in range(2):
+                    loss = imagen(images, text_embeds=encoding, text_masks=mask, unet_number=unet_idx+1)
+                    running_train_loss[unet_idx] += loss.detach()
+                    loss.backward()
+                    torch.nn.utils.clip_grad_norm_(imagen.parameters(), 50)
 
-        # Every 10% of the way through epoch, save states in case of training failure
-        if batch_num % (len(train_dataloader)*CHCKPT_FRAC) == 0 or (batch_num % 1000 == 0 and batch_num <= 10000):
-            with training_dir("tmp"):
-                for idx in range(len(unets_params)):
-                    model_path = f"unet_{idx}_{int(batch_num/len(train_dataloader))*100}_percent.pth"
-                    torch.save(imagen.unets[idx].state_dict(), model_path)
+                # Gradient accumulation optimizer step (first bool for logical short-circuiting)
+                if ACCUM_ITER == 1 or (batch_num % ACCUM_ITER == 0) or (batch_num + 1 == len(train_dataloader)):
+                    optimizer.step()
+                    optimizer.zero_grad()
 
-            with training_dir():
-                with open('training_progess.txt', 'a') as f:
-                    f.write(f'Checkpoint created at batch number {batch_num}\n')
+                # Every 10% of the way through epoch, save states in case of training failure
+                if batch_num % (len(train_dataloader)*CHCKPT_FRAC) == 0 or (batch_num % 1000 == 0 and batch_num <= 10000):
+                    with training_dir("tmp"):
+                        for idx in range(2):
+                            model_path = f"unet_{idx}_{int(batch_num/len(train_dataloader))*100}_percent.pth"
+                            torch.save(imagen.unets[idx].state_dict(), model_path)
+
+                    with training_dir():
+                        with open('training_progess.txt', 'a') as f:
+                            f.write(f'Checkpoint created at batch number {batch_num}\n')
+        except Timeout.Timeout:
+            pass
 
     avg_loss = [i / len(train_dataloader) for i in running_train_loss]
     with training_dir():
