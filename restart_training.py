@@ -335,7 +335,7 @@ test_dataloader = torch.utils.data.DataLoader(test_dataset, **dl_opts)
 # Get encoding dimension of the text encoder
 text_embed_dim = get_encoded_dim(T5_NAME)
 
-imagen = load_minimagen(os.path.join(os.getcwd(), "training_20220808_190825"))
+imagen = load_minimagen(os.path.join(os.getcwd(), "training_20220808_190825")).to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
 
 param_size = 0
 for param in imagen.parameters():
