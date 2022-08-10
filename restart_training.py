@@ -335,7 +335,15 @@ test_dataloader = torch.utils.data.DataLoader(test_dataset, **dl_opts)
 # Get encoding dimension of the text encoder
 text_embed_dim = get_encoded_dim(T5_NAME)
 
-imagen = load_minimagen(os.path.join(os.getcwd(), "training_20220808_190825")).to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
+orig_train_dir = os.path.join(os.getcwd(), "training_20220810_024112")
+
+imagen = load_minimagen(orig_train_dir).to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
+
+import shutil
+with training_dir("parameters"):
+    for file in os.listdir(os.path.join(orig_train_dir, 'parameters')):
+        if file.startswith('unet') or file.startswith('imagen'):
+            shutil.copyfile(os.path.join(orig_train_dir, 'parameters', file), os.path.join(os.getcwd(), file))
 
 param_size = 0
 for param in imagen.parameters():
@@ -395,7 +403,7 @@ for epoch in range(EPOCHS):
 
     for batch_num, batch in tqdm(enumerate(train_dataloader)):
         try:
-            with Timeout(60*5):
+            with Timeout(30):
 
                 # If batch is empty, move on to the next one
                 if not batch:
