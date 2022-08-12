@@ -427,7 +427,7 @@ for epoch in range(EPOCHS):
                     optimizer.zero_grad()
 
                 # Every 10% of the way through epoch, save states in case of training failure
-                if batch_num % (len(train_dataloader)*CHCKPT_FRAC) == 0 or (batch_num % 1000 == 0 and batch_num <= 15000):
+                if batch_num % (len(train_dataloader)*CHCKPT_FRAC) == 0 or (batch_num % 1000):
                     with training_dir("tmp"):
                         for idx in range(2):
                             model_path = f"unet_{idx}_{int(batch_num/len(train_dataloader))*100}_percent.pth"
