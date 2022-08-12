@@ -361,22 +361,22 @@ super_res_unet = Unet(
 if not PARAMETERS:
     # Defaults if UNET_PARAMS are not passed in
     base_unet_params = dict(
-        dim=128,
+        dim=200,
         text_embed_dim=text_embed_dim,
-        cond_dim=256,
+        cond_dim=200,
         dim_mults=(1, 2, 4),
-        num_resnet_blocks=3,
+        num_resnet_blocks=2,
         layer_attns=(False, True, True),
         layer_cross_attns=(False, True, True),
-        attend_at_middle=True
+        attend_at_middle=False
     )
 
     super_res_params = dict(
-        dim=128,
+        dim=200,
         text_embed_dim=text_embed_dim,
-        cond_dim=512,
+        cond_dim=200,
         dim_mults=(1, 2, 4),
-        num_resnet_blocks=(2, 4, 8),
+        num_resnet_blocks=3,
         layer_attns=(False, False, True),
         layer_cross_attns=(False, False, True),
         attend_at_middle=False
@@ -385,9 +385,9 @@ if not PARAMETERS:
     unets_params = [base_unet_params, super_res_params]
 
     imagen_params = dict(
-        image_sizes=(32, 128),
+        image_sizes=(64, 128),
         timesteps=TIMESTEPS,  # has to be at least 20.
-        cond_drop_prob=0.1,
+        cond_drop_prob=0.15,
         text_encoder_name=T5_NAME
     )
 
