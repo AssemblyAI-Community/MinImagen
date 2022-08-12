@@ -335,7 +335,8 @@ test_dataloader = torch.utils.data.DataLoader(test_dataset, **dl_opts)
 # Get encoding dimension of the text encoder
 text_embed_dim = get_encoded_dim(T5_NAME)
 
-orig_train_dir = os.path.join(os.getcwd(), "training_20220810_024112")
+chckpt = "training_20220812_181756"
+orig_train_dir = os.path.join(os.getcwd(), chckpt)
 
 imagen = load_minimagen(orig_train_dir).to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
 
@@ -356,7 +357,7 @@ size_all_mb = (param_size + buffer_size) / 1024**2
 
 with training_dir():
     with open('training_progess.txt', 'a') as f:
-        f.write(f'STARTED FROM CHECKPOINT 190825\nmodel size: {size_all_mb:.3f}MB\n\n\n')
+        f.write(f'STARTED FROM CHECKPOINT {chckpt}\nmodel size: {size_all_mb:.3f}MB\n\n\n')
 
 optimizer = optim.Adam(imagen.parameters(), lr=OPTIM_LR)
 print("Created optimzer")
@@ -426,7 +427,7 @@ for epoch in range(EPOCHS):
                     optimizer.zero_grad()
 
                 # Every 10% of the way through epoch, save states in case of training failure
-                if batch_num % (len(train_dataloader)*CHCKPT_FRAC) == 0 or (batch_num % 1000 == 0 and batch_num <= 10000):
+                if batch_num % (len(train_dataloader)*CHCKPT_FRAC) == 0 or (batch_num % 1000 == 0 and batch_num <= 15000):
                     with training_dir("tmp"):
                         for idx in range(2):
                             model_path = f"unet_{idx}_{int(batch_num/len(train_dataloader))*100}_percent.pth"
