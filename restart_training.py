@@ -335,7 +335,7 @@ test_dataloader = torch.utils.data.DataLoader(test_dataset, **dl_opts)
 # Get encoding dimension of the text encoder
 text_embed_dim = get_encoded_dim(T5_NAME)
 
-chckpt = "training_20220812_181756"
+chckpt = "training_20220810_181756"
 orig_train_dir = os.path.join(os.getcwd(), chckpt)
 
 imagen = load_minimagen(orig_train_dir).to(torch.device("cuda:0" if torch.cuda.is_available() else "cpu"))
