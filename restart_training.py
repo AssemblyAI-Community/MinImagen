@@ -232,7 +232,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
 # Create training directory
-dir_path = f"./training_{timestamp}"
+dir_path = os.path.join(os.getcwd(), f"training_{timestamp}")
 training_dir = create_directory(dir_path)
 
 # Optionally hard-code values (will overwrite command-line)
