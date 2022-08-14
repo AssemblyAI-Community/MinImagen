@@ -83,27 +83,27 @@ def load_minimagen(directory):
     # Filepaths for all statedicts
     files = os.listdir(os.path.join(directory, "state_dicts"))
 
+    # Use tmp folder if state_dicts empty
     if files != []:
+        subdir = "state_dicts"
         num_unets = int(max(set([i.split("_")[1] for i in list(filter(lambda x: x.startswith("unet_"), files))]))) + 1
 
-        # Load best state for each unet in the minimagen instance
-        unet_state_dicts = [list(filter(lambda x: x.startswith(f"unet_{i}"), files))[0] for i in range(num_unets)]
-        for idx, file in enumerate(unet_state_dicts):
-            minimagen.unets[idx].load_state_dict(torch.load(os.path.join(directory, 'state_dicts', file),
-                                                            map_location=map_location))
     else:
+        subdir = "tmp"
         print(f"\n\"state_dicts\" folder in {directory} is empty, using the most recent checkpoint from \"tmp\".\n")
-        files = os.listdir(os.path.join(directory, "tmp"))
+        files = os.listdir(os.path.join(directory, f"{subdir}"))
 
         if files == []:
             raise ValueError(f"Both \"/state_dicts\" and \"/tmp\" in {directory} are empty. Train the model to acquire state dictionaries for inference. ")
 
         num_unets = int(max(set([i.split("_")[1] for i in list(filter(lambda x: x.startswith("unet_"), files))]))) + 1
 
-        unet_state_dicts = [list(filter(lambda x: x.startswith(f"unet_{i}"), files))[0] for i in range(num_unets)]
-        for idx, file in unet_state_dicts:
-            pth = os.path.join(directory, 'tmp', file)
-            minimagen.unets[idx].load_state_dict(torch.load(pth, map_location=map_location))
+
+    # Load best state for each unet in the minimagen instance
+    unet_state_dicts = [list(filter(lambda x: x.startswith(f"unet_{i}"), files))[0] for i in range(num_unets)]
+    for idx, file in enumerate(unet_state_dicts):
+        pth = os.path.join(directory, f'{subdir}', file)
+        minimagen.unets[idx].load_state_dict(torch.load(pth, map_location=map_location))
 
     return minimagen
 
