@@ -170,7 +170,7 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
 
 def MinimagenParser():
     parser = ArgumentParser()
-    parser.add_argument("-p", "--PARAMETERS", dest="PARAMETERS", help="Parameters directory", default=None, type=str)
+    parser.add_argument("-p", "--PARAMETERS", dest="PARAMETERS", help="Parameters directory to load Imagen from", default=None, type=str)
     parser.add_argument("-n", "--NUM_WORKERS", dest="NUM_WORKERS", help="Number of workers for DataLoader", default=0,
                         type=int)
     parser.add_argument("-b", "--BATCH_SIZE", dest="BATCH_SIZE", help="Batch size", default=2, type=int)
@@ -193,6 +193,7 @@ def MinimagenParser():
                         help="Checkpointing batch number interval", default=500, type=int)
     parser.add_argument("-vn", "--VALID_NUM", dest="VALID_NUM",
                         help="Number of validation images to use. If None, uses full amount from train/valid split", default=None, type=int)
+    parser.add_argument("-rd", "--RESTART_DIRECTORY", dest="RESTART_DIRECTORY", help="Training directory to resume training from if restarting.", default=None, type=str)
     parser.add_argument("-test", "--TESTING", dest="TESTING", help="Whether to test with smaller dataset",
                         action='store_true')
     parser.set_defaults(TESTING=False)
@@ -230,7 +231,7 @@ def ConceptualCaptions(args, smalldata=False, testset=False):
         valid_size = len(dataset_train_valid) - train_size
         train_dataset, valid_dataset = torch.utils.data.random_split(dataset_train_valid, [train_size, valid_size])
         if args.VALID_NUM is not None:
-            valid_dataset.indices = valid_dataset.indices[:args.VALID_NUM]
+            valid_dataset.indices = valid_dataset.indices[:args.VALID_NUM+1]
         return train_dataset, valid_dataset
 
 def MinimagenDataloaderOpts():
@@ -471,7 +472,9 @@ def save_training_info(args, timestamp, unets_params, imagen_params, model_size,
 
     with training_dir():
         with open('training_progess.txt', 'a') as f:
-            f.write(f'model size: {model_size:.3f}MB\n\n\n')
+            if args.RESTART_DIRECTORY is not None:
+                f.write(f"STARTED FROM CHECKPOINT {args.RESTART_DIRECTORY}\n")
+            f.write(f'model size: {model_size:.3f}MB\n\n')
 
     # Save parameters
     with training_dir("parameters"):
