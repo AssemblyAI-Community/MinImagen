@@ -99,11 +99,9 @@ else:
 
     unets_params, imagen_params = load_params(orig_train_dir)
 
-    # Copy U-Net and Imagen parameters files from the original directory
-    #with training_dir("parameters"):
-    #    for file in os.listdir(os.path.join(orig_train_dir, "parameters")):
-    #        if file.startswith("unet") or file.startswith("imagen"):
-    #            shutil.copyfile(os.path.join(orig_train_dir, "parameters", file), os.path.join(os.getcwd(), file))
+# Add default arguments so parameters file is complete
+unets_params = [{**get_default_args(Unet), **i} for i in unets_params]
+
 
 model_size_MB = get_model_size(imagen)
 
