@@ -40,6 +40,7 @@ class Unet(nn.Module):
             num_resnet_blocks: Union[int, tuple] = 1,
             layer_attns: Union[bool, tuple] = True,
             layer_cross_attns: Union[bool, tuple] = True,
+            attn_heads: int = 8,
             lowres_cond: bool = False,
             memory_efficient: bool = False,
             attend_at_middle: bool = False
@@ -66,6 +67,7 @@ class Unet(nn.Module):
         :param layer_cross_attns: Whether to add cross attention between images and conditioning tokens. Only applies
             to the first unique ResNet block in a given layer. Either one value for all resolutions or a tuple of
             values, one for each resolution.
+        :param attn_heads: Numner of attention heads. Needs to be >1, ideally 4 or 8
         :param lowres_cond: Whether the Unet is conditioned on low resolution images. :code:`True` for super-resolution
             models.
         :param memory_efficient: Whether to downsample at the beginning rather than end of a given layer in the
@@ -81,7 +83,6 @@ class Unet(nn.Module):
         self._locals.pop('__class__', None)
 
         # Constants
-        ATTN_HEADS = 4  # Num attn heads. Needs to be >1, ideally 4 or 8
         ATTN_DIM_HEAD = 64  # Dimensionality for attention.
         NUM_TIME_TOKENS = 2  # Number of time tokens to use in conditioning tensor
         RESNET_GROUPS = 8  # Number of groups in ResNet block GroupNorms
@@ -254,7 +255,7 @@ class Unet(nn.Module):
                 ),
                 # Transformer encoder for multi-headed self attention
                 transformer_block_klass(dim=current_dim,
-                                        heads=ATTN_HEADS,
+                                        heads=attn_heads,
                                         dim_head=ATTN_DIM_HEAD),
                 post_downsample,
             ]))
@@ -269,7 +270,7 @@ class Unet(nn.Module):
 
         # Optional residual self-attention
         self.mid_attn = EinopsToAndFrom('b c h w', 'b (h w) c',
-                                        Residual(Attention(mid_dim, heads=ATTN_HEADS,
+                                        Residual(Attention(mid_dim, heads=attn_heads,
                                                            dim_head=ATTN_DIM_HEAD))) if attend_at_middle else None
 
         # ResnetBlock that incorporates cross-attention conditioning on main tokens
@@ -307,7 +308,7 @@ class Unet(nn.Module):
                         for _ in range(layer_num_resnet_blocks)
                     ]),
                 transformer_block_klass(dim=dim_out,
-                                        heads=ATTN_HEADS,
+                                        heads=attn_heads,
                                         dim_head=ATTN_DIM_HEAD),
                 # Upscale on the final layer too if memory_efficient to make sure get correct output size
                 Upsample(dim_out, dim_in) if not is_last or memory_efficient else Identity()
@@ -652,12 +653,11 @@ class Base(Unet):
     """
     def __init__(self, *args, **kwargs):
         defaults = dict(
-            dim=32,
-            cond_dim=256,
-            dim_mults=(1, 2, 4),
+            dim=512,
+            dim_mults=(1, 2, 3, 4),
             num_resnet_blocks=3,
-            layer_attns=(False, True, True),
-            layer_cross_attns=(False, True, True),
+            layer_attns=(False, True, True, True),
+            layer_cross_attns=(False, True, True, True),
             memory_efficient=False
         )
         super().__init__(*args, **{**defaults, **kwargs})
@@ -670,10 +670,10 @@ class Super(Unet):
     def __init__(self, *args, **kwargs):
         defaults = dict(
             dim=128,
-            dim_mults=(1, 2, 4),
-            num_resnet_blocks=(2, 4, 4),
-            layer_attns=(False, False, True),
-            layer_cross_attns=(False, False, True),
+            dim_mults=(1, 2, 4, 8),
+            num_resnet_blocks=(2, 4, 8, 8),
+            layer_attns=(False, False, False, True),
+            layer_cross_attns=(False, False, False, True),
             memory_efficient=True
         )
         super().__init__(*args, **{**defaults, **kwargs})
