@@ -1,3 +1,5 @@
+import os
+import shutil
 from datetime import datetime
 
 import torch.utils.data
@@ -6,8 +8,9 @@ from torch import optim
 
 from minimagen.Imagen import Imagen
 from minimagen.Unet import Unet, Base, Super
+from minimagen.generate import load_minimagen, load_params
 from minimagen.t5 import get_encoded_dim
-from minimagen.training2 import MinimagenParser, ConceptualCaptions, testing_args, MinimagenDataloaderOpts, \
+from minimagen.training import MinimagenParser, ConceptualCaptions, testing_args, MinimagenDataloaderOpts, \
     create_directory, get_model_params, get_model_size, save_training_info, get_default_args, MinimagenTrain
 
 
@@ -43,51 +46,64 @@ valid_dataloader = torch.utils.data.DataLoader(valid_dataset, **dl_opts)
 text_embed_dim = get_encoded_dim(args.T5_NAME)
 
 # Create Unets
-if not args.PARAMETERS:
+if args.RESTART_DIRECTORY is None:
+    if not args.PARAMETERS:
 
-    base_params = super_params = get_default_args(Unet)
-    base_params = {**base_params, **get_default_args(Base), 'text_embed_dim':text_embed_dim}
-    super_params = {**super_params, **get_default_args(Super), 'text_embed_dim':text_embed_dim}
+        base_params = super_params = get_default_args(Unet)
+        base_params = {**base_params, **get_default_args(Base), 'text_embed_dim':text_embed_dim}
+        super_params = {**super_params, **get_default_args(Super), 'text_embed_dim':text_embed_dim}
 
-    base_params = dict(
-        dim=8,
-        text_embed_dim=text_embed_dim,
-        cond_dim=8,
-        dim_mults=(1, 2),
-        num_resnet_blocks=1,
-        layer_attns=(False, False),
-        layer_cross_attns=(False, False),
-        attend_at_middle=False
-    )
+        base_params = dict(
+            dim=8,
+            text_embed_dim=text_embed_dim,
+            cond_dim=8,
+            dim_mults=(1, 2),
+            num_resnet_blocks=1,
+            layer_attns=(False, False),
+            layer_cross_attns=(False, False),
+            attend_at_middle=False
+        )
+    
+        super_params = dict(
+            dim=8,
+            text_embed_dim=text_embed_dim,
+            cond_dim=8,
+            dim_mults=(1, 2),
+            num_resnet_blocks=(1, 2),
+            layer_attns=(False, False),
+            layer_cross_attns=(False, False),
+            attend_at_middle=False
+        )
 
-    super_params = dict(
-        dim=8,
-        text_embed_dim=text_embed_dim,
-        cond_dim=8,
-        dim_mults=(1, 2),
-        num_resnet_blocks=(1, 2),
-        layer_attns=(False, False),
-        layer_cross_attns=(False, False),
-        attend_at_middle=False
-    )
 
+        unets_params = [base_params, super_params]
 
-    unets_params = [base_params, super_params]
+        imagen_params = dict(
+            image_sizes=(64, 128),
+            timesteps=args.TIMESTEPS,
+            cond_drop_prob=0.15,
+            text_encoder_name=args.T5_NAME
+        )
 
-    imagen_params = dict(
-        image_sizes=(64, 128),
-        timesteps=args.TIMESTEPS,
-        cond_drop_prob=0.15,
-        text_encoder_name=args.T5_NAME
-    )
+    else:
+        unets_params, imagen_params = get_model_params(args.PARAMETERS)
 
+    unets = [Unet(**unet_params).to(device) for unet_params in unets_params]
+
+    # Create Imagen from UNets with specified parameters
+    imagen = Imagen(unets=unets, **imagen_params).to(device)
 else:
-    unets_params, imagen_params = get_model_params(args.PARAMETERS)
+    orig_train_dir = os.path.join(os.getcwd(), args.RESTART_DIRECTORY)
+    imagen = load_minimagen(orig_train_dir).to(device)
+    unets = imagen.unets
 
-unets = [Unet(**unet_params).to(device) for unet_params in unets_params]
+    unets_params, imagen_params = load_params(orig_train_dir)
 
-# Create Imagen from UNets with specified parameters
-imagen = Imagen(unets=unets, **imagen_params).to(device)
+    # Copy U-Net and Imagen parameters files from the original directory
+    #with training_dir("parameters"):
+    #    for file in os.listdir(os.path.join(orig_train_dir, "parameters")):
+    #        if file.startswith("unet") or file.startswith("imagen"):
+    #            shutil.copyfile(os.path.join(orig_train_dir, "parameters", file), os.path.join(os.getcwd(), file))
 
 model_size_MB = get_model_size(imagen)
 
