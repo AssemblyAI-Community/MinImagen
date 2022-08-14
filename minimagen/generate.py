@@ -44,7 +44,9 @@ def _read_params(directory, filename):
         return json.loads(_file.read())
 
 
-def _instatiate_minimagen(directory):
+def load_params(directory):
+    # TODO: When restarted training, parameters folder only has the cmd line args, not the unet/imagen params.
+    #   had to copy from training folder this one was restarted from. Fix this so it copies.
     """ Instantiate an Imagen model with given parameters """
     # Files in parameters directory
     files = os.listdir(os.path.join(directory, "parameters"))
@@ -56,6 +58,13 @@ def _instatiate_minimagen(directory):
     # Load U-Nets / MinImagen parameters
     unets_params = [_read_params(directory, f) for f in unets_params_files]
     imagen_params_files = _read_params(directory, list(filter(lambda x: x.startswith("imagen_"), files))[0])
+    return unets_params, imagen_params_files
+
+def _instatiate_minimagen(directory):
+    # TODO: When restarted training, parameters folder only has the cmd line args, not the unet/imagen params.
+    #   had to copy from training folder this one was restarted from. Fix this so it copies.
+    """ Instantiate an Imagen model with given parameters """
+    unets_params, imagen_params_files = load_params(directory)
 
     return Imagen(unets=[Unet(**params) for params in unets_params], **imagen_params_files)
 
@@ -78,7 +87,7 @@ def load_minimagen(directory):
         num_unets = int(max(set([i.split("_")[1] for i in list(filter(lambda x: x.startswith("unet_"), files))]))) + 1
 
         # Load best state for each unet in the minimagen instance
-        unet_state_dicts = [_get_best_state_dict(i, files) for i in range(num_unets)]
+        unet_state_dicts = [list(filter(lambda x: x.startswith(f"unet_{i}"), files))[0] for i in range(num_unets)]
         for idx, file in enumerate(unet_state_dicts):
             minimagen.unets[idx].load_state_dict(torch.load(os.path.join(directory, 'state_dicts', file),
                                                             map_location=map_location))
@@ -89,12 +98,12 @@ def load_minimagen(directory):
         if files == []:
             raise ValueError(f"Both \"/state_dicts\" and \"/tmp\" in {directory} are empty. Train the model to acquire state dictionaries for inference. ")
 
-        max_prct = int(max(set([i.split("_")[-2] for i in files])))
         num_unets = int(max(set([i.split("_")[1] for i in list(filter(lambda x: x.startswith("unet_"), files))]))) + 1
 
-        for unet_num in range(num_unets):
-            pth = os.path.join(directory, 'tmp', f"unet_{unet_num}_{max_prct}_percent.pth")
-            minimagen.unets[unet_num].load_state_dict(torch.load(pth, map_location=map_location))
+        unet_state_dicts = [list(filter(lambda x: x.startswith(f"unet_{i}"), files)) for i in range(num_unets)]
+        for idx, file in unet_state_dicts:
+            pth = os.path.join(directory, 'tmp', file)
+            minimagen.unets[idx].load_state_dict(torch.load(pth, map_location=map_location))
 
     return minimagen
 
@@ -120,7 +129,7 @@ def sample_and_save(minimagen: Imagen,
     :param filetype: Filetype of saved images.
     :return:
     """
-
+    # TODO: Make sure the generated images folder has a files containing the directory the model was loaded from
     if directory is None:
         directory = datetime.now().strftime("generated_images_%Y%m%d_%H%M%S")
 
@@ -132,6 +141,7 @@ def sample_and_save(minimagen: Imagen,
                 f.write(f"{caption}\n")
 
     if sequential:
+        # TODO: For some reason sequential is horrifically slow - remove it?
         for idx, elt in enumerate(captions):
             with cm("generated_images"):
                 minimagen.sample(texts=elt, return_pil_images=True, **sample_args)[0].save(f'image_{idx}.{filetype}')
