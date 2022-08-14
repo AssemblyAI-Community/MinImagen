@@ -100,8 +100,7 @@ def load_minimagen(directory):
 
         num_unets = int(max(set([i.split("_")[1] for i in list(filter(lambda x: x.startswith("unet_"), files))]))) + 1
 
-        unet_state_dicts = [list(filter(lambda x: x.startswith(f"unet_{i}"), files)) for i in range(num_unets)]
-        print(unet_state_dicts)
+        unet_state_dicts = [list(filter(lambda x: x.startswith(f"unet_{i}"), files))[0] for i in range(num_unets)]
         for idx, file in unet_state_dicts:
             pth = os.path.join(directory, 'tmp', file)
             minimagen.unets[idx].load_state_dict(torch.load(pth, map_location=map_location))
