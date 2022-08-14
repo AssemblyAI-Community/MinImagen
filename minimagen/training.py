@@ -167,7 +167,6 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
                         torch.save(imagen.unets[idx].state_dict(), model_path)
 
 
-
 def MinimagenParser():
     parser = ArgumentParser()
     parser.add_argument("-p", "--PARAMETERS", dest="PARAMETERS", help="Parameters directory to load Imagen from", default=None, type=str)
@@ -255,12 +254,6 @@ def testing_args(args):
             OPTIM_LR=0.0001
         )
     }
-
-
-
-
-
-
 
 
 class MinimagenDataset(torch.utils.data.Dataset):
