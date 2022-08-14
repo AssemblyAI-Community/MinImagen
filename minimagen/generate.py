@@ -88,6 +88,12 @@ def load_minimagen(directory):
         subdir = "state_dicts"
         num_unets = int(max(set([i.split("_")[1] for i in list(filter(lambda x: x.startswith("unet_"), files))]))) + 1
 
+        # Load best state for each unet in the minimagen instance
+        unet_state_dicts = [list(filter(lambda x: x.startswith(f"unet_{i}"), files))[0] for i in range(num_unets)]
+        for idx, file in enumerate(unet_state_dicts):
+            pth = os.path.join(directory, f'{subdir}', file)
+            minimagen.unets[idx].load_state_dict(torch.load(pth, map_location=map_location))
+
     else:
         subdir = "tmp"
         print(f"\n\"state_dicts\" folder in {directory} is empty, using the most recent checkpoint from \"tmp\".\n")
@@ -99,11 +105,11 @@ def load_minimagen(directory):
         num_unets = int(max(set([i.split("_")[1] for i in list(filter(lambda x: x.startswith("unet_"), files))]))) + 1
 
 
-    # Load best state for each unet in the minimagen instance
-    unet_state_dicts = [list(filter(lambda x: x.startswith(f"unet_{i}"), files))[0] for i in range(num_unets)]
-    for idx, file in enumerate(unet_state_dicts):
-        pth = os.path.join(directory, f'{subdir}', file)
-        minimagen.unets[idx].load_state_dict(torch.load(pth, map_location=map_location))
+        # Load best state for each unet in the minimagen instance
+        unet_state_dicts = [list(filter(lambda x: x.startswith(f"unet_{i}"), files))[0] for i in range(num_unets)]
+        for idx, file in enumerate(unet_state_dicts):
+            pth = os.path.join(directory, f'{subdir}', file)
+            minimagen.unets[idx].load_state_dict(torch.load(pth, map_location=map_location))
 
     return minimagen
 
