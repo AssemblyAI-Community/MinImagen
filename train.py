@@ -38,6 +38,9 @@ if args.TESTING:
 else:
     train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=False)
 
+train_dataset.to(device)
+valid_dataset.to(device)
+
 # Create dataloaders
 dl_opts = {**MinimagenDataloaderOpts(), 'batch_size': args.BATCH_SIZE, 'num_workers': args.NUM_WORKERS}
 
