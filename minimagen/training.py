@@ -104,9 +104,11 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
                 if not vbatch:
                     continue
 
+                print('VALIDATION')
                 images = vbatch['image']
                 encoding = vbatch['encoding']
                 mask = vbatch['mask']
+                print(images.device, encoding.device, mask.device)
 
                 for unet_idx in range(len(unets)):
                     running_valid_loss[unet_idx] += imagen(images, text_embeds=encoding,
