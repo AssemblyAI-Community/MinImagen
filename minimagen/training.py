@@ -217,7 +217,7 @@ def MinimagenParser():
     return parser
 
 
-def ConceptualCaptions(args, smalldata=False, testset=False):
+def ConceptualCaptions(args, device, smalldata=False, testset=False):
     dset = load_dataset("conceptual_captions")
     if smalldata:
         num = 16
@@ -236,12 +236,12 @@ def ConceptualCaptions(args, smalldata=False, testset=False):
     if testset:
         # Torch test dataset
         test_dataset = MinimagenDataset(dset, max_length=args.MAX_NUM_WORDS, train=False, encoder_name=args.T5_NAME,
-                                        img_transform=Compose([ToTensor(), _Rescale(args.IMG_SIDE_LEN)]))
+                                        img_transform=Compose([ToTensor(), _Rescale(args.IMG_SIDE_LEN)])).to(device)
         return test_dataset
     else:
         # Torch train/valid dataset
         dataset_train_valid = MinimagenDataset(dset, max_length=args.MAX_NUM_WORDS, encoder_name=args.T5_NAME, train=True,
-                                               img_transform=Compose([ToTensor(), _Rescale(args.IMG_SIDE_LEN)]))
+                                               img_transform=Compose([ToTensor(), _Rescale(args.IMG_SIDE_LEN)])).to(device)
 
         # Split into train/valid
         train_size = int(args.TRAIN_VALID_FRAC * len(dataset_train_valid))
