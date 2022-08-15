@@ -51,13 +51,17 @@ class _Timeout():
 
 def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_dataloader, training_dir, optimizer, timeout=60):
     def train():
-        print(batch.device)
-        print(imagen.device)
-        print('\n\n')
+
 
         images = batch['image']
         encoding = batch['encoding']
         mask = batch['mask']
+
+        print(images.device)
+        print(encoding.device)
+        print(mask.device)
+        print(imagen.device)
+        print('\n\n')
 
         losses = [0. for i in range(len(unets))]
         for unet_idx in range(len(unets)):
