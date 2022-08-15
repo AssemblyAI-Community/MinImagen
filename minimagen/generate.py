@@ -127,7 +127,6 @@ def sample_and_save(captions: list,
                     minimagen: Imagen = None,
                     training_directory: str = None,
                     sample_args: dict = {},
-                    sequential: bool = False,
                     save_directory: str = None,
                     filetype: str = "png"):
     """

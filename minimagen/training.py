@@ -216,11 +216,11 @@ class MinimagenDataset(torch.utils.data.Dataset):
         """
         MinImagen Dataset object
 
-        :param hf_dataset: HuggingFace `datasets` Dataset object (or any dictionary with a similar structure:
+        :param hf_dataset: HuggingFace :code:`False` Dataset object (or any dictionary with a similar structure:
 
-            {'train': {'image_url': list(<IMAGE_URLS>), 'caption': list(<CAPTIONS>)}
+            {:code:`train`: {:code:`image_url`: :code:`list(<IMAGE_URLS>)`, :code:`caption`: :code:`list(<CAPTIONS>)`}
 
-            'validation': {'image_url': list(<IMAGE_URLS>), 'caption': list(<CAPTIONS>)}}
+            :code:`validation`: {:code:`image_url`: :code:`list(<IMAGE_URLS>)`, :code:`caption`: :code:`list(<CAPTIONS>)`}}
 
             )
 
@@ -228,8 +228,8 @@ class MinimagenDataset(torch.utils.data.Dataset):
         :param max_length: Maximum number of words allowed in a given caption.
         :param side_length: Side length to resize all images to.
         :param train: Whether train or test dataset
-        :param img_transform: (optional) Transforms to be applied on a sample in addition to default ToTensor and
-            resizing to `side_length` (applied after the defaults)
+        :param img_transform: (optional) Transforms to be applied on a sample in addition to default :code:`ToTensor()` and
+            resizing to :code:`side_length` (applied after the defaults)
         """
 
         split = "train" if train else "validation"
@@ -270,12 +270,12 @@ class MinimagenDataset(torch.utils.data.Dataset):
 
 def ConceptualCaptions(args, smalldata=False, testset=False):
     """
-    Load [conceptual captions datasets]()
+    Load `conceptual captions dataset <https://ai.google.com/research/ConceptualCaptions/>`_
 
-    :param args: Arguments Namespace/dictionary parsed from `get_minimagen_parser`
+    :param args: Arguments Namespace/dictionary parsed from :func:`~.minimagen.training.get_minimagen_parser`
     :param smalldata: Whether to return a small subset of the data (for testing code)
-    :param testset: Whether to return the testset
-    :return: test_dataset if `testset` else (train_dataset, valid_dataset)
+    :param testset: Whether to return the testing set (vs training/valid)
+    :return: test_dataset if :code:`testset` else (train_dataset, valid_dataset)
     """
     dset = load_dataset("conceptual_captions")
     if smalldata:
@@ -345,16 +345,16 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
     """
     Training loop for MinImagen instance
 
-    :param timestamp: Timestamp for training
-    :param args: Arguments Namespace/dict from argparsing `get_minimagen_parser` parser.
-    :param unets: List of unets used in the Imagen instance
-    :param imagen: Imagen instance
-    :param train_dataloader: Dataloader for training
-    :param valid_dataloader: Dataloader for validation
-    :param training_dir: Training directory context manager returned from `create_directory`
-    :param optimizer: Optimizer to use for training
+    :param timestamp: Timestamp for training.
+    :param args: Arguments Namespace/dict from argparsing :func:`.minimagen.training.get_minimagen_parser` parser.
+    :param unets: List of :class:`~.minimagen.Unet.Unet`s used in the Imagen instance.
+    :param imagen: :class:`~.minimagen.Imagen.Imagen` instance to train.
+    :param train_dataloader: Dataloader for training.
+    :param valid_dataloader: Dataloader for validation.
+    :param training_dir: Training directory context manager returned from :func:`~.minimagen.training.create_directory`.
+    :param optimizer: Optimizer to use for training.
     :param timeout: Amount of time to spend trying to process batch before passing on to the next batch. Does not work
-        on Windows
+        on Windows.
     :return:
     """
     def train():
@@ -480,9 +480,11 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
 
 
 def load_restart_training_parameters(directory):
-    """Load identical command line arguments when picking up from a previous training for relevant arguments. That is,
-        ensures that `--MAX_NUM_WORDS`, `--IMG_SIDE_LEN`, `--T5_NAME`, `--TIMESTEPS` command line arguments from
-        `get_minimagen_parser` are all identical to the original training when resuming from a checkpoint.
+    """
+    Load identical command line arguments when picking up from a previous training for relevant arguments. That is,
+        ensures that :code:`--MAX_NUM_WORDS`, :code:`--IMG_SIDE_LEN`, :code:`--T5_NAME`, :code:`--TIMESTEPS` command
+        line arguments from :func:`~.minimagen.training.get_minimagen_parser` are all identical to the original
+        training when resuming from a checkpoint.
 
     :param directory: Training directory from which to load checkpoint
     """
@@ -543,11 +545,11 @@ def save_training_info(args, timestamp, unets_params, imagen_params, model_size,
     """
     Saves training info to training directory
 
-    :param args: Arguments Namespace/dict from argparsing `get_minimagen_parser` parser.
+    :param args: Arguments Namespace/dict from argparsing :func:`~.minimagen.training.get_minimagen_parser` parser.
     :param timestamp: Training timestamp
     :param unets_params: List of parameters of Unets to save.
     :param imagen_params: Imagen parameters to save
-    :param training_dir: Context manager returned from `create_directory`
+    :param training_dir: Context manager returned from :func:`~.minimagen.training.create_directory`
     :return:
     """
     # Save the training parameters

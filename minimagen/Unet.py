@@ -72,7 +72,7 @@ class Unet(nn.Module):
             models.
         :param memory_efficient: Whether to downsample at the beginning rather than end of a given layer in the
             U-Net. Saves memory.
-        :param attend_at_middle: Whether to have an :class:`minimal_imagen.minimagen.layers.Attention` at the
+        :param attend_at_middle: Whether to have an :class:`.minimagen.layers.Attention` at the
             bottleneck. Can turn off for higher resolution Unets in `cascading DDPM <https://cascaded-diffusion.github.io/assets/cascaded_diffusion.pdf>`_.
         """
         super().__init__()
@@ -637,17 +637,15 @@ class Base(Unet):
     """
     Base image generation U-Net with default arguments.
 
-    - dim = 32
+    - dim = 512
 
-    - cond_dim = 256,
-
-    - dim_mults = (1, 2, 4),
+    - dim_mults = (1, 2, 3, 4),
 
     - num_resnet_blocks = 3,
 
-    - layer_attns = (False, True, True),
+    - layer_attns = (False, True, True, True),
 
-    - layer_cross_attns = (False, True, True),
+    - layer_cross_attns = (False, True, True, True),
 
     - memory_efficient = False
     """
@@ -666,6 +664,18 @@ class Base(Unet):
 class Super(Unet):
     """
     Super-Resolution U-Net with default arguments.
+
+    - dim = 128
+
+    - dim_mults = (1, 2, 4, 8),
+
+    - num_resnet_blocks = (2, 4, 8, 8),
+
+    - layer_attns = (False, False, False, True),
+
+    - layer_cross_attns = (False, False, False, True),
+
+    - memory_efficient = True
     """
     def __init__(self, *args, **kwargs):
         defaults = dict(
