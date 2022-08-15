@@ -34,9 +34,9 @@ if args.RESTART_DIRECTORY is not None:
 # If testing, lower parameter values for lower computational load and also lower amount of data being used.
 if args.TESTING:
     args.__dict__ = testing_args(args)
-    train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=True, device=device)
+    train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=True)
 else:
-    train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=False, device=device)
+    train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=False)
 
 # Create dataloaders
 dl_opts = {**MinimagenDataloaderOpts(), 'batch_size': args.BATCH_SIZE, 'num_workers': args.NUM_WORKERS}
