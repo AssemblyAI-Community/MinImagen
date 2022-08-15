@@ -51,6 +51,10 @@ class _Timeout():
 
 def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_dataloader, training_dir, optimizer, timeout=60):
     def train():
+        print(batch.device)
+        print(imagen.device)
+        print('\n\n')
+
         images = batch['image']
         encoding = batch['encoding']
         mask = batch['mask']
@@ -217,7 +221,7 @@ def MinimagenParser():
     return parser
 
 
-def ConceptualCaptions(args, device, smalldata=False, testset=False):
+def ConceptualCaptions(args, smalldata=False, testset=False):
     dset = load_dataset("conceptual_captions")
     if smalldata:
         num = 16
@@ -236,12 +240,12 @@ def ConceptualCaptions(args, device, smalldata=False, testset=False):
     if testset:
         # Torch test dataset
         test_dataset = MinimagenDataset(dset, max_length=args.MAX_NUM_WORDS, train=False, encoder_name=args.T5_NAME,
-                                        img_transform=Compose([ToTensor(), _Rescale(args.IMG_SIDE_LEN)])).to(device)
+                                        img_transform=Compose([ToTensor(), _Rescale(args.IMG_SIDE_LEN)]))
         return test_dataset
     else:
         # Torch train/valid dataset
         dataset_train_valid = MinimagenDataset(dset, max_length=args.MAX_NUM_WORDS, encoder_name=args.T5_NAME, train=True,
-                                               img_transform=Compose([ToTensor(), _Rescale(args.IMG_SIDE_LEN)])).to(device)
+                                               img_transform=Compose([ToTensor(), _Rescale(args.IMG_SIDE_LEN)]))
 
         # Split into train/valid
         train_size = int(args.TRAIN_VALID_FRAC * len(dataset_train_valid))
