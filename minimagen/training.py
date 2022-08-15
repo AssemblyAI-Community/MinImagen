@@ -5,20 +5,17 @@ import signal
 from argparse import ArgumentParser
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
-from datetime import datetime
 from functools import partial
 import io
 import urllib
 from typing import Literal
 
-import torchvision.transforms
 from tqdm import tqdm
 
 import datasets
 import PIL.Image
 from einops import rearrange
 import torch.utils.data
-from torch import optim
 import torch.nn.functional as F
 from torchvision.transforms import Compose, ToTensor
 
@@ -26,10 +23,8 @@ from datasets import load_dataset
 from datasets.utils.file_utils import get_datasets_user_agent
 from resize_right import resize
 
-from minimagen.Imagen import Imagen
-from minimagen.Unet import Unet
 from minimagen.helpers import exists
-from minimagen.t5 import get_encoded_dim, t5_encode_text
+from minimagen.t5 import t5_encode_text
 
 USER_AGENT = get_datasets_user_agent()
 
@@ -93,6 +88,7 @@ class MinimagenCollator:
 
         return torch.utils.data.dataloader.default_collate(batch)
 
+# DEPRECATED - replaced with MinimagenCollator so that device could be passed in rather than calculated in the function
 def _collate(batch):
     # Filter out None instances or those in which the image could not be fetched
     batch = list(filter(lambda x: x is not None, batch))
