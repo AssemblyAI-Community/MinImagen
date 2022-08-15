@@ -153,11 +153,11 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
             except _Timeout._Timeout:
                 pass
             # If the training is interrupted early, save the latest state dicts
-            except:
+            except Exception as e:
                 # Note that training aborted
                 with training_dir():
                     with open('training_progess.txt', 'a') as f:
-                        f.write(f'\n\nTRAINING ABORTED AT EPOCH {epoch}, BATCH NUMBER {batch_num}. MOST RECENT STATE '
+                        f.write(f'\n\nTRAINING ABORTED AT EPOCH {epoch}, BATCH NUMBER {batch_num} with exception {e}. MOST RECENT STATE '
                                 f'DICTS SAVED TO ./tmp IN TRAINING FOLDER')
 
                 # Save temporary state dicts
@@ -165,6 +165,24 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
                     for idx in range(len(unets)):
                         model_path = f"unet_{idx}_tmp.pth"
                         torch.save(imagen.unets[idx].state_dict(), model_path)
+
+
+def load_restart_training_parameters(directory):
+    """Load identical cmd line argument when picking up from a previous training"""
+    params = os.path.join(directory, "parameters")
+    file = list(filter(lambda x: x.startswith("training_"), os.listdir(params)))[0]
+    with open(os.path.join(params, file), 'r') as f:
+        lines = f.readlines()
+        to_keep = ["MAX_NUM_WORDS", "IMG_SIDE_LEN", "T5_NAME", "TIMESTEPS"]
+        lines = list(filter(lambda x: True if True in [x.startswith(f"--{i}") for i in to_keep] else False, lines))
+        d = {}
+        for line in lines:
+            s = line.split("=")
+            try:
+                d[s[0][2:]] = int(s[1][:-1])
+            except:
+                d[s[0][2:]] = s[1][:-1]
+        return d
 
 
 def MinimagenParser():
@@ -248,7 +266,7 @@ def testing_args(args):
             MAX_NUM_WORDS=32,
             IMG_SIDE_LEN=128,
             EPOCHS=2,
-            T5_NAME='t5_base',
+            T5_NAME='t5_small',
             TRAIN_VALID_FRAC=0.5,
             TIMESTEPS=25,  # Do not make less than 20
             OPTIM_LR=0.0001

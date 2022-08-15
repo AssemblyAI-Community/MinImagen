@@ -11,9 +11,8 @@ from minimagen.Unet import Unet, Base, Super
 from minimagen.generate import load_minimagen, load_params
 from minimagen.t5 import get_encoded_dim
 from minimagen.training import MinimagenParser, ConceptualCaptions, testing_args, MinimagenDataloaderOpts, \
-    create_directory, get_model_params, get_model_size, save_training_info, get_default_args, MinimagenTrain
-
-
+    create_directory, get_model_params, get_model_size, save_training_info, get_default_args, MinimagenTrain, \
+    load_restart_training_parameters
 
 # Get device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -28,6 +27,9 @@ training_dir = create_directory(dir_path)
 # Command line argument parser
 parser = MinimagenParser()
 args = parser.parse_args()
+
+if args.RESTART_DIRECTORY is not None:
+    args.__dict__ = {**args.__dict__, **load_restart_training_parameters(args.RESTART_DIRECTORY)}
 
 # If testing, lower parameter values for lower computational load and also lower amount of data being used.
 if args.TESTING:
@@ -93,6 +95,7 @@ if args.RESTART_DIRECTORY is None:
     # Create Imagen from UNets with specified parameters
     imagen = Imagen(unets=unets, **imagen_params).to(device)
 else:
+
     orig_train_dir = os.path.join(os.getcwd(), args.RESTART_DIRECTORY)
     imagen = load_minimagen(orig_train_dir).to(device)
     unets = imagen.unets
