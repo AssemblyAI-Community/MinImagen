@@ -322,7 +322,7 @@ def get_minimagen_dl_opts(device):
             'shuffle': True,
             'num_workers': 0,
             'drop_last': True,
-            'collate_fn': _collate}
+            'collate_fn': MinimagenCollator(device)}
 
 
 class _Timeout():
