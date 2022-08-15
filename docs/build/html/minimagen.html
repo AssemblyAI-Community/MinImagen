@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>minimagen &mdash; MinImagen 2022 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Welcome to MinImagen’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> MinImagen
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">minimagen</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-minimagen.Imagen">Imagen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-minimagen.Unet">Unet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-minimagen.diffusion_model">Diffusion Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-minimagen.t5">T5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#training">Training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-minimagen.generate">Generate</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MinImagen</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>minimagen</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/minimagen.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="minimagen">
+<h1>minimagen<a class="headerlink" href="#minimagen" title="Permalink to this heading"></a></h1>
+<section id="module-minimagen.Imagen">
+<span id="imagen"></span><h2>Imagen<a class="headerlink" href="#module-minimagen.Imagen" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="minimagen.Imagen.Imagen">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minimagen.Imagen.</span></span><span class="sig-name descname"><span class="pre">Imagen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">unets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#minimagen.Unet.Unet" title="minimagen.Unet.Unet"><span class="pre">Unet</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#minimagen.Unet.Unet" title="minimagen.Unet.Unet"><span class="pre">Unet</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#minimagen.Unet.Unet" title="minimagen.Unet.Unet"><span class="pre">Unet</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_encoder_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_sizes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timesteps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond_drop_prob</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loss_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'l1'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'l2'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'huber'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'l2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lowres_sample_noise_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">auto_normalize_img</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dynamic_thresholding_percentile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.9</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_train_unet_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.Imagen.Imagen" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p>Minimal <a class="reference external" href="https://imagen.research.google/">Imagen</a> implementation.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="minimagen.Imagen.Imagen.device">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">device</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">device</span></em><a class="headerlink" href="#minimagen.Imagen.Imagen.device" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minimagen.Imagen.Imagen.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">images</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">texts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_embeds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_masks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unet_number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.Imagen.Imagen.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Imagen forward pass. Noises images and then calculates loss from U-Net noise prediction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>images</strong> – Images to operate on. Shape (b, c, s, s).</p></li>
+<li><p><strong>texts</strong> – Text captions to condition on. List of length b.</p></li>
+<li><p><strong>text_embeds</strong> – Text embeddings to condition on. Used if <code class="code docutils literal notranslate"><span class="pre">texts</span></code> is not passed in.</p></li>
+<li><p><strong>text_masks</strong> – Text embedding mask. Used if <code class="code docutils literal notranslate"><span class="pre">texts</span></code> is not passed in.</p></li>
+<li><p><strong>unet_number</strong> – Which number unet to train if there are multiple.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Loss.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minimagen.Imagen.Imagen.load_state_dict">
+<span class="sig-name descname"><span class="pre">load_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.Imagen.Imagen.load_state_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Overrides <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.load_state_dict">load_state_dict</a> to place all Unets in Imagen instance on one device when called.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minimagen.Imagen.Imagen.sample">
+<span class="sig-name descname"><span class="pre">sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.Imagen.Imagen.sample" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minimagen.Imagen.Imagen.state_dict">
+<span class="sig-name descname"><span class="pre">state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.Imagen.Imagen.state_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Overrides <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module.state_dict">state_dict</a> to place all Unets in Imagen instance on one device when called.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-minimagen.Unet">
+<span id="unet"></span><h2>Unet<a class="headerlink" href="#module-minimagen.Unet" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="minimagen.Unet.Base">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minimagen.Unet.</span></span><span class="sig-name descname"><span class="pre">Base</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.Unet.Base" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#minimagen.Unet.Unet" title="minimagen.Unet.Unet"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unet</span></code></a></p>
+<p>Base image generation U-Net with default arguments.</p>
+<ul class="simple">
+<li><p>dim = 512</p></li>
+<li><p>dim_mults = (1, 2, 3, 4),</p></li>
+<li><p>num_resnet_blocks = 3,</p></li>
+<li><p>layer_attns = (False, True, True, True),</p></li>
+<li><p>layer_cross_attns = (False, True, True, True),</p></li>
+<li><p>memory_efficient = False</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="minimagen.Unet.Super">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minimagen.Unet.</span></span><span class="sig-name descname"><span class="pre">Super</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.Unet.Super" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#minimagen.Unet.Unet" title="minimagen.Unet.Unet"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unet</span></code></a></p>
+<p>Super-Resolution U-Net with default arguments.</p>
+<ul class="simple">
+<li><p>dim = 128</p></li>
+<li><p>dim_mults = (1, 2, 4, 8),</p></li>
+<li><p>num_resnet_blocks = (2, 4, 8, 8),</p></li>
+<li><p>layer_attns = (False, False, False, True),</p></li>
+<li><p>layer_cross_attns = (False, False, False, True),</p></li>
+<li><p>memory_efficient = True</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="minimagen.Unet.Unet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minimagen.Unet.</span></span><span class="sig-name descname"><span class="pre">Unet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dim_mults</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(1,</span> <span class="pre">2,</span> <span class="pre">4)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels_out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_embed_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">512</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_resnet_blocks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_attns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layer_cross_attns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attn_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lowres_cond</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">memory_efficient</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attend_at_middle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.Unet.Unet" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p><a class="reference external" href="https://arxiv.org/abs/1505.04597">U-Net</a> for use as a denoising model trained via <a class="reference external" href="https://www.assemblyai.com/blog/diffusion-models-for-machine-learning-introduction/">Diffusion</a>.
+See also <a class="reference internal" href="#minimagen.diffusion_model.GaussianDiffusion" title="minimagen.diffusion_model.GaussianDiffusion"><code class="xref py py-class docutils literal notranslate"><span class="pre">minimagen.diffusion_model.GaussianDiffusion</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="minimagen.Unet.Unet.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lowres_cond_img</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lowres_noise_times</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_embeds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_mask</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond_drop_prob</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensor</span></span></span><a class="headerlink" href="#minimagen.Unet.Unet.forward" title="Permalink to this definition"></a></dt>
+<dd><p>Unet forward pass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – Input images. Shape (b, c, s, s).</p></li>
+<li><p><strong>time</strong> – Timestep to noise to for each image. Shape (b,)</p></li>
+<li><p><strong>lowres_cond_img</strong> – (Upsampled) low-res conditioning images for super-res models. Shape (b, c, s, s)</p></li>
+<li><p><strong>lowres_noise_times</strong> – Time to noise to for low-res <a class="reference external" href="https://www.assemblyai.com/blog/how-imagen-actually-works/#robust-cascaded-diffusion-models">noise conditioning augmentation</a>.
+Shape (b,).</p></li>
+<li><p><strong>text_embeds</strong> – Conditioning text embeddings. Size (b, 256, embedding_dim). See
+<a class="reference internal" href="#minimagen.t5.t5_encode_text" title="minimagen.t5.t5_encode_text"><code class="xref py py-func docutils literal notranslate"><span class="pre">minimagen.t5.t5_encode_text()</span></code></a>.</p></li>
+<li><p><strong>text_mask</strong> – Text mask for text embeddings. Shape (b, 256)</p></li>
+<li><p><strong>cond_drop_prob</strong> – Probability of dropping conditioning info for <a class="reference external" href="https://www.assemblyai.com/blog/how-imagen-actually-works/#classifier-free-guidance">classifier-free guidance</a>. Generally in
+the range [0.1, 0.2].</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Denoised images. Shape (b, c, s, s).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minimagen.Unet.Unet.forward_with_cond_scale">
+<span class="sig-name descname"><span class="pre">forward_with_cond_scale</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cond_scale</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensor</span></span></span><a class="headerlink" href="#minimagen.Unet.Unet.forward_with_cond_scale" title="Permalink to this definition"></a></dt>
+<dd><p>Adds <a class="reference external" href="https://www.assemblyai.com/blog/how-imagen-actually-works/#classifier-free-guidance">classifier-free guidance</a> to the forward pass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – Arguments to pass to <cite>forward</cite></p></li>
+<li><p><strong>cond_scale</strong> – <p>Conditioning scale.</p>
+<ul>
+<li><p><code class="code docutils literal notranslate"><span class="pre">cond_scale</span> <span class="pre">=</span> <span class="pre">0</span></code> =&gt; unconditional model.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">cond_scale</span> <span class="pre">=</span> <span class="pre">1</span></code> =&gt; standard conditional model.</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">cond_scale</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> =&gt; large guidance weights improve image quality/fidelity at the cost of diversity. See</p></li>
+</ul>
+<p><a class="reference external" href="https://www.assemblyai.com/blog/how-imagen-actually-works/#large-guidance-weight-samplers">here</a> for
+more information.</p>
+</p></li>
+<li><p><strong>kwargs</strong> – Keyword arguments to pass to <code class="code docutils literal notranslate"><span class="pre">forward</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Guided images. Shape (b, c, s, s).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-minimagen.diffusion_model">
+<span id="diffusion-model"></span><h2>Diffusion Model<a class="headerlink" href="#module-minimagen.diffusion_model" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="minimagen.diffusion_model.GaussianDiffusion">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minimagen.diffusion_model.</span></span><span class="sig-name descname"><span class="pre">GaussianDiffusion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timesteps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.diffusion_model.GaussianDiffusion" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code></p>
+<p><a class="reference external" href="https://www.assemblyai.com/blog/diffusion-models-for-machine-learning-introduction/">Diffusion Model</a>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="minimagen.diffusion_model.GaussianDiffusion.predict_start_from_noise">
+<span class="sig-name descname"><span class="pre">predict_start_from_noise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensor</span></span></span><a class="headerlink" href="#minimagen.diffusion_model.GaussianDiffusion.predict_start_from_noise" title="Permalink to this definition"></a></dt>
+<dd><p>Given a noised image and its noise component, calculated the unnoised image <code class="code docutils literal notranslate"><span class="pre">x_0</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_t</strong> – Noised images. Shape (b, c, s, s).</p></li>
+<li><p><strong>t</strong> – Timestep for each image. Shape (b,).</p></li>
+<li><p><strong>noise</strong> – Noise component for each image. Shape (b, c, s, s).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Un-noised images. Shape (b, c, s, s).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minimagen.diffusion_model.GaussianDiffusion.q_posterior">
+<span class="sig-name descname"><span class="pre">q_posterior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple[<span class="pre">tensor</span>, <span class="pre">tensor</span>, <span class="pre">tensor</span>]</span></span></span><a class="headerlink" href="#minimagen.diffusion_model.GaussianDiffusion.q_posterior" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates q_posterior parameters given a starting image <code class="code docutils literal notranslate"><span class="pre">x_start</span></code> (x_0) and a noised image <code class="code docutils literal notranslate"><span class="pre">x_t</span></code>.</p>
+<figure class="align-default">
+<img alt="q posterior formula" src="_images/q_posterior.png" />
+</figure>
+<p>Where the mean is</p>
+<img alt="_images/posterior_mean.png" src="_images/posterior_mean.png" />
+<p>And the variance prefactor is</p>
+<a class="reference internal image-reference" href="_images/posterior_variance.png"><img alt="_images/posterior_variance.png" src="_images/posterior_variance.png" style="width: 300px;" /></a>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_start</strong> – Original input images x_0. Shape (b, c, h, w)</p></li>
+<li><p><strong>x_t</strong> – Images at current time x_t. Shape (b, c, h, w)</p></li>
+<li><p><strong>t</strong> – Current time. Shape (b,)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><p>Tuple of</p>
+<ul class="simple">
+<li><p><strong>posterior mean</strong>, shape (b, c, s, s),</p></li>
+<li><p><strong>posterior variance</strong>, shape (b, 1, 1, 1),</p></li>
+<li><p><strong>clipped log of the posterior variance</strong>, shape (b, 1, 1, 1)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="minimagen.diffusion_model.GaussianDiffusion.q_sample">
+<span class="sig-name descname"><span class="pre">q_sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noise</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensor</span></span></span><a class="headerlink" href="#minimagen.diffusion_model.GaussianDiffusion.q_sample" title="Permalink to this definition"></a></dt>
+<dd><p>Sample from q at a given timestep:</p>
+<blockquote>
+<div><img alt="_images/q_sample.png" src="_images/q_sample.png" />
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_start</strong> – Original input images. Shape (b, c, h, w).</p></li>
+<li><p><strong>t</strong> – Timestep value for each image in the batch. Shape (b,).</p></li>
+<li><p><strong>noise</strong> – Optionally supply noise to use. Defaults to Gaussian. Shape (b, c, s, s).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Noised image. Shape (b, c, h, w).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-minimagen.t5">
+<span id="t5"></span><h2>T5<a class="headerlink" href="#module-minimagen.t5" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="minimagen.t5.get_encoded_dim">
+<span class="sig-prename descclassname"><span class="pre">minimagen.t5.</span></span><span class="sig-name descname"><span class="pre">get_encoded_dim</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#minimagen.t5.get_encoded_dim" title="Permalink to this definition"></a></dt>
+<dd><p>Gets the encoding dimensionality of a given T5 encoder.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="minimagen.t5.t5_encode_text">
+<span class="sig-prename descclassname"><span class="pre">minimagen.t5.</span></span><span class="sig-name descname"><span class="pre">t5_encode_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'t5_base'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">256</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.t5.t5_encode_text" title="Permalink to this definition"></a></dt>
+<dd><p>Encodes a sequence of text with a T5 text encoder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>text</strong> – List of text to encode.</p></li>
+<li><p><strong>name</strong> – <p>Name of T5 model to use. Options are:</p>
+<ul>
+<li><p><code class="code docutils literal notranslate"><span class="pre">'t5_small'</span></code> (~0.24 GB, 512 encoding dim),</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">'t5_base'</span></code> (~0.89 GB, 768 encoding dim),</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">'t5_large'</span></code> (~2.75 GB, 1024 encoding dim),</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">'t5_3b'</span></code> (~10.6 GB, 1024 encoding dim),</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">'t5_11b'</span></code> (~42.1 GB, 1024 encoding dim),</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Returns encodings and attention mask. Element <strong>[i,j,k]</strong> of the final encoding corresponds to the <strong>k</strong>-th
+encoding component of the <strong>j</strong>-th token in the <strong>i</strong>-th input list element.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="training">
+<h2>Training<a class="headerlink" href="#training" title="Permalink to this heading"></a></h2>
+</section>
+<section id="module-minimagen.generate">
+<span id="generate"></span><h2>Generate<a class="headerlink" href="#module-minimagen.generate" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="minimagen.generate.load_minimagen">
+<span class="sig-prename descclassname"><span class="pre">minimagen.generate.</span></span><span class="sig-name descname"><span class="pre">load_minimagen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.generate.load_minimagen" title="Permalink to this definition"></a></dt>
+<dd><p>Load a <a class="reference internal" href="#minimagen.Imagen.Imagen" title="minimagen.Imagen.Imagen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MinImagen</span></code></a>. instance from a training directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>directory</strong> – MinImagen training directory as structured according to <code class="xref py py-func docutils literal notranslate"><span class="pre">minimagen.training.create_directory()</span></code>.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><a class="reference internal" href="#minimagen.Imagen.Imagen" title="minimagen.Imagen.Imagen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MinImagen</span></code></a> instance (ready for inference).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="minimagen.generate.load_params">
+<span class="sig-prename descclassname"><span class="pre">minimagen.generate.</span></span><span class="sig-name descname"><span class="pre">load_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.generate.load_params" title="Permalink to this definition"></a></dt>
+<dd><p>Loads Unets and Imagen parameters from a training directory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>directory</strong> – Path of training directory generated by training</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(unets_params, imagen_params) where unets_params is a list whose i-th element are the parameters of the
+i-th Unet in the Imagen instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="minimagen.generate.sample_and_save">
+<span class="sig-prename descclassname"><span class="pre">minimagen.generate.</span></span><span class="sig-name descname"><span class="pre">sample_and_save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">captions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">minimagen</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#minimagen.Imagen.Imagen" title="minimagen.Imagen.Imagen"><span class="pre">Imagen</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filetype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'png'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.generate.sample_and_save" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Generate and save images for a list of captions using a <a class="reference internal" href="#minimagen.Imagen.Imagen" title="minimagen.Imagen.Imagen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MinImagen</span></code></a> instance.</dt><dd><p>Images are saved into a “generated_images” directory as “image_&lt;CAPTION_INDEX&gt;.&lt;FILETYPE&gt;”</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>captions</strong> – List of captions (strings) to generate images for.</p></li>
+<li><p><strong>minimagen</strong> – <a class="reference internal" href="#minimagen.Imagen.Imagen" title="minimagen.Imagen.Imagen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MinImagen</span></code></a> instance to use for sampling (i.e.
+generating images). Must specify one of <code class="code docutils literal notranslate"><span class="pre">minimagen</span></code> or <code class="code docutils literal notranslate"><span class="pre">training_directory</span></code>.</p></li>
+<li><p><strong>training_directory</strong> – Training directory of MinImagen instance to use for inference. Must specify one
+of <code class="code docutils literal notranslate"><span class="pre">minimagen</span></code> or <code class="code docutils literal notranslate"><span class="pre">training_directory</span></code>.</p></li>
+<li><p><strong>sample_args</strong> – Additional keyword arguments to pass for <a class="reference internal" href="#minimagen.Imagen.Imagen.sample" title="minimagen.Imagen.Imagen.sample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Imagen.sample</span></code></a>
+function. Do not include <code class="code docutils literal notranslate"><span class="pre">texts</span></code> or code:<cite>return_pil_images</cite> in this dictionary.</p></li>
+<li><p><strong>save_directory</strong> – Directory to save images to. Defaults to datetime-stamped directory if not specified.</p></li>
+<li><p><strong>filetype</strong> – Filetype of saved images.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to MinImagen’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, AssemblyAI.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
