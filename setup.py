@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 VERSION = '0.0.5'
-DESCRIPTION = 'Minimal Imagen text-to-image model implementation'
+DESCRIPTION = 'Minimal Imagen text-to-image model implementation. Includes '
 
 with open('requirements.txt') as f:
     required = f.read().splitlines()
