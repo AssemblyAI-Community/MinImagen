@@ -1,23 +1,22 @@
 from argparse import ArgumentParser
-
 from minimagen.generate import load_minimagen, sample_and_save
 
 # Command line argument parser
 parser = ArgumentParser()
-parser.add_argument("-c", "--CAPTIONS", dest="captions", help="Single caption to generate for or filepath for .txt "
+parser.add_argument("-c", "--CAPTIONS", dest="CAPTIONS", help="Single caption to generate for or filepath for .txt "
                                                               "file of captions to generate for or ", default=None, type=str)
-parser.add_argument("-d", "--TRAINING_DIRECTORY", dest="training_directory", help="Directory generated from training to use for inference", type=str)
+parser.add_argument("-d", "--TRAINING_DIRECTORY", dest="TRAINING_DIRECTORY", help="Training directory to use for inference", type=str)
 args = parser.parse_args()
 
-minimagen = load_minimagen(args.training_directory)
+minimagen = load_minimagen(args.TRAINING_DIRECTORY)
 
-if args.captions is None:
+if args.CAPTIONS is None:
     print("\nNo caption supplied - using the default of \"a happy dog\".\n")
     captions = ['a happy dog']
-elif not args.captions.endswith(".txt"):
-    captions = [args.captions]
-elif args.captions.endswith(".txt"):
-    with open(args.captions, 'r') as f:
+elif not args.CAPTIONS.endswith(".txt"):
+    captions = [args.CAPTIONS]
+elif args.CAPTIONS.endswith(".txt"):
+    with open(args.CAPTIONS, 'r') as f:
         lines = f.readlines()
         for idx, line in enumerate(lines):
             lines[idx] = line[:-1] if line.endswith('\n') else line
@@ -25,4 +24,8 @@ elif args.captions.endswith(".txt"):
 else:
     raise ValueError("Please input a valid argument for --CAPTIONS")
 
-sample_and_save(minimagen, captions, sample_args={'cond_scale':3.})
+# Can supply a training dictionary to load from for inference
+sample_and_save(captions, training_directory=args.TRAINING_DIRECTORY, sample_args={'cond_scale':3.})
+
+# Otherwise, can supply a MinImagen instance itself. In this case, information about the instance will not be saved.
+# sample_and_save(captions, minimagen=minimagen, sample_args={'cond_scale':3.})

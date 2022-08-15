@@ -1,5 +1,4 @@
 import os
-import shutil
 from datetime import datetime
 
 import torch.utils.data
@@ -17,23 +16,28 @@ from minimagen.training import get_minimagen_parser, ConceptualCaptions, get_min
 # Get device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-# Training timestamp
-timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+# Command line argument parser. See `training.get_minimagen_parser()`.
+parser = get_minimagen_parser()
+# Add argument for when using `main.py`
+parser.add_argument("-ts", "--TIMESTAMP", dest="timestamp", help="Timestamp for training directory", type=str,
+                             default=None)
+args = parser.parse_args()
+timestamp = args.timestamp
+
+# Get training timestamp for when running train.py as main rather than via main.py
+if timestamp is None:
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
 # Create training directory
 dir_path = f"./training_{timestamp}"
 training_dir = create_directory(dir_path)
 
-# Command line argument parser
-parser = get_minimagen_parser()
-args = parser.parse_args()
-
+# If resuming a training, make sure certain cmd line arguments align and reflect the MinImagen instance being loaded
 if args.RESTART_DIRECTORY is not None:
     args.__dict__ = {**args.__dict__, **load_restart_training_parameters(args.RESTART_DIRECTORY)}
 
-# If testing, lower parameter values for lower computational load and also lower amount of data being used.
+# If testing, lower parameter values to lower computational load and also to lower amount of data being used.
 if args.TESTING:
-    # Parameters for testing - lowers computational load
     args.__dict__ = {
         **args.__dict__,
         **dict(
@@ -53,7 +57,6 @@ else:
 
 # Create dataloaders
 dl_opts = {**get_minimagen_dl_opts(device), 'batch_size': args.BATCH_SIZE, 'num_workers': args.NUM_WORKERS}
-
 train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts)
 valid_dataloader = torch.utils.data.DataLoader(valid_dataset, **dl_opts)
 
@@ -62,8 +65,9 @@ text_embed_dim = get_encoded_dim(args.T5_NAME)
 
 # Create Unets
 if args.RESTART_DIRECTORY is None:
+    # If not loading a training from a checkpoint
     if args.TESTING:
-        # If testing, use tiny MinImagen
+        # If testing, use tiny MinImagen for low computational load
         base_params = dict(
             dim=8,
             text_embed_dim=text_embed_dim,
@@ -96,6 +100,7 @@ if args.RESTART_DIRECTORY is None:
         )
 
         imagen_params = {**get_default_args(Imagen), **imagen_params}
+    # Else if not loading Unet/Imagen settings from a config (parameters) folder, use defaults
     elif not args.PARAMETERS:
         # If no parameters provided, use params from minimagen.Imagen.Base and minimagen.Imagen.Super built-in classes
         base_params = dict(
@@ -124,28 +129,26 @@ if args.RESTART_DIRECTORY is None:
             timesteps=args.TIMESTEPS,
             text_encoder_name=args.T5_NAME
         )
+    # Else load unet/Imagen configs from config (parameters) folder
     else:
         # If parameters are provided, load them
         unets_params, imagen_params = get_model_params(args.PARAMETERS)
 
-    # Create Unets
+    # Create Unets accoridng to unets_params
     unets = [Unet(**unet_params).to(device) for unet_params in unets_params]
 
-    # Create Imagen from UNets with specified parameters
+    # Create Imagen from UNets with specified imagen parameters
     imagen = Imagen(unets=unets, **imagen_params).to(device)
 else:
-    # If training is being resumed from a previous one, load all of the relevant models/info
+    # If training is being resumed from a previous one, load all relevant models/info (load config AND state dicts)
     orig_train_dir = os.path.join(os.getcwd(), args.RESTART_DIRECTORY)
     unets_params, imagen_params = load_params(orig_train_dir)
     imagen = load_minimagen(orig_train_dir).to(device)
     unets = imagen.unets
 
-# Fill in unspecified arguments for complete config (parameters) file
+# Fill in unspecified arguments with defaults for complete config (parameters) file
 unets_params = [{**get_default_args(Unet), **i} for i in unets_params]
 imagen_params = {**get_default_args(Imagen), **imagen_params}
-
-# Add default arguments so parameters file is complete
-unets_params = [{**get_default_args(Unet), **i} for i in unets_params]
 
 # Get the size of the Imagen model in megabytes
 model_size_MB = get_model_size(imagen)
