@@ -79,10 +79,10 @@ def _instatiate_minimagen(directory):
 
 def load_minimagen(directory):
     """
-    Load a MinImagen instance from a training directory.
+    Load a :obj:`MinImagen <.minimagen.Imagen.Imagen>`. instance from a training directory.
 
-    :param directory: MinImagen training directory as structured according to `train.py`.
-    :return: MinImagen instance (ready for inference).
+    :param directory: MinImagen training directory as structured according to :func:`.minimagen.training.create_directory`.
+    :return: :obj:`MinImagen <.minimagen.Imagen.Imagen>` instance (ready for inference).
     """
     map_location = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -131,17 +131,16 @@ def sample_and_save(captions: list,
                     save_directory: str = None,
                     filetype: str = "png"):
     """
-    Generate and save images for a list of captions using a MinImagen instance. Images are saved into a
-        "generated_images" directory as "image_<CAPTION_INDEX>.<FILETYPE>"
+    Generate and save images for a list of captions using a :obj:`MinImagen <.minimagen.Imagen.Imagen>` instance.
+        Images are saved into a "generated_images" directory as "image_<CAPTION_INDEX>.<FILETYPE>"
 
-    :param training_directory:
-    :param minimagen: MinImagen instance to use for sampling (i.e. generating images).
     :param captions: List of captions (strings) to generate images for.
-    :param sample_args: Additional keyword arguments to pass for Imagen.sample function. Do not include texts or
-        return_pil_images in this dictionary.
-    :param sequential: Whether to pass captions through MinImagen sequentially rather than batched. Sequential
-        processing will be slower, but it circumvents storing all images at once. Should be set to True when working
-        with a large number of captions or limited memory.
+    :param minimagen: :obj:`MinImagen <.minimagen.Imagen.Imagen>` instance to use for sampling (i.e.
+        generating images). Must specify one of :code:`minimagen` or :code:`training_directory`.
+    :param training_directory: Training directory of MinImagen instance to use for inference. Must specify one
+        of :code:`minimagen` or :code:`training_directory`.
+    :param sample_args: Additional keyword arguments to pass for :obj:`Imagen.sample <.minimagen.Imagen.Imagen.sample>`
+        function. Do not include :code:`texts` or code:`return_pil_images` in this dictionary.
     :param save_directory: Directory to save images to. Defaults to datetime-stamped directory if not specified.
     :param filetype: Filetype of saved images.
     :return:
@@ -169,14 +168,8 @@ def sample_and_save(captions: list,
         minimagen = load_minimagen(training_directory)
 
 
-    if sequential:
-        # TODO: For some reason sequential is horrifically slow - remove it?
-        for idx, elt in enumerate(captions):
-            with cm("generated_images"):
-                minimagen.sample(texts=elt, return_pil_images=True, **sample_args)[0].save(f'image_{idx}.{filetype}')
-    else:
-        images = minimagen.sample(texts=captions, return_pil_images=True, **sample_args)
+    images = minimagen.sample(texts=captions, return_pil_images=True, **sample_args)
 
-        with cm("generated_images"):
-            for idx, img in enumerate(images):
-                img.save(f'image_{idx}.{filetype}')
+    with cm("generated_images"):
+        for idx, img in enumerate(images):
+            img.save(f'image_{idx}.{filetype}')
