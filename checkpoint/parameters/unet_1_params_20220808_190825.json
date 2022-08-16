@@ -1,0 +1,26 @@
+{
+    "dim": 128,
+    "text_embed_dim": 768,
+    "cond_dim": 512,
+    "dim_mults": [
+        1,
+        2,
+        4
+    ],
+    "num_resnet_blocks": [
+        2,
+        4,
+        8
+    ],
+    "layer_attns": [
+        false,
+        false,
+        true
+    ],
+    "layer_cross_attns": [
+        false,
+        false,
+        true
+    ],
+    "attend_at_middle": false
+}
