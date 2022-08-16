@@ -478,29 +478,77 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
                         torch.save(imagen.unets[idx].state_dict(), model_path)
 
 
-def load_restart_training_parameters(directory):
+def load_restart_training_parameters(args):
     """
     Load identical command line arguments when picking up from a previous training for relevant arguments. That is,
         ensures that :code:`--MAX_NUM_WORDS`, :code:`--IMG_SIDE_LEN`, :code:`--T5_NAME`, :code:`--TIMESTEPS` command
         line arguments from :func:`~.minimagen.training.get_minimagen_parser` are all identical to the original
         training when resuming from a checkpoint.
 
-    :param directory: Training directory from which to load checkpoint
+    :param args: Arguments Namespace returned from parsing :func:`~.minimagen.training.get_minimagen_parser`.
     """
+    # Get directory from which to load relevant params
+    directory = args.RESTART_DIRECTORY
+
+    # Get file to parse
     params = os.path.join(directory, "parameters")
     file = list(filter(lambda x: x.startswith("training_"), os.listdir(params)))[0]
     with open(os.path.join(params, file), 'r') as f:
         lines = f.readlines()
-        to_keep = ["MAX_NUM_WORDS", "IMG_SIDE_LEN", "T5_NAME", "TIMESTEPS"]
-        lines = list(filter(lambda x: True if True in [x.startswith(f"--{i}") for i in to_keep] else False, lines))
-        d = {}
-        for line in lines:
-            s = line.split("=")
-            try:
-                d[s[0][2:]] = int(s[1][:-1])
-            except:
-                d[s[0][2:]] = s[1][:-1]
-        return d
+
+    # Parse relevant args into dict
+    to_keep = ["MAX_NUM_WORDS", "IMG_SIDE_LEN", "T5_NAME", "TIMESTEPS"]
+    lines = list(filter(lambda x: True if True in [x.startswith(f"--{i}") for i in to_keep] else False, lines))
+    d = {}
+    for line in lines:
+        s = line.split("=")
+        try:
+            d[s[0][2:]] = int(s[1][:-1])
+        except:
+            d[s[0][2:]] = s[1][:-1]
+
+    # Replace relevant values in arg dict
+    args.__dict__ = {**args.__dict__, **d}
+    return args
+
+
+def load_testing_parameters(args):
+    """
+    Load command line arguments that are conducive to testing training scripts (i.e. low computational load).
+        In particular, the following attributes of :code:`args` are changed to the specified values:
+
+        - BATCH_SIZE = 2
+
+        - MAX_NUM_WORDS = 32
+
+        - IMG_SIDE_LEN = 128
+
+        - EPOCHS = 2
+
+        - T5_NAME = 't5_small'
+
+        - TRAIN_VALID_FRAC = 0.5
+
+        - TIMESTEPS = 25
+
+        - OPTIM_LR = 0.0001
+
+    :param args: Arguments Namespace returned from parsing :func:`~.minimagen.training.get_minimagen_parser`.
+    """
+    d = dict(
+            BATCH_SIZE=2,
+            MAX_NUM_WORDS=32,
+            IMG_SIDE_LEN=128,
+            EPOCHS=2,
+            T5_NAME='t5_small',
+            TRAIN_VALID_FRAC=0.5,
+            TIMESTEPS=25,  # Do not make less than 20
+            OPTIM_LR=0.0001
+        )
+
+    # Replace relevant values in arg dict
+    args.__dict__ = {**args.__dict__, **d}
+    return args
 
 
 def create_directory(dir_path):
@@ -606,7 +654,8 @@ def get_model_params(parameters_dir):
 
 def get_default_args(object):
     """Returns a dictionary of the default arguments of a function or class"""
-    if object is Unet.Base or object is Unet.Super:
+    # For any subclass of Unet but not Unet itself
+    if isinstance(object, type(Unet.Unet)) and not object is Unet.Unet:
         return {**get_default_args(Unet.Unet), **object.defaults}
 
     signature = inspect.signature(object)
