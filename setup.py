@@ -1,9 +1,12 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.0.5'
+VERSION = '0.0.6'
 DESCRIPTION = 'Minimal Imagen text-to-image model implementation.'
 with open("README.md", "r") as f:
-    LONG_DESCRIPTION = f.read() 
+    LONG_DESCRIPTION = f.read()
+
+# Replace README local image paths with GitHub paths so images render on PyPi
+LONG_DESCRIPTION = LONG_DESCRIPTION.replace("./images/", "https://github.com/AssemblyAI-Examples/MinImagen/raw/main/images/") 
 
 #"Minimal Imagen text-to-image model implementation. See the [GitHub repo](https://github.com/AssemblyAI-Examples/MinImagen) or the [how-to build guide](www.assemblyai.com/blog/build-your-own-imagen-text-to-image-model/) for more details"
 
