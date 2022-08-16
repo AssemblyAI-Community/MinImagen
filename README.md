@@ -100,7 +100,18 @@ After execution, you will see a new `training_<TIMESTAMP>` [Training Directory](
 ### `inference.py`
     
 To generate images using a model from a [Training Directory](#training-directory), we can use `inference.py`. Simply run `inference.py` and specify relevant command line arguments. The possible arguments are:
+    
+- `--TRAINING_DIRECTORY"` or `-d`, which specifies the training directory from which to load the MinImagen instance for inference.
+- `--CAPTIONS` or `-c`, which specifies either (a) a single caption to generate an image for, or (b) a filepath to a `.txt` file that contains a list of captions to generate images for, where each caption is on a new line.
+    
+For example, to generate images for the example captions provided in `.\captions` using the model generated from the above training line, simply run
+    
+```bash
+python inference.py -CAPTIONS captions.txt --TRAINING_DIRECTORY training_<TIMESTAMP>    
+```
 
+where `TIMESTAMP` is replaced with the appropriate value from your training.
+    
 <br/>
 
 ## Usage - Package Only
