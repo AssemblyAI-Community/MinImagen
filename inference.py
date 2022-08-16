@@ -4,7 +4,7 @@ from minimagen.generate import load_minimagen, sample_and_save
 # Command line argument parser
 parser = ArgumentParser()
 parser.add_argument("-c", "--CAPTIONS", dest="CAPTIONS", help="Single caption to generate for or filepath for .txt "
-                                                              "file of captions to generate for or ", default=None, type=str)
+                                                              "file of captions to generate for", default=None, type=str)
 parser.add_argument("-d", "--TRAINING_DIRECTORY", dest="TRAINING_DIRECTORY", help="Training directory to use for inference", type=str)
 args = parser.parse_args()
 
