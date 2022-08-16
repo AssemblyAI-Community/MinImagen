@@ -490,6 +490,7 @@ class Unet(nn.Module):
             - :code:`cond_scale > 1` => large guidance weights improve image quality/fidelity at the cost of diversity. See
             `here <https://www.assemblyai.com/blog/how-imagen-actually-works/#large-guidance-weight-samplers>`_ for
             more information.
+
         :param kwargs: Keyword arguments to pass to :code:`forward`
         :return: Guided images. Shape (b, c, s, s).
         """
