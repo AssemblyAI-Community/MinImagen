@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-VERSION = '0.0.6'
+VERSION = '0.0.7'
 DESCRIPTION = 'Minimal Imagen text-to-image model implementation.'
 with open("README.md", "r") as f:
     LONG_DESCRIPTION = f.read()
