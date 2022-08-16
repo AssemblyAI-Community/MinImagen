@@ -1,3 +1,0 @@
-checkpoint//tmp//unet_0_0_percent.pth filter=lfs diff=lfs merge=lfs -text
-checkpoint//tmp//unet_1_0_percent.pth filter=lfs diff=lfs merge=lfs -text
-*.pth filter=lfs diff=lfs merge=lfs -text
