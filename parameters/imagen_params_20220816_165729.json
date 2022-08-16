@@ -1,0 +1,16 @@
+{
+    "text_embed_dim": null,
+    "channels": 3,
+    "timesteps": 25,
+    "cond_drop_prob": 0.15,
+    "loss_type": "l2",
+    "lowres_sample_noise_level": 0.2,
+    "auto_normalize_img": true,
+    "dynamic_thresholding_percentile": 0.9,
+    "only_train_unet_number": null,
+    "image_sizes": [
+        64,
+        128
+    ],
+    "text_encoder_name": "t5_small"
+}
