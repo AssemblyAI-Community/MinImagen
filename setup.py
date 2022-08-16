@@ -2,7 +2,10 @@ from setuptools import setup, find_packages
 
 VERSION = '0.0.5'
 DESCRIPTION = 'Minimal Imagen text-to-image model implementation.'
-LONG_DESCRIPTION = "Minimal Imagen text-to-image model implementation. See the [GitHub repo](https://github.com/AssemblyAI-Examples/MinImagen) or the [how-to build guide](www.assemblyai.com/blog/build-your-own-imagen-text-to-image-model/) for more details"
+with open("README.md") as f:
+    LONG_DESCRIPTION = f.read() 
+
+#"Minimal Imagen text-to-image model implementation. See the [GitHub repo](https://github.com/AssemblyAI-Examples/MinImagen) or the [how-to build guide](www.assemblyai.com/blog/build-your-own-imagen-text-to-image-model/) for more details"
 
 with open('requirements.txt') as f:
     required = f.read().splitlines()
