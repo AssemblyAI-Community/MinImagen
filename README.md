@@ -48,7 +48,7 @@ Documentation can be found [here](https://assemblyai-examples.github.io/MinImage
 
 <br/>
 
-## Usage - Cloned Repo
+## Usage - Command Line
 If you have cloned this repo, you can use the provided scripts to get started with MinImagen.
 
 ### `main.py`
@@ -114,8 +114,10 @@ where `TIMESTAMP` is replaced with the appropriate value from your training.
     
 <br/>
 
-## Usage - Package Only
-A minimal usage:
+## Usage - Package
+    
+A minimal training script using the `minimagen` package is shown below. See [`train.py`](https://github.com/AssemblyAI-Examples/MinImagen/blob/main/train.py) for a more built-up version of the below code.
+    
 ```python
 import os
 from datetime import datetime
@@ -195,5 +197,30 @@ optimizer = optim.Adam(imagen.parameters(), lr=args.OPTIM_LR)
 
 # Train the MinImagen instance
 MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_dataloader, training_dir, optimizer, timeout=30)
+```
+    
+A minimal inference script using the `minimagen` package is shown below. See [`inference.py`](https://github.com/AssemblyAI-Examples/MinImagen/blob/main/inference.py) for a more built-up version of the below code.
+
+```python
+from argparse import ArgumentParser
+from minimagen.generate import load_minimagen, sample_and_save
+
+# Command line argument parser
+parser = ArgumentParser()
+parser.add_argument("-d", "--TRAINING_DIRECTORY", dest="TRAINING_DIRECTORY", help="Training directory to use for inference", type=str)
+args = parser.parse_args()
+
+# Specify the caption(s) to generate images for
+captions = ['a happy dog']
+
+# Use `sample_and_save` to generate and save the iamges
+sample_and_save(captions, training_directory=args.TRAINING_DIRECTORY)
+
+
+
+# Alternatively, rather than specifying a Training Directory, you can input just a MinImagen instance to use for image generation.
+# In this case, information about the MinImagen instance used to generate the images will not be saved.
+minimagen = load_minimagen(args.TRAINING_DIRECTORY)
+sample_and_save(captions, minimagen=minimagen)    
 ```
 
