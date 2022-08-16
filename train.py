@@ -50,9 +50,6 @@ dl_opts = {**get_minimagen_dl_opts(device), 'batch_size': args.BATCH_SIZE, 'num_
 train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts)
 valid_dataloader = torch.utils.data.DataLoader(valid_dataset, **dl_opts)
 
-# Get encoding dimension of the text encoder
-text_embed_dim = get_encoded_dim(args.T5_NAME)
-
 # Create Unets
 if args.RESTART_DIRECTORY is None:
     imagen_params = dict(
