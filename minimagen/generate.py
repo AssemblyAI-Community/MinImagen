@@ -55,7 +55,6 @@ def load_params(directory):
         i-th Unet in the Imagen instance.
     """
     # Files in parameters directory
-    print(os.getcwd())
     files = os.listdir(os.path.join(directory, "parameters"))
 
     # Filter only param files for U-Nets
