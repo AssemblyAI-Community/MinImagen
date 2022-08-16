@@ -44,7 +44,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#module-minimagen.Unet">Unet</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-minimagen.diffusion_model">Diffusion Model</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-minimagen.t5">T5</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#training">Training</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-minimagen.training">Training</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#module-minimagen.generate">Generate</a></li>
 </ul>
 </li>
@@ -297,7 +297,7 @@ more information.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="minimagen.diffusion_model.GaussianDiffusion.q_posterior">
-<span class="sig-name descname"><span class="pre">q_posterior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple[&lt;built-in</span> <span class="pre">method</span> <span class="pre">tensor</span> <span class="pre">of</span> <span class="pre">type</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x00007FFA641EA7F0&gt;,</span> <span class="pre">&lt;built-in</span> <span class="pre">method</span> <span class="pre">tensor</span> <span class="pre">of</span> <span class="pre">type</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x00007FFA641EA7F0&gt;,</span> <span class="pre">&lt;built-in</span> <span class="pre">method</span> <span class="pre">tensor</span> <span class="pre">of</span> <span class="pre">type</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x00007FFA641EA7F0&gt;]</span></span></span><a class="headerlink" href="#minimagen.diffusion_model.GaussianDiffusion.q_posterior" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">q_posterior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch._VariableFunctionsClass.tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch._VariableFunctionsClass.tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch._VariableFunctionsClass.tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#minimagen.diffusion_model.GaussianDiffusion.q_posterior" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates q_posterior parameters given a starting image <code class="code docutils literal notranslate"><span class="pre">x_start</span></code> (x_0) and a noised image <code class="code docutils literal notranslate"><span class="pre">x_t</span></code>.</p>
 <figure class="align-default">
 <img alt="q posterior formula" src="_images/q_posterior.png" />
@@ -385,8 +385,184 @@ encoding component of the <strong>j</strong>-th token in the <strong>i</strong>-
 </dd></dl>
 
 </section>
-<section id="training">
-<h2>Training<a class="headerlink" href="#training" title="Permalink to this heading"></a></h2>
+<section id="module-minimagen.training">
+<span id="training"></span><h2>Training<a class="headerlink" href="#module-minimagen.training" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="minimagen.training.ConceptualCaptions">
+<span class="sig-prename descclassname"><span class="pre">minimagen.training.</span></span><span class="sig-name descname"><span class="pre">ConceptualCaptions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smalldata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">testset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.training.ConceptualCaptions" title="Permalink to this definition"></a></dt>
+<dd><p>Load <a class="reference external" href="https://ai.google.com/research/ConceptualCaptions/">conceptual captions dataset</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – Arguments Namespace/dictionary parsed from <a class="reference internal" href="#minimagen.training.get_minimagen_parser" title="minimagen.training.get_minimagen_parser"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_minimagen_parser()</span></code></a></p></li>
+<li><p><strong>smalldata</strong> – Whether to return a small subset of the data (for testing code)</p></li>
+<li><p><strong>testset</strong> – Whether to return the testing set (vs training/valid)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>test_dataset if <code class="code docutils literal notranslate"><span class="pre">testset</span></code> else (train_dataset, valid_dataset)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="minimagen.training.MinimagenCollator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minimagen.training.</span></span><span class="sig-name descname"><span class="pre">MinimagenCollator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.training.MinimagenCollator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="minimagen.training.MinimagenDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minimagen.training.</span></span><span class="sig-name descname"><span class="pre">MinimagenDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hf_dataset</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoder_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">side_length</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">img_transform</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.training.MinimagenDataset" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Dataset</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="minimagen.training.MinimagenTrain">
+<span class="sig-prename descclassname"><span class="pre">minimagen.training.</span></span><span class="sig-name descname"><span class="pre">MinimagenTrain</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imagen</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">train_dataloader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_dataloader</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.training.MinimagenTrain" title="Permalink to this definition"></a></dt>
+<dd><p>Training loop for MinImagen instance</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>timestamp</strong> – Timestamp for training.</p></li>
+<li><p><strong>args</strong> – Arguments Namespace/dict from argparsing <a class="reference internal" href="#minimagen.training.get_minimagen_parser" title="minimagen.training.get_minimagen_parser"><code class="xref py py-func docutils literal notranslate"><span class="pre">minimagen.training.get_minimagen_parser()</span></code></a> parser.</p></li>
+<li><p><strong>unets</strong> – List of :class:<a href="#id4"><span class="problematic" id="id5">`</span></a>~.minimagen.Unet.Unet`s used in the Imagen instance.</p></li>
+<li><p><strong>imagen</strong> – <a class="reference internal" href="#minimagen.Imagen.Imagen" title="minimagen.Imagen.Imagen"><code class="xref py py-class docutils literal notranslate"><span class="pre">Imagen</span></code></a> instance to train.</p></li>
+<li><p><strong>train_dataloader</strong> – Dataloader for training.</p></li>
+<li><p><strong>valid_dataloader</strong> – Dataloader for validation.</p></li>
+<li><p><strong>training_dir</strong> – Training directory context manager returned from <a class="reference internal" href="#minimagen.training.create_directory" title="minimagen.training.create_directory"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_directory()</span></code></a>.</p></li>
+<li><p><strong>optimizer</strong> – Optimizer to use for training.</p></li>
+<li><p><strong>timeout</strong> – Amount of time to spend trying to process batch before passing on to the next batch. Does not work
+on Windows.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="minimagen.training.create_directory">
+<span class="sig-prename descclassname"><span class="pre">minimagen.training.</span></span><span class="sig-name descname"><span class="pre">create_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.training.create_directory" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Creates a training directory at the given path if it does not exist already and returns a context manager that</dt><dd><p>allows user to temporarily enter the directory (or a subdirectory) to e.g. modify files. Also creates
+subdirectories “parameters”, “state_dicts”, and “tmp” under the parent directory which can be similarly
+temporarily accessed by supplying a given subdirectory name to the returned context manager as an argument.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dir_path</strong> – Path of directory to create</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Context manager to access created training directory/subdirectories</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="minimagen.training.get_default_args">
+<span class="sig-prename descclassname"><span class="pre">minimagen.training.</span></span><span class="sig-name descname"><span class="pre">get_default_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.training.get_default_args" title="Permalink to this definition"></a></dt>
+<dd><p>Returns a dictionary of the default arguments of a function or class</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="minimagen.training.get_minimagen_dl_opts">
+<span class="sig-prename descclassname"><span class="pre">minimagen.training.</span></span><span class="sig-name descname"><span class="pre">get_minimagen_dl_opts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">device</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.training.get_minimagen_dl_opts" title="Permalink to this definition"></a></dt>
+<dd><p>Returns dictionary of default MinImagen dataloader options</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="minimagen.training.get_minimagen_parser">
+<span class="sig-prename descclassname"><span class="pre">minimagen.training.</span></span><span class="sig-name descname"><span class="pre">get_minimagen_parser</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.training.get_minimagen_parser" title="Permalink to this definition"></a></dt>
+<dd><p>Returns parser for MinImagen training</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="minimagen.training.get_model_params">
+<span class="sig-prename descclassname"><span class="pre">minimagen.training.</span></span><span class="sig-name descname"><span class="pre">get_model_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters_dir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.training.get_model_params" title="Permalink to this definition"></a></dt>
+<dd><p>Returns the U-Net parameters and Imagen parameters saved in a “parameters” subdirectory of a training folder.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>parameters_dir</strong> – “parameters” subdirectory from which to load.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>(unets_params, im_params) where unets_params is a list where the parameters index corresponds to the
+Unet number in the Imagen instance.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="minimagen.training.get_model_size">
+<span class="sig-prename descclassname"><span class="pre">minimagen.training.</span></span><span class="sig-name descname"><span class="pre">get_model_size</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">imagen</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.training.get_model_size" title="Permalink to this definition"></a></dt>
+<dd><p>Returns model size in MB</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="minimagen.training.load_restart_training_parameters">
+<span class="sig-prename descclassname"><span class="pre">minimagen.training.</span></span><span class="sig-name descname"><span class="pre">load_restart_training_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">justparams</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.training.load_restart_training_parameters" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Load identical command line arguments when picking up from a previous training for relevant arguments. That is,</dt><dd><p>ensures that <code class="code docutils literal notranslate"><span class="pre">--MAX_NUM_WORDS</span></code>, <code class="code docutils literal notranslate"><span class="pre">--IMG_SIDE_LEN</span></code>, <code class="code docutils literal notranslate"><span class="pre">--T5_NAME</span></code>, <code class="code docutils literal notranslate"><span class="pre">--TIMESTEPS</span></code> command
+line arguments from <a class="reference internal" href="#minimagen.training.get_minimagen_parser" title="minimagen.training.get_minimagen_parser"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_minimagen_parser()</span></code></a> are all identical to the original
+training when resuming from a checkpoint.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – Arguments Namespace returned from parsing <a class="reference internal" href="#minimagen.training.get_minimagen_parser" title="minimagen.training.get_minimagen_parser"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_minimagen_parser()</span></code></a>.</p></li>
+<li><p><strong>justparams</strong> – Whether loading from a parameters directory rather than a full training directory.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="minimagen.training.load_testing_parameters">
+<span class="sig-prename descclassname"><span class="pre">minimagen.training.</span></span><span class="sig-name descname"><span class="pre">load_testing_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.training.load_testing_parameters" title="Permalink to this definition"></a></dt>
+<dd><dl class="simple">
+<dt>Load command line arguments that are conducive to testing training scripts (i.e. low computational load).</dt><dd><p>In particular, the following attributes of <code class="code docutils literal notranslate"><span class="pre">args</span></code> are changed to the specified values:</p>
+<ul class="simple">
+<li><p>BATCH_SIZE = 2</p></li>
+<li><p>MAX_NUM_WORDS = 32</p></li>
+<li><p>IMG_SIDE_LEN = 128</p></li>
+<li><p>EPOCHS = 2</p></li>
+<li><p>T5_NAME = ‘t5_small’</p></li>
+<li><p>TRAIN_VALID_FRAC = 0.5</p></li>
+<li><p>TIMESTEPS = 25</p></li>
+<li><p>OPTIM_LR = 0.0001</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>args</strong> – Arguments Namespace returned from parsing <a class="reference internal" href="#minimagen.training.get_minimagen_parser" title="minimagen.training.get_minimagen_parser"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_minimagen_parser()</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="minimagen.training.save_training_info">
+<span class="sig-prename descclassname"><span class="pre">minimagen.training.</span></span><span class="sig-name descname"><span class="pre">save_training_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unets_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">imagen_params</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">training_dir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.training.save_training_info" title="Permalink to this definition"></a></dt>
+<dd><p>Saves training info to training directory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – Arguments Namespace/dict from argparsing <a class="reference internal" href="#minimagen.training.get_minimagen_parser" title="minimagen.training.get_minimagen_parser"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_minimagen_parser()</span></code></a> parser.</p></li>
+<li><p><strong>timestamp</strong> – Training timestamp</p></li>
+<li><p><strong>unets_params</strong> – List of parameters of Unets to save.</p></li>
+<li><p><strong>imagen_params</strong> – Imagen parameters to save</p></li>
+<li><p><strong>training_dir</strong> – Context manager returned from <a class="reference internal" href="#minimagen.training.create_directory" title="minimagen.training.create_directory"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_directory()</span></code></a></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-minimagen.generate">
 <span id="generate"></span><h2>Generate<a class="headerlink" href="#module-minimagen.generate" title="Permalink to this heading"></a></h2>
@@ -396,7 +572,7 @@ encoding component of the <strong>j</strong>-th token in the <strong>i</strong>-
 <dd><p>Load a <a class="reference internal" href="#minimagen.Imagen.Imagen" title="minimagen.Imagen.Imagen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MinImagen</span></code></a>. instance from a training directory.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>directory</strong> – MinImagen training directory as structured according to <code class="xref py py-func docutils literal notranslate"><span class="pre">minimagen.training.create_directory()</span></code>.</p>
+<dd class="field-odd"><p><strong>directory</strong> – MinImagen training directory as structured according to <a class="reference internal" href="#minimagen.training.create_directory" title="minimagen.training.create_directory"><code class="xref py py-func docutils literal notranslate"><span class="pre">minimagen.training.create_directory()</span></code></a>.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><a class="reference internal" href="#minimagen.Imagen.Imagen" title="minimagen.Imagen.Imagen"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MinImagen</span></code></a> instance (ready for inference).</p>
