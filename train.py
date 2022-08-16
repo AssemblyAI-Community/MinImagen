@@ -32,9 +32,11 @@ if timestamp is None:
 dir_path = f"./training_{timestamp}"
 training_dir = create_directory(dir_path)
 
-# If resuming a training, make sure certain cmd line arguments align and reflect the MinImagen instance being loaded
+# If loading from a parameters/training directory
 if args.RESTART_DIRECTORY is not None:
     args = load_restart_training_parameters(args)
+elif args.PARAMETERS is not None:
+    args = load_restart_training_parameters(args, justparams=True)
 
 # If testing, lower parameter values to lower computational load and also to lower amount of data being used.
 if args.TESTING:

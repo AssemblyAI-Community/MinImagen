@@ -478,7 +478,7 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
                         torch.save(imagen.unets[idx].state_dict(), model_path)
 
 
-def load_restart_training_parameters(args):
+def load_restart_training_parameters(args, justparams=False):
     """
     Load identical command line arguments when picking up from a previous training for relevant arguments. That is,
         ensures that :code:`--MAX_NUM_WORDS`, :code:`--IMG_SIDE_LEN`, :code:`--T5_NAME`, :code:`--TIMESTEPS` command
@@ -486,12 +486,17 @@ def load_restart_training_parameters(args):
         training when resuming from a checkpoint.
 
     :param args: Arguments Namespace returned from parsing :func:`~.minimagen.training.get_minimagen_parser`.
+    :param justparams: Whether loading from a parameters directory rather than a full training directory.
     """
-    # Get directory from which to load relevant params
-    directory = args.RESTART_DIRECTORY
+    if justparams:
+        params = args.PARAMETERS
+    else:
+        # Get directory from which to load relevant params
+        directory = args.RESTART_DIRECTORY
 
-    # Get file to parse
-    params = os.path.join(directory, "parameters")
+        # Get file to parse
+        params = os.path.join(directory, "parameters")
+
     file = list(filter(lambda x: x.startswith("training_"), os.listdir(params)))[0]
     with open(os.path.join(params, file), 'r') as f:
         lines = f.readlines()
