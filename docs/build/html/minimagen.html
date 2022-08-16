@@ -134,7 +134,7 @@
 <dt class="sig sig-object py" id="minimagen.Unet.Base">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minimagen.Unet.</span></span><span class="sig-name descname"><span class="pre">Base</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.Unet.Base" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#minimagen.Unet.Unet" title="minimagen.Unet.Unet"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unet</span></code></a></p>
-<p>Base image generation U-Net with default arguments.</p>
+<p>Base image generation U-Net with default arguments from original Imagen implementation.</p>
 <ul class="simple">
 <li><p>dim = 512</p></li>
 <li><p>dim_mults = (1, 2, 3, 4),</p></li>
@@ -143,13 +143,38 @@
 <li><p>layer_cross_attns = (False, True, True, True),</p></li>
 <li><p>memory_efficient = False</p></li>
 </ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minimagen.Unet.Base.defaults">
+<span class="sig-name descname"><span class="pre">defaults</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'dim':</span> <span class="pre">512,</span> <span class="pre">'dim_mults':</span> <span class="pre">(1,</span> <span class="pre">2,</span> <span class="pre">3,</span> <span class="pre">4),</span> <span class="pre">'layer_attns':</span> <span class="pre">(False,</span> <span class="pre">True,</span> <span class="pre">True,</span> <span class="pre">True),</span> <span class="pre">'layer_cross_attns':</span> <span class="pre">(False,</span> <span class="pre">True,</span> <span class="pre">True,</span> <span class="pre">True),</span> <span class="pre">'memory_efficient':</span> <span class="pre">False,</span> <span class="pre">'num_resnet_blocks':</span> <span class="pre">3}</span></em><a class="headerlink" href="#minimagen.Unet.Base.defaults" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="minimagen.Unet.BaseTest">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minimagen.Unet.</span></span><span class="sig-name descname"><span class="pre">BaseTest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.Unet.BaseTest" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#minimagen.Unet.Unet" title="minimagen.Unet.Unet"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unet</span></code></a></p>
+<p>Base image generation U-Net with default arguments intended for testing.</p>
+<ul class="simple">
+<li><p>dim = 8</p></li>
+<li><p>dim_mults = (1, 2)</p></li>
+<li><p>num_resnet_blocks = 1</p></li>
+<li><p>layer_attns = False</p></li>
+<li><p>layer_cross_attns = False</p></li>
+<li><p>memory_efficient = False</p></li>
+</ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minimagen.Unet.BaseTest.defaults">
+<span class="sig-name descname"><span class="pre">defaults</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'dim':</span> <span class="pre">8,</span> <span class="pre">'dim_mults':</span> <span class="pre">(1,</span> <span class="pre">2),</span> <span class="pre">'layer_attns':</span> <span class="pre">False,</span> <span class="pre">'layer_cross_attns':</span> <span class="pre">False,</span> <span class="pre">'memory_efficient':</span> <span class="pre">False,</span> <span class="pre">'num_resnet_blocks':</span> <span class="pre">1}</span></em><a class="headerlink" href="#minimagen.Unet.BaseTest.defaults" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="minimagen.Unet.Super">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minimagen.Unet.</span></span><span class="sig-name descname"><span class="pre">Super</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.Unet.Super" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#minimagen.Unet.Unet" title="minimagen.Unet.Unet"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unet</span></code></a></p>
-<p>Super-Resolution U-Net with default arguments.</p>
+<p>Super-Resolution U-Net with default arguments from original Imagen implementation.</p>
 <ul class="simple">
 <li><p>dim = 128</p></li>
 <li><p>dim_mults = (1, 2, 4, 8),</p></li>
@@ -158,6 +183,31 @@
 <li><p>layer_cross_attns = (False, False, False, True),</p></li>
 <li><p>memory_efficient = True</p></li>
 </ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minimagen.Unet.Super.defaults">
+<span class="sig-name descname"><span class="pre">defaults</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'dim':</span> <span class="pre">128,</span> <span class="pre">'dim_mults':</span> <span class="pre">(1,</span> <span class="pre">2,</span> <span class="pre">4,</span> <span class="pre">8),</span> <span class="pre">'layer_attns':</span> <span class="pre">(False,</span> <span class="pre">False,</span> <span class="pre">False,</span> <span class="pre">True),</span> <span class="pre">'layer_cross_attns':</span> <span class="pre">(False,</span> <span class="pre">False,</span> <span class="pre">False,</span> <span class="pre">True),</span> <span class="pre">'memory_efficient':</span> <span class="pre">True,</span> <span class="pre">'num_resnet_blocks':</span> <span class="pre">(2,</span> <span class="pre">4,</span> <span class="pre">8,</span> <span class="pre">8)}</span></em><a class="headerlink" href="#minimagen.Unet.Super.defaults" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="minimagen.Unet.SuperTest">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">minimagen.Unet.</span></span><span class="sig-name descname"><span class="pre">SuperTest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#minimagen.Unet.SuperTest" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#minimagen.Unet.Unet" title="minimagen.Unet.Unet"><code class="xref py py-class docutils literal notranslate"><span class="pre">Unet</span></code></a></p>
+<p>Super-Resolution U-Net with default arguments intended for testing.</p>
+<ul class="simple">
+<li><p>dim = 8</p></li>
+<li><p>dim_mults = (1, 2)</p></li>
+<li><p>num_resnet_blocks = (1, 2)</p></li>
+<li><p>layer_attns = False</p></li>
+<li><p>layer_cross_attns = False</p></li>
+<li><p>memory_efficient = True</p></li>
+</ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="minimagen.Unet.SuperTest.defaults">
+<span class="sig-name descname"><span class="pre">defaults</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'dim':</span> <span class="pre">8,</span> <span class="pre">'dim_mults':</span> <span class="pre">(1,</span> <span class="pre">2),</span> <span class="pre">'layer_attns':</span> <span class="pre">False,</span> <span class="pre">'layer_cross_attns':</span> <span class="pre">False,</span> <span class="pre">'memory_efficient':</span> <span class="pre">True,</span> <span class="pre">'num_resnet_blocks':</span> <span class="pre">(1,</span> <span class="pre">2)}</span></em><a class="headerlink" href="#minimagen.Unet.SuperTest.defaults" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 <dl class="py class">
@@ -203,9 +253,9 @@ the range [0.1, 0.2].</p></li>
 <ul>
 <li><p><code class="code docutils literal notranslate"><span class="pre">cond_scale</span> <span class="pre">=</span> <span class="pre">0</span></code> =&gt; unconditional model.</p></li>
 <li><p><code class="code docutils literal notranslate"><span class="pre">cond_scale</span> <span class="pre">=</span> <span class="pre">1</span></code> =&gt; standard conditional model.</p></li>
-<li><p><code class="code docutils literal notranslate"><span class="pre">cond_scale</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> =&gt; large guidance weights improve image quality/fidelity at the cost of diversity. See</p></li>
+<li><p><code class="code docutils literal notranslate"><span class="pre">cond_scale</span> <span class="pre">&gt;</span> <span class="pre">1</span></code> =&gt; large guidance weights improve image quality/fidelity at the cost of diversity.</p></li>
 </ul>
-<p><a class="reference external" href="https://www.assemblyai.com/blog/how-imagen-actually-works/#large-guidance-weight-samplers">here</a> for
+<p>See <a class="reference external" href="https://www.assemblyai.com/blog/how-imagen-actually-works/#large-guidance-weight-samplers">here</a> for
 more information.</p>
 </p></li>
 <li><p><strong>kwargs</strong> – Keyword arguments to pass to <code class="code docutils literal notranslate"><span class="pre">forward</span></code></p></li>
@@ -247,7 +297,7 @@ more information.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="minimagen.diffusion_model.GaussianDiffusion.q_posterior">
-<span class="sig-name descname"><span class="pre">q_posterior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple[<span class="pre">tensor</span>, <span class="pre">tensor</span>, <span class="pre">tensor</span>]</span></span></span><a class="headerlink" href="#minimagen.diffusion_model.GaussianDiffusion.q_posterior" title="Permalink to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">q_posterior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_start</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple[&lt;built-in</span> <span class="pre">method</span> <span class="pre">tensor</span> <span class="pre">of</span> <span class="pre">type</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x00007FFA641EA7F0&gt;,</span> <span class="pre">&lt;built-in</span> <span class="pre">method</span> <span class="pre">tensor</span> <span class="pre">of</span> <span class="pre">type</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x00007FFA641EA7F0&gt;,</span> <span class="pre">&lt;built-in</span> <span class="pre">method</span> <span class="pre">tensor</span> <span class="pre">of</span> <span class="pre">type</span> <span class="pre">object</span> <span class="pre">at</span> <span class="pre">0x00007FFA641EA7F0&gt;]</span></span></span><a class="headerlink" href="#minimagen.diffusion_model.GaussianDiffusion.q_posterior" title="Permalink to this definition"></a></dt>
 <dd><p>Calculates q_posterior parameters given a starting image <code class="code docutils literal notranslate"><span class="pre">x_start</span></code> (x_0) and a noised image <code class="code docutils literal notranslate"><span class="pre">x_t</span></code>.</p>
 <figure class="align-default">
 <img alt="q posterior formula" src="_images/q_posterior.png" />
