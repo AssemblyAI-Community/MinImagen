@@ -487,8 +487,8 @@ class Unet(nn.Module):
 
             - :code:`cond_scale = 1` => standard conditional model.
 
-            - :code:`cond_scale > 1` => large guidance weights improve image quality/fidelity at the cost of diversity. See
-            `here <https://www.assemblyai.com/blog/how-imagen-actually-works/#large-guidance-weight-samplers>`_ for
+            - :code:`cond_scale > 1` => large guidance weights improve image quality/fidelity at the cost of diversity.
+            See `here <https://www.assemblyai.com/blog/how-imagen-actually-works/#large-guidance-weight-samplers>`_ for
             more information.
 
         :param kwargs: Keyword arguments to pass to :code:`forward`
@@ -636,7 +636,7 @@ class Unet(nn.Module):
 
 class Base(Unet):
     """
-    Base image generation U-Net with default arguments.
+    Base image generation U-Net with default arguments from original Imagen implementation.
 
     - dim = 512
 
@@ -666,7 +666,7 @@ class Base(Unet):
 
 class Super(Unet):
     """
-    Super-Resolution U-Net with default arguments.
+    Super-Resolution U-Net with default arguments from original Imagen implementation.
 
     - dim = 128
 
@@ -694,7 +694,7 @@ class Super(Unet):
 
 class BaseTest(Unet):
     """
-    Base image generation U-Net with default arguments.
+    Base image generation U-Net with default arguments intended for testing.
 
     - dim = 8
 
@@ -724,7 +724,7 @@ class BaseTest(Unet):
 
 class SuperTest(Unet):
     """
-    Super-Resolution U-Net with default arguments.
+    Super-Resolution U-Net with default arguments intended for testing.
 
     - dim = 8
 
