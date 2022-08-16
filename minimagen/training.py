@@ -655,7 +655,7 @@ def get_model_params(parameters_dir):
 def get_default_args(object):
     """Returns a dictionary of the default arguments of a function or class"""
     # For any subclass of Unet but not Unet itself
-    if isinstance(object, type(Unet.Unet)) and not object is Unet.Unet:
+    if issubclass(object, Unet.Unet) and not object is Unet.Unet:
         return {**get_default_args(Unet.Unet), **object.defaults}
 
     signature = inspect.signature(object)
