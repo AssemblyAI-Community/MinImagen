@@ -58,7 +58,7 @@ $ python main.py
 ```
 This will create a small MinImagen instance and train it on a tiny amount of data, and then use this MinImagen instance to generate an image.
 
-After running the script, you will see a directory called `training_<TIMESTAMP>`. 
+<a id="training-directory">After<a/> running the script, you will see a directory called `training_<TIMESTAMP>`. 
 1. This directory is called a *Training Directory* and is generated when training a MinImagen instance. 
 2. It contains information about the configuration (`parameters` subdirectory), and contains the model checkpoints (`state_dicts` and `tmp` directories). 
 3. It also contains a `training_progress.txt` file that records training progress.
@@ -74,35 +74,44 @@ You will also see a directory called `generated_images_<TIMESTEP>`.
 
 To train a model, simply run `train.py` and specify relevant command line arguments. The [possible arguments](https://github.com/AssemblyAI-Examples/MinImagen/blob/d7de8350db17713fb630e127c010020820953872/minimagen/training.py#L178) are:
 
-- `--PARAMETERS` or (`-p`), which specifies a directory that specifies the MinImagen configuration to use. It should be structured like to load the MinImagen instance from
-    parser.add_argument("-n", "--NUM_WORKERS", dest="NUM_WORKERS", help="Number of workers for DataLoader", default=0,
-                        type=int)
-    parser.add_argument("-b", "--BATCH_SIZE", dest="BATCH_SIZE", help="Batch size", default=2, type=int)
-    parser.add_argument("-mw", "--MAX_NUM_WORDS", dest="MAX_NUM_WORDS",
-                        help="Maximum number of words allowed in a caption", default=64, type=int)
-    parser.add_argument("-s", "--IMG_SIDE_LEN", dest="IMG_SIDE_LEN", help="Side length of square Imagen output images",
-                        default=128, type=int)
-    parser.add_argument("-e", "--EPOCHS", dest="EPOCHS", help="Number of training epochs", default=5, type=int)
-    parser.add_argument("-t5", "--T5_NAME", dest="T5_NAME", help="Name of T5 encoder to use", default='t5_base',
-                        type=str)
-    parser.add_argument("-f", "--TRAIN_VALID_FRAC", dest="TRAIN_VALID_FRAC",
-                        help="Fraction of dataset to use for training (vs. validation)", default=0.9, type=float)
-    parser.add_argument("-t", "--TIMESTEPS", dest="TIMESTEPS", help="Number of timesteps in Diffusion process",
-                        default=1000, type=int)
-    parser.add_argument("-lr", "--OPTIM_LR", dest="OPTIM_LR", help="Learning rate for Adam optimizer", default=0.0001,
-                        type=float)
-    parser.add_argument("-ai", "--ACCUM_ITER", dest="ACCUM_ITER", help="Number of batches for gradient accumulation",
-                        default=1, type=int)
-    parser.add_argument("-cn", "--CHCKPT_NUM", dest="CHCKPT_NUM",
-                        help="Checkpointing batch number interval", default=500, type=int)
-    parser.add_argument("-vn", "--VALID_NUM", dest="VALID_NUM",
-                        help="Number of validation images to use. If None, uses full amount from train/valid split",
-                        default=None, type=int)
-    parser.add_argument("-rd", "--RESTART_DIRECTORY", dest="RESTART_DIRECTORY",
-                        help="Training directory to resume training from if restarting.", default=None, type=str)
-    parser.add_argument("-test", "--TESTING", dest="TESTING", help="Whether to test with smaller dataset",
-                        action='store_true')
+- `--PARAMETERS` or `-p`, which specifies a directory that specifies the MinImagen configuration to use. It should be structured like a `parameters` subdirectory within a Training Directory (example in [`/parameters`](https://github.com/AssemblyAI-Examples/MinImagen/tree/main/parameters)).
+- `--NUM_WORKERS"` or `-n`, which specifies the number of workers to use for the DataLoaders.
+- `--BATCH_SIZE` or `-b`, which specifies the batch size to use during training.
+- `--MAX_NUM_WORDS` or `-mw`, which specifies the maximum number of words allowed in a caption.
+- `--IMG_SIDE_LEN` or `-s`, specifies the final side length of the square images the MinImagen will output.
+- `--EPOCHS` or `-e`, which specifies the number of training epochs.
+- `--T5_NAME` `-t5`, which specifies the name of T5 encoder to use.
+- `--TRAIN_VALID_FRAC` or `-f`, which specifies the fraction of dataset to use for training (vs. validation).
+- `--TIMESTEPS` or `-t`, which specifies the number of timesteps in Diffusion Process.
+- `--OPTIM_LR` or `-lr`, which specifies the learning rate for Adam optimizer.
+- `--ACCUM_ITER` or `-ai`, which specifies the number of batches to accumulate for gradient accumulation.
+- `--CHCKPT_NUM` or `-cn`, which specifies the interval of batches to create a temporary model checkpoint at during training.
+- `--VALID_NUM` or `-vn`, which specifies the number of validation images to use. If None, uses full amount from train/valid split. The reason for including this is that, even with an e.g. 0.99 `--TRAIN_VALID_FRAC`, a prohibitively large number of images could still be left for validation for very large datasets.
+- `--RESTART_DIRECTORY` or `-rd`, training directory to load MinImagen instance from if resuming training. A new Training Directory will be created for the training, leaving the previous Training Directory from which the checkpoint is loaded unperturbed.
+- `--TESTING` or `-test`, which is used to run the script with a small MinImagen instance and small dataset for testing.
 
+For example, to run a small training using the provided example [`/parameters`](https://github.com/AssemblyAI-Examples/MinImagen/tree/main/parameters) folder, run the following in the terminal:
+
+```bash
+python train.py --PARAMETERS ./parameters --BATCH_SIZE 2 --TIMESTEPS 25 --TESTING
+```
+After execution, you will see a new `training_<TIMESTAMP>` [Training Directory](#training-directory) that contains the files as [listed above](#training-directory) from the training.
+    
+### `inference.py`
+    
+To generate images using a model from a [Training Directory](#training-directory), we can use `inference.py`. Simply run `inference.py` and specify relevant command line arguments. The possible arguments are:
+    
+- `--TRAINING_DIRECTORY"` or `-d`, which specifies the training directory from which to load the MinImagen instance for inference.
+- `--CAPTIONS` or `-c`, which specifies either (a) a single caption to generate an image for, or (b) a filepath to a `.txt` file that contains a list of captions to generate images for, where each caption is on a new line.
+    
+For example, to generate images for the example captions provided in `.\captions` using the model generated from the above training line, simply run
+    
+```bash
+python inference.py -CAPTIONS captions.txt --TRAINING_DIRECTORY training_<TIMESTAMP>    
+```
+
+where `TIMESTAMP` is replaced with the appropriate value from your training.
+    
 <br/>
 
 ## Usage - Package Only
