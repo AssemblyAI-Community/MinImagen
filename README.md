@@ -33,6 +33,7 @@ In particular, two notable contributions are the developments of:
     - [Training](#training)
     - [Image Generation](#image-generation)
 - [Additional Resources](#additional-resources)
+- [Socials](#socials)
 
 <br/>
 
@@ -237,7 +238,7 @@ To see more of what MinImagen has to offer, or to get additional details on the 
 - For a step-by-step guide on how to build the version of Imagen in this repository, see [Build Your Own Imagen Text-to-Image Model](www.assemblyai.com/blog/build-your-own-imagen-text-to-image-model/).
 - For an deep-dive into how Imagen works, see [How Imagen Actually Works](https://www.assemblyai.com/blog/how-imagen-actually-works/).
 - For additional learning resources for Machine Learning and Deep Learning, check out our [Blog](https://www.assemblyai.com/blog/).
-- Check out our YouTube channel for videos and other learning resources on Machine Learning and Deep Learning.
+- Check out our [YouTube channel](https://www.youtube.com/c/AssemblyAI) for videos and other learning resources on Machine Learning and Deep Learning.
 - [Follow our newsletter](https://assemblyai.us17.list-manage.com/subscribe?u=cb9db7b18b274c2d402a56c5f&id=2116bf7c68) to stay up to date on our recent content.
 - Read about Diffusion Models in our [Introduction to Diffusion Models for Machine Learning](https://www.assemblyai.com/blog/diffusion-models-for-machine-learning-introduction/) guide.
 - Read more about Imagen here.
