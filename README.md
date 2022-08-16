@@ -145,30 +145,19 @@ timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 dir_path = f"./training_{timestamp}"
 training_dir = create_directory(dir_path)
 
-# Load Conceptual Captions dataset. If testing a training script, replace some cmd line args to lower computational load.
-if args.TESTING:
-    args = load_testing_parameters(args)
-    train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=True)
-else:
-    train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=False)
+# Replace some cmd line args to lower computational load.
+args = load_testing_parameters(args)
+
+# Load subset of Conceptual Captions dataset.
+train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=True)
 
 # Create dataloaders
 dl_opts = {**get_minimagen_dl_opts(device), 'batch_size': args.BATCH_SIZE, 'num_workers': args.NUM_WORKERS}
 train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts)
 valid_dataloader = torch.utils.data.DataLoader(valid_dataset, **dl_opts)
 
-# Get encoding dimension of the text encoder
-text_embed_dim = get_encoded_dim(args.T5_NAME)
-
-# If testing a training script, use small U-Nets to lower computational load.
-if args.TESTING:
-    unets_params = [get_default_args(BaseTest), get_default_args(SuperTest)]
-
-# Otherwise, load U-Net parameters from original Imagen implementation
-else:
-    unets_params = [get_default_args(Base), get_default_args(Super)]
-
-# Create Unets accoridng to unets_params
+# Use small U-Nets to lower computational load.
+unets_params = [get_default_args(BaseTest), get_default_args(SuperTest)]
 unets = [Unet(**unet_params).to(device) for unet_params in unets_params]
 
 # Specify MinImagen parameters
