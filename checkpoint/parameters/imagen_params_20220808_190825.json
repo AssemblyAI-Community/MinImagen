@@ -1,9 +1,0 @@
-{
-    "image_sizes": [
-        32,
-        128
-    ],
-    "timesteps": 1000,
-    "cond_drop_prob": 0.1,
-    "text_encoder_name": "t5_base"
-}
