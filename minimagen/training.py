@@ -23,6 +23,7 @@ from datasets import load_dataset
 from datasets.utils.file_utils import get_datasets_user_agent
 from resize_right import resize
 
+from minimagen import Unet
 from minimagen.helpers import exists
 from minimagen.t5 import t5_encode_text
 
@@ -603,9 +604,12 @@ def get_model_params(parameters_dir):
     return unets_params, im_params
 
 
-def get_default_args(func):
+def get_default_args(object):
     """Returns a dictionary of the default arguments of a function or class"""
-    signature = inspect.signature(func)
+    if object is Unet.Base or object is Unet.Super:
+        return {**get_default_args(Unet.Unet), **object.defaults}
+
+    signature = inspect.signature(object)
     return {
         k: v.default
         for k, v in signature.parameters.items()

@@ -649,16 +649,18 @@ class Base(Unet):
 
     - memory_efficient = False
     """
+
+    defaults = dict(
+        dim=512,
+        dim_mults=(1, 2, 3, 4),
+        num_resnet_blocks=3,
+        layer_attns=(False, True, True, True),
+        layer_cross_attns=(False, True, True, True),
+        memory_efficient=False
+    )
+
     def __init__(self, *args, **kwargs):
-        defaults = dict(
-            dim=512,
-            dim_mults=(1, 2, 3, 4),
-            num_resnet_blocks=3,
-            layer_attns=(False, True, True, True),
-            layer_cross_attns=(False, True, True, True),
-            memory_efficient=False
-        )
-        super().__init__(*args, **{**defaults, **kwargs})
+        super().__init__(*args, **{**Base.defaults, **kwargs})
 
 
 class Super(Unet):
@@ -677,13 +679,13 @@ class Super(Unet):
 
     - memory_efficient = True
     """
+    defaults = dict(
+        dim=128,
+        dim_mults=(1, 2, 4, 8),
+        num_resnet_blocks=(2, 4, 8, 8),
+        layer_attns=(False, False, False, True),
+        layer_cross_attns=(False, False, False, True),
+        memory_efficient=True
+    )
     def __init__(self, *args, **kwargs):
-        defaults = dict(
-            dim=128,
-            dim_mults=(1, 2, 4, 8),
-            num_resnet_blocks=(2, 4, 8, 8),
-            layer_attns=(False, False, False, True),
-            layer_cross_attns=(False, False, False, True),
-            memory_efficient=True
-        )
-        super().__init__(*args, **{**defaults, **kwargs})
+        super().__init__(*args, **{**Super.defaults, **kwargs})
