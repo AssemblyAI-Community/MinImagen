@@ -18,9 +18,7 @@ elif not args.CAPTIONS.endswith(".txt"):
 elif args.CAPTIONS.endswith(".txt"):
     with open(args.CAPTIONS, 'r') as f:
         lines = f.readlines()
-        for idx, line in enumerate(lines):
-            lines[idx] = line[:-1] if line.endswith('\n') else line
-            list(filter(lambda x: x, lines))
+    captions = [line[:-1] if line.endswith('\n') else line for line in lines]
 else:
     raise ValueError("Please input a valid argument for --CAPTIONS")
 
