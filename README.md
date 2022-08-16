@@ -24,8 +24,15 @@ In particular, two notable contributions are the developments of:
 ## Table of Contents
 - [Attribution Note](#attribution-note)
 - [Installation](#installation)
-- [Usage - Cloned Repo](#usage---cloned-repo)
-- [Usage - Package Only](#usage---package-only)
+- [Documentation](#documentation)
+- [Usage - Command Line](#usage---command-line)
+    - [`main.py`](#mainpy) - training and image generation in sequence
+    - [`train.py`](#trainpy) - training a MinImagen instance
+    - [`inference.py`](#inferencepy) - generated images using a MinImagen instance
+- [Usage - Package](#usage---package)
+    - [Training](#training)
+    - [Image Generation](#image-generation)
+- [Additional Resources](#additional-resources)
 
 <br/>
 
@@ -44,12 +51,14 @@ $ pip install minimagen
 <br/>
 
 ## Documentation
-Documentation can be found [here](https://assemblyai-examples.github.io/MinImagen/)
+See the [MinImagen Documentation](https://assemblyai-examples.github.io/MinImagen/) to learn more about the package.
 
 <br/>
 
 ## Usage - Command Line
 If you have cloned this repo, you can use the provided scripts to get started with MinImagen.
+
+<br/>
 
 ### `main.py`
 For the most basic usage, simply enter the MinImagen directory and run the following in the terminal:
@@ -68,13 +77,15 @@ You will also see a directory called `generated_images_<TIMESTEP>`.
 2. It also contains `captions.txt` files, which documents the captions that were input to get the images (where the line index of a given caption corresponds to the image number in the `generated_iamges` folder).
 3. Finally, this directory also contains `imagen_training_directory.txt`, which specifies the name of the Training Directory used to load the MinImagen instance / generate images. 
 
+<br/>
+    
 ### `train.py`
 
 `main.py` simply runs `train.py` and `inference.py` in series, the former to train the model and the latter to generate the image.
 
 To train a model, simply run `train.py` and specify relevant command line arguments. The [possible arguments](https://github.com/AssemblyAI-Examples/MinImagen/blob/d7de8350db17713fb630e127c010020820953872/minimagen/training.py#L178) are:
 
-- `--PARAMETERS` or `-p`, which specifies a directory that specifies the MinImagen configuration to use. It should be structured like a `parameters` subdirectory within a Training Directory (example in [`/parameters`](https://github.com/AssemblyAI-Examples/MinImagen/tree/main/parameters)).
+- `--PARAMETERS` or `-p`, which specifies a directory that specifies the MinImagen configuration to use. It should be structured like a `parameters` subdirectory within a Training Directory (example in [`parameters`](https://github.com/AssemblyAI-Examples/MinImagen/tree/main/parameters)).
 - `--NUM_WORKERS"` or `-n`, which specifies the number of workers to use for the DataLoaders.
 - `--BATCH_SIZE` or `-b`, which specifies the batch size to use during training.
 - `--MAX_NUM_WORDS` or `-mw`, which specifies the maximum number of words allowed in a caption.
@@ -90,12 +101,14 @@ To train a model, simply run `train.py` and specify relevant command line argume
 - `--RESTART_DIRECTORY` or `-rd`, training directory to load MinImagen instance from if resuming training. A new Training Directory will be created for the training, leaving the previous Training Directory from which the checkpoint is loaded unperturbed.
 - `--TESTING` or `-test`, which is used to run the script with a small MinImagen instance and small dataset for testing.
 
-For example, to run a small training using the provided example [`/parameters`](https://github.com/AssemblyAI-Examples/MinImagen/tree/main/parameters) folder, run the following in the terminal:
+For example, to run a small training using the provided example [`parameters`](https://github.com/AssemblyAI-Examples/MinImagen/tree/main/parameters) folder, run the following in the terminal:
 
 ```bash
 python train.py --PARAMETERS ./parameters --BATCH_SIZE 2 --TIMESTEPS 25 --TESTING
 ```
 After execution, you will see a new `training_<TIMESTAMP>` [Training Directory](#training-directory) that contains the files as [listed above](#training-directory) from the training.
+    
+<br/>
     
 ### `inference.py`
     
@@ -104,7 +117,7 @@ To generate images using a model from a [Training Directory](#training-directory
 - `--TRAINING_DIRECTORY"` or `-d`, which specifies the training directory from which to load the MinImagen instance for inference.
 - `--CAPTIONS` or `-c`, which specifies either (a) a single caption to generate an image for, or (b) a filepath to a `.txt` file that contains a list of captions to generate images for, where each caption is on a new line.
     
-For example, to generate images for the example captions provided in `.\captions` using the model generated from the above training line, simply run
+For example, to generate images for the example captions provided in [`captions.txt`](https://github.com/AssemblyAI-Examples/MinImagen/blob/main/captions.txt) using the model generated from the above training line, simply run
     
 ```bash
 python inference.py -CAPTIONS captions.txt --TRAINING_DIRECTORY training_<TIMESTAMP>    
@@ -115,6 +128,8 @@ where `TIMESTAMP` is replaced with the appropriate value from your training.
 <br/>
 
 ## Usage - Package
+
+### Training
     
 A minimal training script using the `minimagen` package is shown below. See [`train.py`](https://github.com/AssemblyAI-Examples/MinImagen/blob/main/train.py) for a more built-up version of the below code.
     
@@ -187,6 +202,8 @@ optimizer = optim.Adam(imagen.parameters(), lr=args.OPTIM_LR)
 # Train the MinImagen instance
 MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_dataloader, training_dir, optimizer, timeout=30)
 ```
+
+### Image Generation
     
 A minimal inference script using the `minimagen` package is shown below. See [`inference.py`](https://github.com/AssemblyAI-Examples/MinImagen/blob/main/inference.py) for a more built-up version of the below code.
 
@@ -212,4 +229,18 @@ sample_and_save(captions, training_directory=args.TRAINING_DIRECTORY)
 minimagen = load_minimagen(args.TRAINING_DIRECTORY)
 sample_and_save(captions, minimagen=minimagen)    
 ```
+    
+To see more of what MinImagen has to offer, or to get additional details on the scripts above, check out the [MinImagen Documentation](https://assemblyai-examples.github.io/MinImagen/)
 
+## Additional Resources
+
+- For a step-by-step guide on how to build the version of Imagen in this repository, see [Build Your Own Imagen Text-to-Image Model](www.assemblyai.com/blog/build-your-own-imagen-text-to-image-model/).
+- For an deep-dive into how Imagen works, see [How Imagen Actually Works](https://www.assemblyai.com/blog/how-imagen-actually-works/).
+- For additional learning resources for Machine Learning and Deep Learning, check out our [Blog](https://www.assemblyai.com/blog/).
+- Check out our YouTube channel for videos and other learning resources on Machine Learning and Deep Learning.
+- [Follow our newsletter](https://assemblyai.us17.list-manage.com/subscribe?u=cb9db7b18b274c2d402a56c5f&id=2116bf7c68) to stay up to date on our recent content.
+- Read about Diffusion Models in our [Introduction to Diffusion Models for Machine Learning](https://www.assemblyai.com/blog/diffusion-models-for-machine-learning-introduction/) guide.
+- Read more about Imagen here.
+    
+## Socials
+- Follow us on [Twitter](https://twitter.com/AssemblyAI) for more Deep Learning content.
