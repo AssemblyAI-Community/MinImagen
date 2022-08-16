@@ -689,3 +689,61 @@ class Super(Unet):
     )
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **{**Super.defaults, **kwargs})
+
+
+class BaseTest(Unet):
+    """
+    Base image generation U-Net with default arguments.
+
+    - dim = 8
+
+    - dim_mults = (1, 2)
+
+    - num_resnet_blocks = 1
+
+    - layer_attns = False
+
+    - layer_cross_attns = False
+
+    - memory_efficient = False
+    """
+
+    defaults = dict(
+        dim=8,
+        dim_mults=(1, 2),
+        num_resnet_blocks=1,
+        layer_attns=False,
+        layer_cross_attns=False,
+        memory_efficient=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **{**Base.defaults, **kwargs})
+
+
+class SuperTest(Unet):
+    """
+    Super-Resolution U-Net with default arguments.
+
+    - dim = 8
+
+    - dim_mults = (1, 2)
+
+    - num_resnet_blocks = (1, 2)
+
+    - layer_attns = False
+
+    - layer_cross_attns = False
+
+    - memory_efficient = True
+    """
+    defaults = dict(
+        dim=8,
+        dim_mults=(1, 2),
+        num_resnet_blocks=(1, 2),
+        layer_attns=False,
+        layer_cross_attns=False,
+        memory_efficient=True
+    )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **{**Super.defaults, **kwargs})
