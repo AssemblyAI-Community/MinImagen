@@ -32,6 +32,7 @@ In particular, two notable contributions are the developments of:
 - [Usage - Package](#usage---package)
     - [Training](#training)
     - [Image Generation](#image-generation)
+- [Modifying the Source Code](#modifying-the-source-code)
 - [Additional Resources](#additional-resources)
 - [Socials](#socials)
 
@@ -237,15 +238,42 @@ sample_and_save(captions, minimagen=minimagen)
     
 To see more of what MinImagen has to offer, or to get additional details on the scripts above, check out the [MinImagen Documentation](https://assemblyai-examples.github.io/MinImagen/)
 
+<br/>
+
+## Modifying the Source Code
+If you want to make modifications to the source code (rather than use the `minimagen` package), first clone this repository and navigate into it:
+
+```bash
+$ git clone https://github.com/AssemblyAI-Examples/MinImagen.git
+$ cd MinImagen
+```
+
+After that, create a virtual environment:
+```bash
+$ pip install virtualenv
+$ virtualenv venv
+```
+
+Then activate the virtual environment and install all dependencies:
+```bash
+$ .\venv\Scripts\activate.bat  # Windows
+$ source venv/bin/activate  # MacOS/Linux
+$ pip install -r requirements.txt
+```
+
+Now you can modify the source code and the changes will be reflected when running any of the [included scripts](#usage---command-line) (as long as the virtual environment created above is active).
+
+
+<br/>
+
 ## Additional Resources
 
 - For a step-by-step guide on how to build the version of Imagen in this repository, see [Build Your Own Imagen Text-to-Image Model](www.assemblyai.com/blog/build-your-own-imagen-text-to-image-model/).
 - For an deep-dive into how Imagen works, see [How Imagen Actually Works](https://www.assemblyai.com/blog/how-imagen-actually-works/).
-- For additional learning resources for Machine Learning and Deep Learning, check out our [Blog](https://www.assemblyai.com/blog/).
-- Check out our [YouTube channel](https://www.youtube.com/c/AssemblyAI) for videos and other learning resources on Machine Learning and Deep Learning.
-- [Follow our newsletter](https://assemblyai.us17.list-manage.com/subscribe?u=cb9db7b18b274c2d402a56c5f&id=2116bf7c68) to stay up to date on our recent content.
-- Read about Diffusion Models in our [Introduction to Diffusion Models for Machine Learning](https://www.assemblyai.com/blog/diffusion-models-for-machine-learning-introduction/) guide.
-- Read more about Imagen here.
+- For a deep-dive into Diffusion Models, see our [Introduction to Diffusion Models for Machine Learning](https://www.assemblyai.com/blog/diffusion-models-for-machine-learning-introduction/) guide.
+- For additional learning resources on Machine Learning and Deep Learning, check out our [Blog](https://www.assemblyai.com/blog/) and [YouTube channel](https://www.youtube.com/c/AssemblyAI).
+- Read the original Imagen paper [here](https://arxiv.org/abs/2205.11487).
     
 ## Socials
 - Follow us on [Twitter](https://twitter.com/AssemblyAI) for more Deep Learning content.
+- [Follow our newsletter](https://assemblyai.us17.list-manage.com/subscribe?u=cb9db7b18b274c2d402a56c5f&id=2116bf7c68) to stay up to date on our recent content.
