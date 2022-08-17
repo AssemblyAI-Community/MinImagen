@@ -146,8 +146,8 @@ from minimagen.Unet import Unet, Base, Super, BaseTest, SuperTest
 from minimagen.generate import load_minimagen, load_params
 from minimagen.t5 import get_encoded_dim
 from minimagen.training import get_minimagen_parser, ConceptualCaptions, get_minimagen_dl_opts, \
-    create_directory, get_model_params, get_model_size, save_training_info, get_default_args, MinimagenTrain, \
-    load_restart_training_parameters, load_testing_parameters
+    create_directory, get_model_size, save_training_info, get_default_args, MinimagenTrain, \
+    load_testing_parameters
 
 # Get device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
