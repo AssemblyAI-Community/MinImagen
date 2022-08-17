@@ -268,7 +268,7 @@ Now you can modify the source code and the changes will be reflected when runnin
 
 ## Additional Resources
 
-- For a step-by-step guide on how to build the version of Imagen in this repository, see [Build Your Own Imagen Text-to-Image Model](www.assemblyai.com/blog/build-your-own-imagen-text-to-image-model/).
+- For a step-by-step guide on how to build the version of Imagen in this repository, see [Build Your Own Imagen Text-to-Image Model](https://www.assemblyai.com/blog/build-your-own-imagen-text-to-image-model/).
 - For an deep-dive into how Imagen works, see [How Imagen Actually Works](https://www.assemblyai.com/blog/how-imagen-actually-works/).
 - For a deep-dive into Diffusion Models, see our [Introduction to Diffusion Models for Machine Learning](https://www.assemblyai.com/blog/diffusion-models-for-machine-learning-introduction/) guide.
 - For additional learning resources on Machine Learning and Deep Learning, check out our [Blog](https://www.assemblyai.com/blog/) and [YouTube channel](https://www.youtube.com/c/AssemblyAI).
