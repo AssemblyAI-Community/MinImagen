@@ -7,7 +7,7 @@
 
 <br/>
 
-### See [Build Your Own Imagen Text-to-Image Model](www.assemblyai.com/blog/build-your-own-imagen-text-to-image-model/) for a tutorial on how to build MinImagen.
+### See [Build Your Own Imagen Text-to-Image Model](https://www.assemblyai.com/blog/build-your-own-imagen-text-to-image-model/) for a tutorial on how to build MinImagen.
 
 ### See [How Imagen Actually Works](https://www.assemblyai.com/blog/how-imagen-actually-works/) for a detailed explanation of Imagen's operating principles.
 
