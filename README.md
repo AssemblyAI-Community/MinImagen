@@ -57,7 +57,11 @@ See the [MinImagen Documentation](https://assemblyai-examples.github.io/MinImage
 <br/>
 
 ## Usage - Command Line
-If you have cloned this repo, you can use the provided scripts to get started with MinImagen.
+If you have cloned this repo (as opposed to just installing the `minimagen` package), you can use the provided scripts to get started with MinImagen. This repo can be cloned by running the following command in the terminal:
+
+```bash
+$ git clone https://github.com/AssemblyAI-Examples/MinImagen.git
+```
 
 <br/>
 
