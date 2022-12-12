@@ -128,7 +128,7 @@ class Block(nn.Module):
         self.activation = nn.SiLU()
         self.project = nn.Conv2d(dim, dim_out, 3, padding=1)
 
-    def forward(self, x: torch.tensor, scale_shift: tuple[torch.tensor, torch.tensor] = None) -> torch.tensor:
+    def forward(self, x: torch.tensor, scale_shift: tuple([torch.tensor, torch.tensor]) = None) -> torch.tensor:
         """
         Forward pass
 
@@ -269,7 +269,7 @@ class CrossEmbedLayer(nn.Module):
     def __init__(
             self,
             dim_in: int,
-            kernel_sizes: tuple[int, ...],
+            kernel_sizes: tuple([int, ...]),
             dim_out: int = None,
             stride: int = 2
     ):
@@ -347,7 +347,7 @@ class Parallel(nn.Module):
     """
     Passes input through parallel functions and then sums the result.
     """
-    def __init__(self, *fns: tuple[Callable, ...]):
+    def __init__(self, *fns: tuple([Callable, ...])):
         super().__init__()
         self.fns = nn.ModuleList(fns)
 

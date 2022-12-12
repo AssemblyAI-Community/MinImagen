@@ -1,0 +1,18 @@
+{
+    "dim": 8,
+    "dim_mults": [
+        1,
+        2
+    ],
+    "channels": 3,
+    "channels_out": null,
+    "cond_dim": null,
+    "text_embed_dim": 512,
+    "num_resnet_blocks": 1,
+    "layer_attns": false,
+    "layer_cross_attns": false,
+    "attn_heads": 8,
+    "lowres_cond": false,
+    "memory_efficient": false,
+    "attend_at_middle": false
+}

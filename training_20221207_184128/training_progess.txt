@@ -1,0 +1,6 @@
+model size: 1.012MB
+
+-------------------- EPOCH 1 --------------------
+----------Checkpoint created at batch number 0----------
+U-Nets Avg Train Losses Epoch 1 Batch 0: [inf, inf]
+U-Nets Batch Train Losses Epoch 1 Batch 0: [1.106, 1.049]

@@ -68,6 +68,7 @@ class MinimagenCollator:
 
         # If the batch is empty after filtering
         if not batch:
+            print("there is no images####################### jii from collator class")
             return None
 
         # Expand mask and encodings to len of elt in batch with greatest number of words
@@ -123,22 +124,23 @@ def _fetch_images(batch, num_threads, timeout=None, retries=0):
     fetch_single_image_with_args = partial(_fetch_single_image, timeout=timeout, retries=retries)
     with ThreadPoolExecutor(max_workers=num_threads) as executor:
         batch["image"] = list(executor.map(fetch_single_image_with_args, batch["image_url"]))
+    print("This is the batch ######################",batch)
     return batch
 
 
 def _fetch_single_image(image_url, timeout=None, retries=0):
     for _ in range(retries + 1):
-        try:
-            request = urllib.request.Request(
-                image_url,
-                data=None,
-                headers={"user-agent": USER_AGENT},
-            )
-            with urllib.request.urlopen(request, timeout=timeout) as req:
+        # try:
+        #     request = urllib.request.Request(
+        #         image_url,
+        #         data=None,
+        #         headers={"user-agent": USER_AGENT},
+        #     )
+            with urllib.request.urlopen(image_url, timeout=timeout) as req:
                 image = PIL.Image.open(io.BytesIO(req.read()))
             break
-        except Exception:
-            image = None
+        # except Exception:
+            # image = None
     return image
 
 
@@ -187,7 +189,7 @@ def get_minimagen_parser():
                         help="Maximum number of words allowed in a caption", default=64, type=int)
     parser.add_argument("-s", "--IMG_SIDE_LEN", dest="IMG_SIDE_LEN", help="Side length of square Imagen output images",
                         default=128, type=int)
-    parser.add_argument("-e", "--EPOCHS", dest="EPOCHS", help="Number of training epochs", default=5, type=int)
+    parser.add_argument("-e", "--EPOCHS", dest="EPOCHS", help="Number of training epochs", default=10, type=int)
     parser.add_argument("-t5", "--T5_NAME", dest="T5_NAME", help="Name of T5 encoder to use", default='t5_base',
                         type=str)
     parser.add_argument("-f", "--TRAIN_VALID_FRAC", dest="TRAIN_VALID_FRAC",
@@ -236,6 +238,7 @@ class MinimagenDataset(torch.utils.data.Dataset):
         split = "train" if train else "validation"
 
         self.urls = hf_dataset[f"{split}"]['image_url']
+        print("self.urls",self.urls)
         self.captions = hf_dataset[f"{split}"]['caption']
 
         if img_transform is None:
@@ -247,13 +250,14 @@ class MinimagenDataset(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self.urls)
-
+    # need to change the gititem with my own data set 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        img = _fetch_single_image(self.urls[idx])
+        img = _fetch_single_image(self.urls[idx],5,5)
         if img is None:
+            print("we are here from class MinimagenDataset nothing data######################## the problem ",idx,img)
             return None
         elif self.img_transform:
             img = self.img_transform(img)
@@ -269,7 +273,7 @@ class MinimagenDataset(torch.utils.data.Dataset):
         return {'image': img, 'encoding': enc, 'mask': msk}
 
 
-def ConceptualCaptions(args, smalldata=False, testset=False):
+def ConceptualCaptions(args, smalldata=True, testset=False):
     """
     Load `conceptual captions dataset <https://ai.google.com/research/ConceptualCaptions/>`_
 
@@ -279,6 +283,7 @@ def ConceptualCaptions(args, smalldata=False, testset=False):
     :return: test_dataset if :code:`testset` else (train_dataset, valid_dataset)
     """
     dset = load_dataset("conceptual_captions")
+    print(len(dset),"## dset from conceptualCaption ###########")
     if smalldata:
         num = 16
         vi = dset['validation']['image_url'][:num]
@@ -292,6 +297,7 @@ def ConceptualCaptions(args, smalldata=False, testset=False):
             'validation': {
                 'image_url': vi,
                 'caption': vc, }, 'num_rows': num}
+        print(dset,"hiii from dset")
 
     if testset:
         # Torch test dataset
@@ -300,9 +306,11 @@ def ConceptualCaptions(args, smalldata=False, testset=False):
         return test_dataset
     else:
         # Torch train/valid dataset
+        ## I need to pass here a csv file and it all processing happened the class of the MinimagenDataset  
         dataset_train_valid = MinimagenDataset(dset, max_length=args.MAX_NUM_WORDS, encoder_name=args.T5_NAME,
                                                train=True,
                                                side_length=args.IMG_SIDE_LEN)
+        print("Here we are at conceptualCaptions Function",dataset_train_valid)
 
         # Split into train/valid
         train_size = int(args.TRAIN_VALID_FRAC * len(dataset_train_valid))
@@ -310,6 +318,7 @@ def ConceptualCaptions(args, smalldata=False, testset=False):
         train_dataset, valid_dataset = torch.utils.data.random_split(dataset_train_valid, [train_size, valid_size])
         if args.VALID_NUM is not None:
             valid_dataset.indices = valid_dataset.indices[:args.VALID_NUM + 1]
+        print("Train dataset conceptualCaptions Function ####################", train_dataset)
         return train_dataset, valid_dataset
 
 
@@ -435,6 +444,7 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
                         f'U-Nets Best Valid Losses: {[round(i.item(), 3) for i in best_loss]}\n\n')
 
     best_loss = [torch.tensor(9999999) for i in range(len(unets))]
+    # train loop here 
     for epoch in range(args.EPOCHS):
         print(f'\n{"-" * 20} EPOCH {epoch + 1} {"-" * 20}')
         with training_dir():
@@ -541,11 +551,11 @@ def load_testing_parameters(args):
     :param args: Arguments Namespace returned from parsing :func:`~.minimagen.training.get_minimagen_parser`.
     """
     d = dict(
-            BATCH_SIZE=2,
-            MAX_NUM_WORDS=32,
+            BATCH_SIZE=4,
+            MAX_NUM_WORDS=512,
             IMG_SIDE_LEN=128,
-            EPOCHS=2,
-            T5_NAME='t5_small',
+            EPOCHS=100,
+            T5_NAME='t5_base',
             TRAIN_VALID_FRAC=0.5,
             TIMESTEPS=25,  # Do not make less than 20
             OPTIM_LR=0.0001
