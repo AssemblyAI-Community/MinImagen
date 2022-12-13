@@ -1,11 +1,16 @@
 # importing necessary packages 
 from PIL import Image
+from skimage import io, transform
 import pandas as pd
 import csv
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 from itertools import compress
+import torch
+from torch.utils.data import Dataset, DataLoader
+from torchvision import transforms, utils
+from minimagen.t5 import t5_encode_text
 
 
 
@@ -115,6 +120,51 @@ def mapping(data_set,triplet_dict):
 
 
 
-print(mapping(data_set,triplet_dict))
+# print(mapping(data_set,triplet_dict))
+d= mapping(data_set,triplet_dict)
+# print(list(d.items())[5][1][0])
+# example= list(d.items())[5][1][0]
+# str_example= ' '.join(example).replace(',', ' ')
+# # str_example = str_example.replace(',', ' ')
+# print(str_example)
+
+# Creating Dataset Class
+class MinimagenDatasetNew(Dataset):
+    """Triplet DataSet """
+    def __init__(self,dect_dataset,encoder_name,max_length,transform=None):
+        """
+        Args:
+            Dictionary file contain the image pathes and its triplet
+        """
+        self.Triplet_data = list(dect_dataset.items())
+        self.encoder_name = encoder_name
+        self.max_length = max_length
+        self.tranform = transform
+    def __len__(self):
+        return len(self.Triplet_data)
+
+    def __getitem__(self,idx):
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+        img_name = self.Triplet_data[idx][0]
+        description = self.Triplet_data[idx][1][0] 
+        str_description = ' '.join(description).replace(',', ' ')
+        image = io.imread(img_name)
+
+        enc, msk = t5_encode_text([str_description], self.encoder_name, self.max_length)
+
+        sample = {'image': image, 'encoding': enc, 'mask': msk}
+        # if self.transform:
+        #     sample = self.transform(sample)
+        return sample
+
+
+T_dataset=MinimagenDatasetNew(d,"t5_base",28)
+# fig = plt.figure()
+for i in range(len(T_dataset)):
+    sample = T_dataset[i]
+    print(i, sample['image'].shape,sample['encoding'].shape,sample['mask'].shape)
+    if i ==7:
+        break
 
 
