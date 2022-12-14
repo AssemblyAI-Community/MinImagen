@@ -6,6 +6,7 @@ import csv
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import json
 from itertools import compress
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -121,7 +122,19 @@ def mapping(data_set,triplet_dict):
 
 
 # print(mapping(data_set,triplet_dict))
-d= mapping(data_set,triplet_dict)
+# d= mapping(data_set,triplet_dict)
+
+
+
+# # create json object from dictionary
+# json = json.dumps(d)
+# # open file for writing, "w" 
+# f = open("dict.json","w")
+# # write json object to file
+# f.write(json)
+# # close file
+# f.close()
+
 # print(list(d.items())[5][1][0])
 # example= list(d.items())[5][1][0]
 # str_example= ' '.join(example).replace(',', ' ')
@@ -139,7 +152,7 @@ class MinimagenDatasetNew(Dataset):
         self.Triplet_data = list(dect_dataset.items())
         self.encoder_name = encoder_name
         self.max_length = max_length
-        self.tranform = transform
+        self.transform = transform
     def __len__(self):
         return len(self.Triplet_data)
 
@@ -150,16 +163,66 @@ class MinimagenDatasetNew(Dataset):
         description = self.Triplet_data[idx][1][0] 
         str_description = ' '.join(description).replace(',', ' ')
         image = io.imread(img_name)
+        # convert_tensor = transforms.ToTensor()
+        # converted_image= convert_tensor(image)
 
         enc, msk = t5_encode_text([str_description], self.encoder_name, self.max_length)
 
         sample = {'image': image, 'encoding': enc, 'mask': msk}
-        # if self.transform:
-        #     sample = self.transform(sample)
+        if self.transform:
+            sample = self.transform(sample)
         return sample
 
+class Rescale(object):
+    """ Rescale the image in sample to given size"""
+    """
+    Args:
+        output_size (tuple or int)If tuple, output is
+            matched to output_size. If int, smaller of image edges is matched
+            to output_size keeping aspect ratio the same.
+    """
 
-T_dataset=MinimagenDatasetNew(d,"t5_base",28)
+
+    def __init__(self,output_size):
+        assert isinstance(output_size,(int,tuple))
+        self.output_size = output_size
+
+    def __call__(self,sample):
+        image = sample['image']
+        enc = sample['encoding']
+        msk= sample['mask']
+        h,w=image.shape[:2]
+        if isinstance(self.output_size,int):
+            if h>w:
+                new_h,new_w = self.output_size * h/w , self.output_size
+            else:
+                new_h,new_w = self.output_size,self.output_size * w/h 
+        else:
+            new_h , new_w = self.output_size
+        new_h, new_w = int(new_h), int(new_w)
+        img = transform.resize(image, (new_h, new_w))
+        return {'image': image, 'encoding': enc, 'mask': msk}
+
+class ToTensor(object):
+    """Convert ndarrays in sample to Tensors."""
+    def __call__(self,sample):
+        image = sample['image']
+        enc = sample['encoding']
+        msk= sample['mask']
+        image = image.transpose((2, 0, 1))
+        return {'image': torch.from_numpy(image), 'encoding': enc, 'mask': msk}
+
+
+
+
+
+
+
+
+with open('/home/kareemelgohary/Desktop/minImagen/MinImagen/dict.json') as f:
+    d = json.load(f)
+T_dataset=MinimagenDatasetNew(d,"t5_base",28,transform=transforms.Compose([Rescale(256),ToTensor()]))
+print("script ends here")
 # fig = plt.figure()
 for i in range(len(T_dataset)):
     sample = T_dataset[i]

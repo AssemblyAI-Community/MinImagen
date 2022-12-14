@@ -11,7 +11,7 @@ import urllib
 from typing import Literal
 
 from tqdm import tqdm
-
+from torchvision import transforms, utils
 import datasets
 import PIL.Image
 from einops import rearrange
@@ -22,7 +22,7 @@ from torchvision.transforms import Compose, ToTensor
 from datasets import load_dataset
 from datasets.utils.file_utils import get_datasets_user_agent
 from resize_right import resize
-
+from preparing_data import MinimagenDatasetNew , Rescale, ToTensor
 from minimagen import Unet
 from minimagen.helpers import exists
 from minimagen.t5 import t5_encode_text
@@ -84,8 +84,10 @@ class MinimagenCollator:
                 elt['encoding'] = F.pad(elt['encoding'], (0, 0, 0, rem), 'constant', False)
 
         # TODO: Should really be passing in `device` - find a more elegant way to do this
+        print(batch)
         for didx, datum in enumerate(batch):
             for tensor in datum.keys():
+                print(batch[didx][tensor])
                 batch[didx][tensor] = batch[didx][tensor].to(self.device)
 
         return torch.utils.data.dataloader.default_collate(batch)
@@ -282,35 +284,41 @@ def ConceptualCaptions(args, smalldata=True, testset=False):
     :param testset: Whether to return the testing set (vs training/valid)
     :return: test_dataset if :code:`testset` else (train_dataset, valid_dataset)
     """
-    dset = load_dataset("conceptual_captions")
-    print(len(dset),"## dset from conceptualCaption ###########")
-    if smalldata:
-        num = 16
-        vi = dset['validation']['image_url'][:num]
-        vc = dset['validation']['caption'][:num]
-        ti = dset['train']['image_url'][:num]
-        tc = dset['train']['caption'][:num]
-        dset = datasets.Dataset = {'train': {
-            'image_url': ti,
-            'caption': tc,
-        }, 'num_rows': num,
-            'validation': {
-                'image_url': vi,
-                'caption': vc, }, 'num_rows': num}
-        print(dset,"hiii from dset")
+    # dset = load_dataset("conceptual_captions")
+    print("## dset from conceptualCaption ###########")
+    # print(len(dset),"## dset from conceptualCaption ###########")
+    # if smalldata:
+    #     num = 16
+    #     vi = dset['validation']['image_url'][:num]
+    #     vc = dset['validation']['caption'][:num]
+    #     ti = dset['train']['image_url'][:num]
+    #     tc = dset['train']['caption'][:num]
+    #     dset = datasets.Dataset = {'train': {
+    #         'image_url': ti,
+    #         'caption': tc,
+    #     }, 'num_rows': num,
+    #         'validation': {
+    #             'image_url': vi,
+    #             'caption': vc, }, 'num_rows': num}
+    #     print(dset,"hiii from dset")
+    with open('/home/kareemelgohary/Desktop/minImagen/MinImagen/dict.json') as f:
+        d = json.load(f)
+            
 
     if testset:
         # Torch test dataset
-        test_dataset = MinimagenDataset(dset, max_length=args.MAX_NUM_WORDS, train=False, encoder_name=args.T5_NAME,
-                                        side_length=args.IMG_SIDE_LEN)
+        # test_dataset = MinimagenDataset(dset, max_length=args.MAX_NUM_WORDS, train=False, encoder_name=args.T5_NAME,
+        #                                 side_length=args.IMG_SIDE_LEN)
+        test_dataset=MinimagenDatasetNew(d,"t5_base",28,transform=transforms.Compose([Rescale(256),ToTensor()]))
         return test_dataset
     else:
         # Torch train/valid dataset
         ## I need to pass here a csv file and it all processing happened the class of the MinimagenDataset  
-        dataset_train_valid = MinimagenDataset(dset, max_length=args.MAX_NUM_WORDS, encoder_name=args.T5_NAME,
-                                               train=True,
-                                               side_length=args.IMG_SIDE_LEN)
-        print("Here we are at conceptualCaptions Function",dataset_train_valid)
+        # dataset_train_valid = MinimagenDataset(dset, max_length=args.MAX_NUM_WORDS, encoder_name=args.T5_NAME,
+        #                                        train=True,
+        #                                        side_length=args.IMG_SIDE_LEN)
+        dataset_train_valid = MinimagenDatasetNew(d,"t5_base",28,transform=transforms.Compose([Rescale(256),ToTensor()]))
+        print("###########################Here we are at conceptualCaptions Function#############################",dataset_train_valid)
 
         # Split into train/valid
         train_size = int(args.TRAIN_VALID_FRAC * len(dataset_train_valid))
@@ -318,7 +326,7 @@ def ConceptualCaptions(args, smalldata=True, testset=False):
         train_dataset, valid_dataset = torch.utils.data.random_split(dataset_train_valid, [train_size, valid_size])
         if args.VALID_NUM is not None:
             valid_dataset.indices = valid_dataset.indices[:args.VALID_NUM + 1]
-        print("Train dataset conceptualCaptions Function ####################", train_dataset)
+        print("Train dataset conceptualCaptions Function ####################", type(train_dataset))
         return train_dataset, valid_dataset
 
 
@@ -460,6 +468,7 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
                 with _Timeout(timeout):
                     # If batch is empty, move on to the next one
                     if not batch:
+                        print("############it is empty batch from training loop")
                         continue
 
                     train()
@@ -552,9 +561,9 @@ def load_testing_parameters(args):
     """
     d = dict(
             BATCH_SIZE=4,
-            MAX_NUM_WORDS=512,
+            MAX_NUM_WORDS=28,
             IMG_SIDE_LEN=128,
-            EPOCHS=100,
+            EPOCHS=200,
             T5_NAME='t5_base',
             TRAIN_VALID_FRAC=0.5,
             TIMESTEPS=25,  # Do not make less than 20
