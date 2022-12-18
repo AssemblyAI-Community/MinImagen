@@ -552,7 +552,7 @@ def load_testing_parameters(args):
             MAX_NUM_WORDS=32,
             IMG_SIDE_LEN=128,
             # EPOCHS=2,
-            EPOCHS=50,
+            EPOCHS=350,
             T5_NAME='t5_small',
             # TRAIN_VALID_FRAC=0.5,
             TRAIN_VALID_FRAC=0.9,

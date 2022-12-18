@@ -47,6 +47,9 @@ else:
     # train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=False)
     train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=True)
 
+# print current state of args
+print(f"args: {args}")
+
 # Create dataloaders
 dl_opts = {**get_minimagen_dl_opts(device), 'batch_size': args.BATCH_SIZE, 'num_workers': args.NUM_WORKERS}
 train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts)
