@@ -4,3 +4,4 @@ generated_images_*/
 .idea/*
 minimagen/__pycache__/*
 main.py
+venv/*
