@@ -13,6 +13,7 @@ minimagen = load_minimagen(args.TRAINING_DIRECTORY)
 if args.CAPTIONS is None:
     print("\nNo caption supplied - using the default of \"a happy dog\".\n")
     captions = ['a happy dog']
+    captions = ['a very typical bus station']
 elif not args.CAPTIONS.endswith(".txt"):
     captions = [args.CAPTIONS]
 elif args.CAPTIONS.endswith(".txt"):

@@ -280,7 +280,8 @@ def ConceptualCaptions(args, smalldata=False, testset=False):
     """
     dset = load_dataset("conceptual_captions")
     if smalldata:
-        num = 16
+        # num = 16
+        num = 100
         vi = dset['validation']['image_url'][:num]
         vc = dset['validation']['caption'][:num]
         ti = dset['train']['image_url'][:num]
@@ -378,6 +379,7 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
 
         # Every 10% of the way through epoch, save states in case of training failure
         if batch_num % args.CHCKPT_NUM == 0:
+        # if int(batch_num % (total_num_batches / 10)) == 0:
             with training_dir():
                 with open('training_progess.txt', 'a') as f:
                     f.write(f'{"-" * 10}Checkpoint created at batch number {batch_num}{"-" * 10}\n')
@@ -389,7 +391,9 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
                     torch.save(imagen.unets[idx].state_dict(), model_path)
 
             # Write and batch average training loss so far
-            avg_loss = [i / batch_num for i in running_train_loss]
+            # avg_loss = [i / batch_num for i in running_train_loss]
+            # Above line of code seems to be incorrectly written by the original devs; below seems more correct
+            avg_loss = [i / len(batch["image"]) for i in running_train_loss]
             with training_dir():
                 with open('training_progess.txt', 'a') as f:
                     f.write(f'U-Nets Avg Train Losses Epoch {epoch + 1} Batch {batch_num}: '
@@ -402,7 +406,8 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
             imagen.train(False)
 
             print(f'\n{"-" * 10}Validation...{"-" * 10}')
-            for vbatch in tqdm(valid_dataloader):
+            # for vbatch in tqdm(valid_dataloader):
+            for vbatch in valid_dataloader:
                 if not vbatch:
                     continue
 
@@ -444,6 +449,8 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
         imagen.train(True)
 
         running_train_loss = [0. for i in range(len(unets))]
+        # total_num_batches = math.ceil(len(train_dataloader) / train_dataloader.batch_size)
+        total_num_batches = len(train_dataloader)
         print(f'\n{"-" * 10}Training...{"-" * 10}')
         for batch_num, batch in tqdm(enumerate(train_dataloader)):
             try:
@@ -541,12 +548,14 @@ def load_testing_parameters(args):
     :param args: Arguments Namespace returned from parsing :func:`~.minimagen.training.get_minimagen_parser`.
     """
     d = dict(
-            BATCH_SIZE=2,
+            BATCH_SIZE=8,
             MAX_NUM_WORDS=32,
             IMG_SIDE_LEN=128,
-            EPOCHS=2,
+            # EPOCHS=2,
+            EPOCHS=50,
             T5_NAME='t5_small',
-            TRAIN_VALID_FRAC=0.5,
+            # TRAIN_VALID_FRAC=0.5,
+            TRAIN_VALID_FRAC=0.9,
             TIMESTEPS=25,  # Do not make less than 20
             OPTIM_LR=0.0001
         )

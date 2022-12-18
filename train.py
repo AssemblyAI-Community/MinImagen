@@ -39,11 +39,13 @@ elif args.PARAMETERS is not None:
     args = load_restart_training_parameters(args, justparams=True)
 
 # If testing, lower parameter values to lower computational load and also to lower amount of data being used.
+# args.TESTING = True
 if args.TESTING:
     args = load_testing_parameters(args)
     train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=True)
 else:
-    train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=False)
+    # train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=False)
+    train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=True)
 
 # Create dataloaders
 dl_opts = {**get_minimagen_dl_opts(device), 'batch_size': args.BATCH_SIZE, 'num_workers': args.NUM_WORKERS}
