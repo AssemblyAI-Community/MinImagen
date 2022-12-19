@@ -748,3 +748,37 @@ class SuperTest(Unet):
     )
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **{**Super.defaults, **kwargs})
+
+
+class BaseMovie(Unet):
+    """
+    Base image generation U-Net for movie poster generation.
+    """
+
+    defaults = dict(
+        dim=128,
+        dim_mults=(1, 2, 4),
+        num_resnet_blocks=2,
+        layer_attns=(False, True, True),
+        layer_cross_attns=(False, True, True),
+        memory_efficient=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **{**Base.defaults, **kwargs})
+
+
+class SuperMovie(Unet):
+    """
+    Super-Resolution U-Net for movie poster generation.
+    """
+    defaults = dict(
+        dim=128,
+        dim_mults=(1, 2, 4),
+        num_resnet_blocks=(2, 4, 8),
+        layer_attns=(False, False, True),
+        layer_cross_attns=(False, False, True),
+        memory_efficient=True
+    )
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **{**Super.defaults, **kwargs})

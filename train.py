@@ -6,12 +6,12 @@ from torch import optim
 
 
 from minimagen.Imagen import Imagen
-from minimagen.Unet import Unet, Base, Super, BaseTest, SuperTest
+from minimagen.Unet import Unet, Base, Super, BaseTest, SuperTest, BaseMovie, SuperMovie
 from minimagen.generate import load_minimagen, load_params
 from minimagen.t5 import get_encoded_dim
 from minimagen.training import get_minimagen_parser, ConceptualCaptions, get_minimagen_dl_opts, \
     create_directory, get_model_params, get_model_size, save_training_info, get_default_args, MinimagenTrain, \
-    load_restart_training_parameters, load_testing_parameters
+    load_restart_training_parameters, load_testing_parameters, MovieCaptions, load_semi_workload_parameters
 
 # Get device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -39,13 +39,16 @@ elif args.PARAMETERS is not None:
     args = load_restart_training_parameters(args, justparams=True)
 
 # If testing, lower parameter values to lower computational load and also to lower amount of data being used.
-# args.TESTING = True
+args.TESTING = True
 if args.TESTING:
-    args = load_testing_parameters(args)
+    # args = load_testing_parameters(args)
+    args = load_semi_workload_parameters(args)
+
+    # train_dataset, valid_dataset = MovieCaptions(args, smalldata=True)
     train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=True)
 else:
-    # train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=False)
-    train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=True)
+    # train_dataset, valid_dataset = MovieCaptions(args, smalldata=False)
+    train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=False)
 
 # print current state of args
 print(f"args: {args}")
@@ -67,7 +70,8 @@ if args.RESTART_DIRECTORY is None:
     # If not loading a training from a checkpoint
     if args.TESTING:
         # If testing, use tiny MinImagen for low computational load
-        unets_params = [get_default_args(BaseTest), get_default_args(SuperTest)]
+        # unets_params = [get_default_args(BaseTest), get_default_args(SuperTest)]
+        unets_params = [get_default_args(BaseMovie), get_default_args(SuperMovie)]
 
     # Else if not loading Unet/Imagen settings from a config (parameters) folder, use defaults
     elif not args.PARAMETERS:
