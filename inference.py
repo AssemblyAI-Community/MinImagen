@@ -1,3 +1,4 @@
+import json
 from argparse import ArgumentParser
 from minimagen.generate import load_minimagen, sample_and_save
 
@@ -17,6 +18,9 @@ if args.CAPTIONS is None:
     print("\nNo caption supplied - using the default of \"a happy dog\".\n")
     captions = ['a happy dog']
     captions = ['a very typical bus station']
+    with open("dataset/anime_captions.json", "r") as f:
+        dset = json.load(f)
+    captions = dset["train"]["caption"]
 elif not args.CAPTIONS.endswith(".txt"):
     captions = [args.CAPTIONS]
 elif args.CAPTIONS.endswith(".txt"):
