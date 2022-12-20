@@ -756,7 +756,7 @@ class BaseMovie(Unet):
     """
 
     defaults = dict(
-        dim=128,
+        dim=256,
         dim_mults=(1, 2, 4),
         num_resnet_blocks=2,
         layer_attns=(False, True, True),

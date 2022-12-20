@@ -44,8 +44,8 @@ if args.TESTING:
     # args = load_testing_parameters(args)
     args = load_semi_workload_parameters(args)
 
-    # train_dataset, valid_dataset = MovieCaptions(args, smalldata=True)
-    train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=True)
+    train_dataset, valid_dataset = MovieCaptions(args, smalldata=True)
+    # train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=True)
 else:
     # train_dataset, valid_dataset = MovieCaptions(args, smalldata=False)
     train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=False)

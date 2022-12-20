@@ -286,7 +286,7 @@ def ConceptualCaptions(args, smalldata=False, testset=False):
     dset = load_dataset("conceptual_captions")
     if smalldata:
         # num = 16
-        num = 100
+        num = 1000
         vi = dset['validation']['image_url'][:num]
         vc = dset['validation']['caption'][:num]
         ti = dset['train']['image_url'][:num]
@@ -328,7 +328,8 @@ def MovieCaptions(args, smalldata=False, testset=False):
     :param testset: Whether to return the testing set (vs training/valid)
     :return: test_dataset if :code:`testset` else (train_dataset, valid_dataset)
     """
-    with open("dataset/movie_captions.json", "r") as f:
+    # with open("dataset/movie_captions.json", "r") as f:
+    with open("dataset/anime_captions.json", "r") as f:
         dset = json.load(f)
     if smalldata:
         num = 16
@@ -623,11 +624,11 @@ def load_semi_workload_parameters(args):
     :param args: Arguments Namespace returned from parsing :func:`~.minimagen.training.get_minimagen_parser`.
     """
     d = dict(
-            BATCH_SIZE=8,
+            BATCH_SIZE=2,
             MAX_NUM_WORDS=64,
             IMG_SIDE_LEN=128,
             # EPOCHS=2,
-            EPOCHS=50,
+            EPOCHS=200,
             T5_NAME='t5_base',
             # TRAIN_VALID_FRAC=0.5,
             TRAIN_VALID_FRAC=0.9,
