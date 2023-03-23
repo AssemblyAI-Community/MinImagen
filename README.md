@@ -21,6 +21,10 @@ In particular, two notable contributions are the developments of:
 
 <br/>
 
+**N.B. - This project is intended only for educational purposes to demonstrate how Diffusion Models are implemented and incorporated into text-to-image models. Many components of the network that are not essential for these educational purposes have been stripped off for simplicity. For a full-fledged implementation, check out Phil Wang's repo (see attribution note below)**
+
+<br/>
+
 ## Table of Contents
 - [Attribution Note](#attribution-note)
 - [Installation](#installation)
