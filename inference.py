@@ -1,3 +1,4 @@
+import json
 from argparse import ArgumentParser
 from minimagen.generate import load_minimagen, sample_and_save
 
@@ -8,11 +9,18 @@ parser.add_argument("-c", "--CAPTIONS", dest="CAPTIONS", help="Single caption to
 parser.add_argument("-d", "--TRAINING_DIRECTORY", dest="TRAINING_DIRECTORY", help="Training directory to use for inference", type=str)
 args = parser.parse_args()
 
+# Override the training directory
+# args.TRAINING_DIRECTORY = "training_20221218_035553"
+
 minimagen = load_minimagen(args.TRAINING_DIRECTORY)
 
 if args.CAPTIONS is None:
     print("\nNo caption supplied - using the default of \"a happy dog\".\n")
     captions = ['a happy dog']
+    captions = ['a very typical bus station']
+    with open("dataset/anime_captions.json", "r") as f:
+        dset = json.load(f)
+    captions = dset["train"]["caption"]
 elif not args.CAPTIONS.endswith(".txt"):
     captions = [args.CAPTIONS]
 elif args.CAPTIONS.endswith(".txt"):

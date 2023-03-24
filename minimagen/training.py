@@ -208,6 +208,11 @@ def get_minimagen_parser():
     parser.add_argument("-test", "--TESTING", dest="TESTING", help="Whether to test with smaller dataset",
                         action='store_true')
     parser.set_defaults(TESTING=False)
+
+    parser.add_argument("-movie", "--MOVIE", dest="MOVIE", help="Whether to use movie dataset",
+                        action='store_true')
+    parser.set_defaults(MOVIE=False)
+
     return parser
 
 
@@ -280,7 +285,55 @@ def ConceptualCaptions(args, smalldata=False, testset=False):
     """
     dset = load_dataset("conceptual_captions")
     if smalldata:
+        # num = 16
+        num = 1000
+        vi = dset['validation']['image_url'][:num]
+        vc = dset['validation']['caption'][:num]
+        ti = dset['train']['image_url'][:num]
+        tc = dset['train']['caption'][:num]
+        dset = datasets.Dataset = {'train': {
+            'image_url': ti,
+            'caption': tc,
+        }, 'num_rows': num,
+            'validation': {
+                'image_url': vi,
+                'caption': vc, }, 'num_rows': num}
+
+    if testset:
+        # Torch test dataset
+        test_dataset = MinimagenDataset(dset, max_length=args.MAX_NUM_WORDS, train=False, encoder_name=args.T5_NAME,
+                                        side_length=args.IMG_SIDE_LEN)
+        return test_dataset
+    else:
+        # Torch train/valid dataset
+        dataset_train_valid = MinimagenDataset(dset, max_length=args.MAX_NUM_WORDS, encoder_name=args.T5_NAME,
+                                               train=True,
+                                               side_length=args.IMG_SIDE_LEN)
+
+        # Split into train/valid
+        train_size = int(args.TRAIN_VALID_FRAC * len(dataset_train_valid))
+        valid_size = len(dataset_train_valid) - train_size
+        train_dataset, valid_dataset = torch.utils.data.random_split(dataset_train_valid, [train_size, valid_size])
+        if args.VALID_NUM is not None:
+            valid_dataset.indices = valid_dataset.indices[:args.VALID_NUM + 1]
+        return train_dataset, valid_dataset
+
+
+def MovieCaptions(args, smalldata=False, testset=False):
+    """
+    Load `movie captions dataset: ~/MinImagen/dataset/movie_captions.json`_
+
+    :param args: Arguments Namespace/dictionary parsed from :func:`~.minimagen.training.get_minimagen_parser`
+    :param smalldata: Whether to return a small subset of the data (for testing code)
+    :param testset: Whether to return the testing set (vs training/valid)
+    :return: test_dataset if :code:`testset` else (train_dataset, valid_dataset)
+    """
+    # with open("dataset/movie_captions.json", "r") as f:
+    with open("dataset/anime_captions.json", "r") as f:
+        dset = json.load(f)
+    if smalldata:
         num = 16
+        # num = 100
         vi = dset['validation']['image_url'][:num]
         vc = dset['validation']['caption'][:num]
         ti = dset['train']['image_url'][:num]
@@ -378,6 +431,7 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
 
         # Every 10% of the way through epoch, save states in case of training failure
         if batch_num % args.CHCKPT_NUM == 0:
+        # if int(batch_num % (total_num_batches / 10)) == 0:
             with training_dir():
                 with open('training_progess.txt', 'a') as f:
                     f.write(f'{"-" * 10}Checkpoint created at batch number {batch_num}{"-" * 10}\n')
@@ -389,7 +443,9 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
                     torch.save(imagen.unets[idx].state_dict(), model_path)
 
             # Write and batch average training loss so far
-            avg_loss = [i / batch_num for i in running_train_loss]
+            # avg_loss = [i / batch_num for i in running_train_loss]
+            # Above line of code seems to be incorrectly written by the original devs; below seems more correct
+            avg_loss = [i / len(batch["image"]) for i in running_train_loss]
             with training_dir():
                 with open('training_progess.txt', 'a') as f:
                     f.write(f'U-Nets Avg Train Losses Epoch {epoch + 1} Batch {batch_num}: '
@@ -402,7 +458,8 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
             imagen.train(False)
 
             print(f'\n{"-" * 10}Validation...{"-" * 10}')
-            for vbatch in tqdm(valid_dataloader):
+            # for vbatch in tqdm(valid_dataloader):
+            for vbatch in valid_dataloader:
                 if not vbatch:
                     continue
 
@@ -444,6 +501,8 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
         imagen.train(True)
 
         running_train_loss = [0. for i in range(len(unets))]
+        # total_num_batches = math.ceil(len(train_dataloader) / train_dataloader.batch_size)
+        total_num_batches = len(train_dataloader)
         print(f'\n{"-" * 10}Training...{"-" * 10}')
         for batch_num, batch in tqdm(enumerate(train_dataloader)):
             try:
@@ -544,10 +603,36 @@ def load_testing_parameters(args):
             BATCH_SIZE=2,
             MAX_NUM_WORDS=32,
             IMG_SIDE_LEN=128,
-            EPOCHS=2,
+            # EPOCHS=2,
+            EPOCHS=5,
             T5_NAME='t5_small',
-            TRAIN_VALID_FRAC=0.5,
+            # TRAIN_VALID_FRAC=0.5,
+            TRAIN_VALID_FRAC=0.9,
             TIMESTEPS=25,  # Do not make less than 20
+            OPTIM_LR=0.0001
+        )
+
+    # Replace relevant values in arg dict
+    args.__dict__ = {**args.__dict__, **d}
+    return args
+
+
+def load_semi_workload_parameters(args):
+    """
+    Load command line arguments that are conducive to testing training movie generation scripts.
+
+    :param args: Arguments Namespace returned from parsing :func:`~.minimagen.training.get_minimagen_parser`.
+    """
+    d = dict(
+            BATCH_SIZE=2,
+            MAX_NUM_WORDS=64,
+            IMG_SIDE_LEN=128,
+            # EPOCHS=2,
+            EPOCHS=200,
+            T5_NAME='t5_base',
+            # TRAIN_VALID_FRAC=0.5,
+            TRAIN_VALID_FRAC=0.9,
+            TIMESTEPS=1000,  # Do not make less than 20
             OPTIM_LR=0.0001
         )
 

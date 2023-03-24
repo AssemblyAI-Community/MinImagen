@@ -1,0 +1,54 @@
+{
+  "train": {
+    "image_url": [
+      "https://m.media-amazon.com/images/I/51g-1QzlBaL._AC_SY580_.jpg",
+      "https://m.media-amazon.com/images/I/51VOIAeQLVL._AC_UF894,1000_QL80_.jpg",
+      "https://m.media-amazon.com/images/I/41gsqNDTjOL._AC_SY580_.jpg",
+      "https://m.media-amazon.com/images/I/61ioYU4QfQL._AC_UF894,1000_QL80_.jpg",
+      "https://m.media-amazon.com/images/I/71L+1etqrJL._AC_UF894,1000_QL80_.jpg",
+      "https://m.media-amazon.com/images/I/61OJ3XqcMuL._AC_UF894,1000_QL80_.jpg",
+      "https://m.media-amazon.com/images/I/61Yu1RLNhBL._AC_UF894,1000_QL80_.jpg",
+      "https://m.media-amazon.com/images/I/51W0Hr+L+ML._AC_SY580_.jpg",
+      "https://m.media-amazon.com/images/I/51nenSklFgL._AC_SY780_.jpg",
+      "https://m.media-amazon.com/images/I/91pBAMSzZbL._AC_UF894,1000_QL80_.jpg",
+      "https://i.ebayimg.com/images/g/QDQAAOSwjvNhsXYp/s-l1600.png",
+      "https://m.media-amazon.com/images/I/81UaaTlfBVL._AC_UF894,1000_QL80_.jpg",
+      "https://m.media-amazon.com/images/I/511KfynF4jL._AC_UF894,1000_QL80_.jpg",
+      "https://m.media-amazon.com/images/I/61V5-czH4rL._AC_UF894,1000_QL80_.jpg",
+      "https://m.media-amazon.com/images/I/713cslmT3aL.jpg",
+      "https://m.media-amazon.com/images/I/71BPDF6V1FL._AC_UF894,1000_QL80_.jpg"
+    ],
+    "caption": [
+      "I don't want to rule anything. Being King of the Pirates means being more free than anyone.",
+      "There's no such thing as a painless lesson. They just don't exist. Sacrifices are necessary; you can't gain anything without losing something first.",
+      "Quit it with your stupid reasoning! I meant to say that I'll stand any pain for my friends!! I'm not gonna give up on them",
+      "There’s nothing special about being born. Not a thing. Most of the universe is just death, nothing more",
+      "No, see, I don't think of it like I'm saving the world. The fact is, it's because I'm usually trying to challenge the strongest warriors I can find.",
+      "I love the kind of woman that can kick my ass.",
+      "Fine, Kakarot, you are the mightiest Saiyan, I've admitted that much. At least for now. But don't you dare think that this is over",
+      "I am the Pretty Guardian who Fights for Love and for Justice. I am Sailor Moon! And now in the name of the moon, I will punish you!",
+      "Nobody cares whether I live or die.",
+      "Just because you die doesn’t mean that the people you killed will come back to life. instead using this sword to save just one more soul is repentance in true sense.",
+      "It's not a sense of justice. Figuring out difficult cases is my hobby. If you measured good and evil deeds by current laws, I would be responsible for many crimes.",
+      "If it's for the sake of avenging those who were killed, to make sure there are no more victims, I won't hesitate to bring my blade down upon any demon's neck",
+      "If I can't even protect my captain's dream, then whatever ambition I have is nothing but talk! Luffy must be the man who becomes the Pirate King!",
+      "In the ninja world, those who break the rules are trash, that's true, but those who abandon their comrades are worse than trash.",
+      "If we catch Kira, he is evil. If he wins and rules the world, then he is justice.",
+      "I never wanted to take out the Uchiha clan. But it was the only way to save my little brother."
+    ]
+  },
+  "validation": {
+    "image_url": [
+      "https://m.media-amazon.com/images/I/51g-1QzlBaL._AC_SY580_.jpg",
+      "https://m.media-amazon.com/images/I/51VOIAeQLVL._AC_UF894,1000_QL80_.jpg",
+      "https://m.media-amazon.com/images/I/41gsqNDTjOL._AC_SY580_.jpg",
+      "https://m.media-amazon.com/images/I/61ioYU4QfQL._AC_UF894,1000_QL80_.jpg"
+    ],
+    "caption": [
+      "I don't want to rule anything. Being King of the Pirates means being more free than anyone.",
+      "There's no such thing as a painless lesson. They just don't exist. Sacrifices are necessary; you can't gain anything without losing something first.",
+      "Quit it with your stupid reasoning! I meant to say that I'll stand any pain for my friends!! I'm not gonna give up on them",
+      "There’s nothing special about being born. Not a thing. Most of the universe is just death, nothing more"
+    ]
+  }
+}
