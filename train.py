@@ -3,7 +3,7 @@ from datetime import datetime
 
 import torch.utils.data
 from torch import optim
-
+from preparing_data import MinimagenDatasetNew
 
 from minimagen.Imagen import Imagen
 from minimagen.Unet import Unet, Base, Super, BaseTest, SuperTest

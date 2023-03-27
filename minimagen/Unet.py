@@ -509,7 +509,7 @@ class Unet(nn.Module):
             self,
             time: torch.tensor,
             lowres_noise_times: torch.tensor
-    ) -> tuple[torch.tensor, torch.tensor]:
+    ) -> tuple([torch.tensor, torch.tensor]):
         '''
         Generate t and time_tokens
 
@@ -544,7 +544,7 @@ class Unet(nn.Module):
             text_mask: torch.tensor,
             t: torch.tensor,
             time_tokens: torch.tensor
-    ) -> tuple[torch.tensor, torch.tensor]:
+    ) -> tuple([torch.tensor, torch.tensor]):
         '''
         Condition on text.
 

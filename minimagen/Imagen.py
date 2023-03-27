@@ -269,7 +269,7 @@ class Imagen(nn.Module):
                          lowres_cond_img: torch.tensor = None,
                          lowres_noise_times: torch.tensor = None,
                          cond_scale: float = 1.,
-                         model_output: torch.tensor = None) -> tuple[torch.tensor, torch.tensor, torch.tensor]:
+                         model_output: torch.tensor = None) -> tuple([torch.tensor, torch.tensor, torch.tensor]):
         """
         Predicts noise component of `x` with `unet`, and then returns the corresponding forward process posterior
             parameters given the predictions.
