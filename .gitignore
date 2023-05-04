@@ -151,4 +151,6 @@ colab/
 /dream-textures___parquet/*
 
 /parameters/
+training_*/
+generated_image*/
 # dream-textures___parquet/
