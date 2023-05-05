@@ -8,6 +8,9 @@ from contextlib import contextmanager
 from functools import partial
 import io
 import urllib
+from sklearn.model_selection import train_test_split
+from torchvision import transforms
+
 from typing import Literal
 
 from tqdm import tqdm
@@ -17,9 +20,11 @@ import PIL.Image
 from einops import rearrange
 import torch.utils.data
 import torch.nn.functional as F
-from torchvision.transforms import Compose, ToTensor
+from torchvision.transforms import Compose, ToTensor, Resize
 
-from datasets import load_dataset
+# from datasets import load_dataset
+from datasets import load_dataset, DatasetDict
+
 from datasets.utils.file_utils import get_datasets_user_agent
 from resize_right import resize
 
@@ -210,6 +215,60 @@ def get_minimagen_parser():
     parser.set_defaults(TESTING=False)
     return parser
 
+class PokemonDataset(torch.utils.data.Dataset):
+    def __init__(self, dataset, *, encoder_name: str, max_length: int,
+                 side_length: int, train: bool = True, img_transform=None):
+        """
+        MinImagen Dataset object
+
+        :param dataset: Dataset object with a similar structure to HuggingFace's Dataset object.
+        :param encoder_name: Name of the T5 encoder to use.
+        :param max_length: Maximum number of words allowed in a given caption.
+        :param side_length: Side length to resize all images to.
+        :param train: Whether train or test dataset
+        :param img_transform: (optional) Transforms to be applied on a sample in addition to default :code:`ToTensor()` and
+            resizing to :code:`side_length` (applied after the defaults)
+        """
+
+        split = "train" if train else "validation"
+
+        self.urls = dataset['image']
+        self.captions = dataset['text']
+
+        if img_transform is None:
+            self.img_transform = Compose([ToTensor(), Resize((side_length, side_length))])
+        else:
+            self.img_transform = Compose([ToTensor(), Resize((side_length, side_length)), img_transform])
+
+        self.encoder_name = encoder_name
+        self.max_length = max_length
+        self.tokenizer = t5_encode_text
+
+    def __len__(self):
+        return len(self.urls)
+
+    def __getitem__(self, idx):
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+
+        img = self.urls[idx]
+        if img is None:
+            return None
+        elif self.img_transform:
+            img = self.img_transform(img)
+
+        # Have to check None again because `Resize` transform can return None
+        if img is None:
+            return None
+        elif img.shape[0] != 3:
+            return None
+
+        
+        # encodings = self.tokenizer(self.captions[idx], return_tensors='pt', padding='max_length', max_length=self.max_length, truncation=True)
+        enc, msk = t5_encode_text([self.captions[idx]], self.encoder_name, self.max_length)
+        return {'image': img, 'encoding': enc, 'mask': msk}
+
+        # return {'image': img, 'encoding': encodings.input_ids, 'mask': encodings.attention_mask}
 
 class MinimagenDataset(torch.utils.data.Dataset):
     def __init__(self, hf_dataset, *, encoder_name: str, max_length: int,
@@ -267,7 +326,58 @@ class MinimagenDataset(torch.utils.data.Dataset):
         enc, msk = t5_encode_text([self.captions[idx]], self.encoder_name, self.max_length)
 
         return {'image': img, 'encoding': enc, 'mask': msk}
+def Pokemon(args, dataset_name, smalldata=False, testset=False):
+    """
+    Load a custom dataset from Hugging Face datasets library.
 
+    :param args: Arguments Namespace/dictionary parsed from :func:`~.minimagen.training.get_minimagen_parser`
+    :param dataset_name: The name of the dataset to load from the Hugging Face datasets library.
+    :param smalldata: Whether to return a small subset of the data (for testing code)
+    :param testset: Whether to return the testing set (vs training/valid)
+    :return: test_dataset if :code:`testset` else (train_dataset, valid_dataset)
+    """
+    # dset = load_dataset(dataset_name, cache_dir='.').train_test_split(test_size=0.2)
+    # dset = load_dataset(dataset_name, cache_dir='.').train_test_split(test_size=0.2)
+    dataset = load_dataset(dataset_name, cache_dir='.')
+    train_test = dataset['train'].train_test_split(test_size=0.2)
+    dset = DatasetDict({'train': train_test['train'], 'test': train_test['test']})
+   
+    
+    
+    
+    to_tensor = transforms.Compose([
+        transforms.Resize(args.IMG_SIDE_LEN),
+        transforms.RandomHorizontalFlip(p=0.5),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5), inplace=True),
+    ])
+    
+    def preprocess(data):
+        for i in range(len(data['image'])):
+            data['image'][i] = to_tensor(data['image'][i])
+        return data
+
+    train_dataset = dset['train']
+    valid_dataset = dset['test']
+    
+    if testset:
+        # Torch test dataset
+        test_dataset = PokemonDataset(valid_dataset, max_length=args.MAX_NUM_WORDS, train=False, encoder_name=args.T5_NAME,
+                                        side_length=args.IMG_SIDE_LEN)
+        return test_dataset
+    else:
+        # Torch train/valid dataset
+        dataset_train_valid = PokemonDataset(train_dataset, max_length=args.MAX_NUM_WORDS, encoder_name=args.T5_NAME,
+                                               train=True,
+                                               side_length=args.IMG_SIDE_LEN)
+
+        # Split into train/valid
+        train_size = int(args.TRAIN_VALID_FRAC * len(dataset_train_valid))
+        valid_size = len(dataset_train_valid) - train_size
+        train_dataset, valid_dataset = torch.utils.data.random_split(dataset_train_valid, [train_size, valid_size])
+        if args.VALID_NUM is not None:
+            valid_dataset.indices = valid_dataset.indices[:args.VALID_NUM + 1]
+        return train_dataset, valid_dataset
 
 def ConceptualCaptions(args, smalldata=False, testset=False):
     """

@@ -3,16 +3,20 @@ from datetime import datetime
 
 import torch.utils.data
 from torch import optim
+from datasets import load_dataset
 
-
+from torchvision import transforms
 from minimagen.Imagen import Imagen
 from minimagen.Unet import Unet, Base, Super, BaseTest, SuperTest
 from minimagen.generate import load_minimagen, load_params
 from minimagen.t5 import get_encoded_dim
 from minimagen.training import get_minimagen_parser, ConceptualCaptions, get_minimagen_dl_opts, \
     create_directory, get_model_params, get_model_size, save_training_info, get_default_args, MinimagenTrain, \
-    load_restart_training_parameters, load_testing_parameters
-
+    load_restart_training_parameters, load_testing_parameters, Pokemon
+def sample_data(loader):
+    while True:
+        for batch in loader:
+            yield batch
 # Get device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -21,7 +25,9 @@ parser = get_minimagen_parser()
 # Add argument for when using `main.py`
 parser.add_argument("-ts", "--TIMESTAMP", dest="timestamp", help="Timestamp for training directory", type=str,
                              default=None)
+
 args = parser.parse_args()
+args.dataset_name = "lambdalabs/pokemon-blip-captions"
 timestamp = args.timestamp
 
 # Get training timestamp for when running train.py as main rather than via main.py
@@ -39,18 +45,39 @@ elif args.PARAMETERS is not None:
     args = load_restart_training_parameters(args, justparams=True)
 
 # If testing, lower parameter values to lower computational load and also to lower amount of data being used.
+# dataset_name
 if args.TESTING:
     args = load_testing_parameters(args)
-    train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=True)
+    train_dataset, valid_dataset = Pokemon(args, args.dataset_name, smalldata=True, testset=False)
 else:
-    train_dataset, valid_dataset = ConceptualCaptions(args, smalldata=False)
+    train_dataset, valid_dataset = Pokemon(args, args.dataset_name, smalldata=False, testset=False)
+
+
+# to_tensor = transforms.Compose([
+#         transforms.Resize(args.IMG_SIDE_LEN),
+#         transforms.RandomHorizontalFlip(p=0.5),
+#         transforms.ToTensor(),
+#         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5), inplace=True),
+#     ])
+# def preprocess(data):
+#     for i in range(len(data['image'])):
+#         data['image'][i] = to_tensor(data['image'][i])
+#     return data
+# dataset = load_dataset(args.dataset_name, split="train", cache_dir='.').train_test_split(test_size=0.2)
+# train_dataset = dataset['train']
+# valid_dataset = dataset['test']
+# train_dataset = train_dataset.with_transform(preprocess)
+# valid_dataset = valid_dataset.with_transform(preprocess)
+
+
 
 # Create dataloaders
 dl_opts = {**get_minimagen_dl_opts(device), 'batch_size': args.BATCH_SIZE, 'num_workers': args.NUM_WORKERS}
 train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts)
+# train_dataloader = sample_data(train_dataloader)
 valid_dataloader = torch.utils.data.DataLoader(valid_dataset, **dl_opts)
+# valid_dataloader = sample_data(valid_dataloader)
 
-print(f"next(iter(train_dataloader)) {next(iter(train_dataloader))}")
 # Create Unets
 if args.RESTART_DIRECTORY is None:
     imagen_params = dict(
@@ -99,6 +126,9 @@ save_training_info(args, timestamp, unets_params, imagen_params, model_size_MB, 
 
 # Create optimizer
 optimizer = optim.Adam(imagen.parameters(), lr=args.OPTIM_LR)
+
+args.EPOCHS = 100000
+# args.SAVE_EVERY = 1000
 
 # Train the MinImagen instance
 MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_dataloader, training_dir, optimizer, timeout=30)
