@@ -185,11 +185,11 @@ def get_minimagen_parser():
     parser = ArgumentParser()
     parser.add_argument("-p", "--PARAMETERS", dest="PARAMETERS", help="Parameters directory to load Imagen from",
                         default=None, type=str)
-    parser.add_argument("-n", "--NUM_WORKERS", dest="NUM_WORKERS", help="Number of workers for DataLoader", default=0,
+    parser.add_argument("-n", "--NUM_WORKERS", dest="NUM_WORKERS", help="Number of workers for DataLoader", default=4,
                         type=int)
     parser.add_argument("-b", "--BATCH_SIZE", dest="BATCH_SIZE", help="Batch size", default=2, type=int)
     parser.add_argument("-mw", "--MAX_NUM_WORDS", dest="MAX_NUM_WORDS",
-                        help="Maximum number of words allowed in a caption", default=64, type=int)
+                        help="Maximum number of words allowed in a caption", default=16, type=int)
     parser.add_argument("-s", "--IMG_SIDE_LEN", dest="IMG_SIDE_LEN", help="Side length of square Imagen output images",
                         default=128, type=int)
     parser.add_argument("-e", "--EPOCHS", dest="EPOCHS", help="Number of training epochs", default=5, type=int)
@@ -474,17 +474,35 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
         mask = batch['mask']
 
         losses = [0. for i in range(len(unets))]
-        for unet_idx in range(len(unets)):
-            loss = imagen(images, text_embeds=encoding, text_masks=mask, unet_number=unet_idx + 1)
-            losses[unet_idx] = loss.detach()
-            running_train_loss[unet_idx] += loss.detach()
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(imagen.parameters(), 50)
+        if not args.mix_precision:
+            for unet_idx in range(len(unets)):
+                loss = imagen(images, text_embeds=encoding, text_masks=mask, unet_number=unet_idx + 1)
+                losses[unet_idx] = loss.detach()
+                running_train_loss[unet_idx] += loss.detach()
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(imagen.parameters(), 50)
+        else:
+            for unet_idx in range(len(unets)):
+                with autocast():  # Add autocast context manager
+                    loss = imagen(images, text_embeds=encoding, text_masks=mask, unet_number=unet_idx + 1)
+                losses[unet_idx] = loss.detach()
+                running_train_loss[unet_idx] += loss.detach()
+                scaler.scale(loss).backward()  # Use GradScaler to scale the loss and backpropagate
+                torch.nn.utils.clip_grad_norm_(imagen.parameters(), 50)
+        if args.ACCUM_ITER == 1 or (batch_num % args.ACCUM_ITER == 0) or (batch_num + 1 == len(train_dataloader)):
+            if args.mix_precision:
+                scaler.step(optimizer)  # Use GradScaler to update the optimizer
+                scaler.update()  # Update the GradScaler
+                optimizer.zero_grad()
+            else:
+                optimizer.step()
+                optimizer.zero_grad()
+
 
         # Gradient accumulation optimizer step (first bool for logical short-circuiting)
-        if args.ACCUM_ITER == 1 or (batch_num % args.ACCUM_ITER == 0) or (batch_num + 1 == len(train_dataloader)):
-            optimizer.step()
-            optimizer.zero_grad()
+        # if args.ACCUM_ITER == 1 or (batch_num % args.ACCUM_ITER == 0) or (batch_num + 1 == len(train_dataloader)):
+        #     optimizer.step()
+        #     optimizer.zero_grad()
 
         # Every 10% of the way through epoch, save states in case of training failure
         if batch_num % args.CHCKPT_NUM == 0:
@@ -586,6 +604,125 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
                     for idx in range(len(unets)):
                         model_path = f"unet_{idx}_tmp.pth"
                         torch.save(imagen.unets[idx].state_dict(), model_path)
+
+    # def train():
+    #     images = batch['image']
+    #     encoding = batch['encoding']
+    #     mask = batch['mask']
+
+    #     losses = [0. for i in range(len(unets))]
+    #     for unet_idx in range(len(unets)):
+    #         loss = imagen(images, text_embeds=encoding, text_masks=mask, unet_number=unet_idx + 1)
+    #         losses[unet_idx] = loss.detach()
+    #         running_train_loss[unet_idx] += loss.detach()
+    #         loss.backward()
+    #         torch.nn.utils.clip_grad_norm_(imagen.parameters(), 50)
+
+    #     # Gradient accumulation optimizer step (first bool for logical short-circuiting)
+    #     if args.ACCUM_ITER == 1 or (batch_num % args.ACCUM_ITER == 0) or (batch_num + 1 == len(train_dataloader)):
+    #         optimizer.step()
+    #         optimizer.zero_grad()
+
+    #     # Every 10% of the way through epoch, save states in case of training failure
+    #     if batch_num % args.CHCKPT_NUM == 0:
+    #         with training_dir():
+    #             with open('training_progess.txt', 'a') as f:
+    #                 f.write(f'{"-" * 10}Checkpoint created at batch number {batch_num}{"-" * 10}\n')
+
+    #         # Save temporary state dicts
+    #         with training_dir("tmp"):
+    #             for idx in range(len(unets)):
+    #                 model_path = f"unet_{idx}_tmp.pth"
+    #                 torch.save(imagen.unets[idx].state_dict(), model_path)
+
+    #         # Write and batch average training loss so far
+    #         avg_loss = [i / batch_num for i in running_train_loss]
+    #         with training_dir():
+    #             with open('training_progess.txt', 'a') as f:
+    #                 f.write(f'U-Nets Avg Train Losses Epoch {epoch + 1} Batch {batch_num}: '
+    #                         f'{[round(i.item(), 3) for i in avg_loss]}\n')
+    #                 f.write(f'U-Nets Batch Train Losses Epoch {epoch + 1} Batch {batch_num}: '
+    #                         f'{[round(i.item(), 3) for i in losses]}\n')
+
+    #         # Compute average loss across validation batches for each unet
+    #         running_valid_loss = [0. for i in range(len(unets))]
+    #         imagen.train(False)
+
+    #         print(f'\n{"-" * 10}Validation...{"-" * 10}')
+    #         for vbatch in tqdm(valid_dataloader):
+    #             if not vbatch:
+    #                 continue
+
+    #             images = vbatch['image']
+    #             encoding = vbatch['encoding']
+    #             mask = vbatch['mask']
+
+    #             for unet_idx in range(len(unets)):
+    #                 running_valid_loss[unet_idx] += imagen(images, text_embeds=encoding,
+    #                                                        text_masks=mask,
+    #                                                        unet_number=unet_idx + 1).detach()
+
+    #         # Write average validation loss
+    #         avg_loss = [i / len(valid_dataloader) for i in running_valid_loss]
+
+    #         # If validation loss less than previous best, save the model weights
+    #         for i, l in enumerate(avg_loss):
+    #             print(f"Unet {i} avg validation loss: ", l)
+    #             if l < best_loss[i]:
+    #                 best_loss[i] = l
+    #                 with training_dir("state_dicts"):
+    #                     model_path = f"unet_{i}_state_{timestamp}.pth"
+    #                     torch.save(imagen.unets[i].state_dict(), model_path)
+
+    #         with training_dir():
+    #             with open('training_progess.txt', 'a') as f:
+    #                 f.write(
+    #                     f'U-Nets Avg Valid Losses: {[round(i.item(), 3) for i in avg_loss]}\n')
+    #                 f.write(
+    #                     f'U-Nets Best Valid Losses: {[round(i.item(), 3) for i in best_loss]}\n\n')
+
+    # best_loss = [torch.tensor(9999999) for i in range(len(unets))]
+    # for epoch in range(args.EPOCHS):
+    #     print(f'\n{"-" * 20} EPOCH {epoch + 1} {"-" * 20}')
+    #     with training_dir():
+    #         with open('training_progess.txt', 'a') as f:
+    #             f.write(f'{"-" * 20} EPOCH {epoch + 1} {"-" * 20}\n')
+
+    #     imagen.train(True)
+
+    #     running_train_loss = [0. for i in range(len(unets))]
+    #     print(f'\n{"-" * 10}Training...{"-" * 10}')
+    #     for batch_num, batch in tqdm(enumerate(train_dataloader)):
+    #         try:
+    #             with _Timeout(timeout):
+    #                 # If batch is empty, move on to the next one
+    #                 if not batch:
+    #                     continue
+
+    #                 train()
+    #         except AttributeError:
+    #             # If batch is empty, move on to the next one
+    #             if not batch:
+    #                 continue
+
+    #             train()
+    #         # If batch takes longer than `timeout`, go onto the next
+    #         except _Timeout._Timeout:
+    #             pass
+    #         # If the training is interrupted early, save the latest state dicts
+    #         except Exception as e:
+    #             # Note that training aborted
+    #             with training_dir():
+    #                 with open('training_progess.txt', 'a') as f:
+    #                     f.write(
+    #                         f'\n\nTRAINING ABORTED AT EPOCH {epoch}, BATCH NUMBER {batch_num} with exception {e}. MOST RECENT STATE '
+    #                         f'DICTS SAVED TO ./tmp IN TRAINING FOLDER')
+
+    #             # Save temporary state dicts
+    #             with training_dir("tmp"):
+    #                 for idx in range(len(unets)):
+    #                     model_path = f"unet_{idx}_tmp.pth"
+    #                     torch.save(imagen.unets[idx].state_dict(), model_path)
 
 
 def load_restart_training_parameters(args, justparams=False):

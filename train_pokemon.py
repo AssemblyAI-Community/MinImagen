@@ -128,6 +128,7 @@ save_training_info(args, timestamp, unets_params, imagen_params, model_size_MB, 
 optimizer = optim.Adam(imagen.parameters(), lr=args.OPTIM_LR)
 
 args.EPOCHS = 100000
+args.mix_precision = True
 # args.SAVE_EVERY = 1000
 
 # Train the MinImagen instance
