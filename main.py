@@ -13,4 +13,4 @@ subprocess.call(["python", "train_pokemon.py", "-test", "-ts", timestamp])
 # subprocess.call(["python", "train.py", "-test", "-ts", timestamp])
 
 # Use small test Imagen to generate image
-# subprocess.call(["python", "inference.py", "-d", f"training_{timestamp}"])
+subprocess.call(["python", "inference.py", "-d", f"training_{timestamp}"])  # noqa: E501

@@ -171,3 +171,4 @@ def sample_and_save(captions: list,
     with cm("generated_images"):
         for idx, img in enumerate(images):
             img.save(f'image_{idx}.{filetype}')
+    return images

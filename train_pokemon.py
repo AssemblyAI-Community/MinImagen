@@ -48,7 +48,7 @@ elif args.PARAMETERS is not None:
 # dataset_name
 if args.TESTING:
     args = load_testing_parameters(args)
-    train_dataset, valid_dataset = Pokemon(args, args.dataset_name, smalldata=True, testset=False)
+    train_dataset, valid_dataset = Pokemon(args, args.dataset_name, smalldata=False, testset=False)
 else:
     train_dataset, valid_dataset = Pokemon(args, args.dataset_name, smalldata=False, testset=False)
 
@@ -77,11 +77,13 @@ train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts)
 # train_dataloader = sample_data(train_dataloader)
 valid_dataloader = torch.utils.data.DataLoader(valid_dataset, **dl_opts)
 # valid_dataloader = sample_data(valid_dataloader)
+args.TIMESTEPS = 1000
 
 # Create Unets
 if args.RESTART_DIRECTORY is None:
     imagen_params = dict(
-        image_sizes=(int(args.IMG_SIDE_LEN / 2), args.IMG_SIDE_LEN),
+        # image_sizes=(int(args.IMG_SIDE_LEN / 2), args.IMG_SIDE_LEN),
+        image_sizes = [int(args.IMG_SIDE_LEN / 2)],
         timesteps=args.TIMESTEPS,
         cond_drop_prob=0.15,
         text_encoder_name=args.T5_NAME
@@ -90,7 +92,8 @@ if args.RESTART_DIRECTORY is None:
     # If not loading a training from a checkpoint
     if args.TESTING:
         # If testing, use tiny MinImagen for low computational load
-        unets_params = [get_default_args(BaseTest), get_default_args(SuperTest)]
+        # unets_params = [get_default_args(BaseTest), get_default_args(SuperTest)]
+        unets_params = [get_default_args(BaseTest)]
 
     # Else if not loading Unet/Imagen settings from a config (parameters) folder, use defaults
     elif not args.PARAMETERS:
@@ -120,16 +123,21 @@ imagen_params = {**get_default_args(Imagen), **imagen_params}
 
 # Get the size of the Imagen model in megabytes
 model_size_MB = get_model_size(imagen)
-
+print(f"Model size: {model_size_MB} MB")
 # Save all training info (config files, model size, etc.)
 save_training_info(args, timestamp, unets_params, imagen_params, model_size_MB, training_dir)
 
 # Create optimizer
 optimizer = optim.Adam(imagen.parameters(), lr=args.OPTIM_LR)
+# timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-args.EPOCHS = 100000
-args.mix_precision = True
+args.EPOCHS = 10000
+args.mix_precision = False
+args.CHCKPT_NUM = 100
+# args.IMG_SIDE_LEN = 64
+# args.timestamp = timestamp
+# args.BATCH_SIZE = 1
+args.VALID_NUM = 16
 # args.SAVE_EVERY = 1000
-
 # Train the MinImagen instance
 MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_dataloader, training_dir, optimizer, timeout=30)

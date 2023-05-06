@@ -10,8 +10,10 @@ import io
 import urllib
 from sklearn.model_selection import train_test_split
 from torchvision import transforms
-
+import wandb
 from typing import Literal
+from torch.cuda.amp import autocast, GradScaler
+from minimagen.generate import load_minimagen, sample_and_save
 
 from tqdm import tqdm
 
@@ -34,7 +36,12 @@ from minimagen.t5 import t5_encode_text
 
 USER_AGENT = get_datasets_user_agent()
 
-
+def wandb_save(tensor, logname, iter_num):
+    # image = tensor.cpu().clone()  # we clone the tensor to not do changes on it
+    # image = image.squeeze(0)      # remove the fake batch dimension
+    # image = unloader(image)
+    images = wandb.Image(tensor, caption=f'{iter_num}.png')       
+    wandb.log({f'{logname}': images})
 class _Rescale:
     """
     Transformation to scale images to the proper size
@@ -185,7 +192,7 @@ def get_minimagen_parser():
     parser = ArgumentParser()
     parser.add_argument("-p", "--PARAMETERS", dest="PARAMETERS", help="Parameters directory to load Imagen from",
                         default=None, type=str)
-    parser.add_argument("-n", "--NUM_WORKERS", dest="NUM_WORKERS", help="Number of workers for DataLoader", default=4,
+    parser.add_argument("-n", "--NUM_WORKERS", dest="NUM_WORKERS", help="Number of workers for DataLoader", default=0,
                         type=int)
     parser.add_argument("-b", "--BATCH_SIZE", dest="BATCH_SIZE", help="Batch size", default=2, type=int)
     parser.add_argument("-mw", "--MAX_NUM_WORDS", dest="MAX_NUM_WORDS",
@@ -338,6 +345,7 @@ def Pokemon(args, dataset_name, smalldata=False, testset=False):
     """
     # dset = load_dataset(dataset_name, cache_dir='.').train_test_split(test_size=0.2)
     # dset = load_dataset(dataset_name, cache_dir='.').train_test_split(test_size=0.2)
+    # print(f"smaldata: {smalldata} testset: {testset}")
     dataset = load_dataset(dataset_name, cache_dir='.')
     train_test = dataset['train'].train_test_split(test_size=0.2)
     dset = DatasetDict({'train': train_test['train'], 'test': train_test['test']})
@@ -367,6 +375,7 @@ def Pokemon(args, dataset_name, smalldata=False, testset=False):
         return test_dataset
     else:
         # Torch train/valid dataset
+        # print(f"Torch train/valid dataset!!!!!!!!")
         dataset_train_valid = PokemonDataset(train_dataset, max_length=args.MAX_NUM_WORDS, encoder_name=args.T5_NAME,
                                                train=True,
                                                side_length=args.IMG_SIDE_LEN)
@@ -469,9 +478,11 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
     :return:
     """
     def train():
+        # print(f"Training ************")
         images = batch['image']
         encoding = batch['encoding']
         mask = batch['mask']
+        scaler = GradScaler()
 
         losses = [0. for i in range(len(unets))]
         if not args.mix_precision:
@@ -482,6 +493,7 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
                 loss.backward()
                 torch.nn.utils.clip_grad_norm_(imagen.parameters(), 50)
         else:
+            print(f"Using mixed precision")
             for unet_idx in range(len(unets)):
                 with autocast():  # Add autocast context manager
                     loss = imagen(images, text_embeds=encoding, text_masks=mask, unet_number=unet_idx + 1)
@@ -491,6 +503,8 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
                 torch.nn.utils.clip_grad_norm_(imagen.parameters(), 50)
         if args.ACCUM_ITER == 1 or (batch_num % args.ACCUM_ITER == 0) or (batch_num + 1 == len(train_dataloader)):
             if args.mix_precision:
+                print(f"Using mixed precision")
+
                 scaler.step(optimizer)  # Use GradScaler to update the optimizer
                 scaler.update()  # Update the GradScaler
                 optimizer.zero_grad()
@@ -505,7 +519,8 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
         #     optimizer.zero_grad()
 
         # Every 10% of the way through epoch, save states in case of training failure
-        if batch_num % args.CHCKPT_NUM == 0:
+        # print(f"epoch: {epoch}, args.CHCKPT_NUM: {args.CHCKPT_NUM}")
+        if epoch % 1 == 0 and batch_num == 0:
             with training_dir():
                 with open('training_progess.txt', 'a') as f:
                     f.write(f'{"-" * 10}Checkpoint created at batch number {batch_num}{"-" * 10}\n')
@@ -524,7 +539,7 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
                             f'{[round(i.item(), 3) for i in avg_loss]}\n')
                     f.write(f'U-Nets Batch Train Losses Epoch {epoch + 1} Batch {batch_num}: '
                             f'{[round(i.item(), 3) for i in losses]}\n')
-
+            
             # Compute average loss across validation batches for each unet
             running_valid_loss = [0. for i in range(len(unets))]
             imagen.train(False)
@@ -542,13 +557,16 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
                     running_valid_loss[unet_idx] += imagen(images, text_embeds=encoding,
                                                            text_masks=mask,
                                                            unet_number=unet_idx + 1).detach()
-
+      
             # Write average validation loss
             avg_loss = [i / len(valid_dataloader) for i in running_valid_loss]
 
             # If validation loss less than previous best, save the model weights
             for i, l in enumerate(avg_loss):
                 print(f"Unet {i} avg validation loss: ", l)
+                # wandb.log({"U-Nets Avg Valid Losses": {float(l)}})
+                wandb.log({'Valid Losses': round(l.item(), 3)} )
+                print(f"wandb logged")
                 if l < best_loss[i]:
                     best_loss[i] = l
                     with training_dir("state_dicts"):
@@ -561,8 +579,11 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
                         f'U-Nets Avg Valid Losses: {[round(i.item(), 3) for i in avg_loss]}\n')
                     f.write(
                         f'U-Nets Best Valid Losses: {[round(i.item(), 3) for i in best_loss]}\n\n')
-
+                
+    
+    
     best_loss = [torch.tensor(9999999) for i in range(len(unets))]
+    wandb.init(project="Minimagen", config=args)
     for epoch in range(args.EPOCHS):
         print(f'\n{"-" * 20} EPOCH {epoch + 1} {"-" * 20}')
         with training_dir():
@@ -604,7 +625,15 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
                     for idx in range(len(unets)):
                         model_path = f"unet_{idx}_tmp.pth"
                         torch.save(imagen.unets[idx].state_dict(), model_path)
-
+        if epoch % args.CHCKPT_NUM == 0 and epoch != 0:
+            # captions = ["a blue and red pokemon" ,"a dog with big eyes" ,"a drawing of a green pokemon with red eyes" , "a green and yellow toy with a red nose"]
+            captions = ['a blue and red pokemon']
+            folder_name = f"training_{timestamp}"
+            minimagen = load_minimagen(folder_name)
+            images = sample_and_save(captions, training_directory=folder_name, sample_args={'cond_scale':3.})
+            for img in images:
+                wandb_save(img, 'Image', iter_num=f"{epoch}")
+            # wandb.log({"images": [wandb.Image(i) for i in images]})
     # def train():
     #     images = batch['image']
     #     encoding = batch['encoding']

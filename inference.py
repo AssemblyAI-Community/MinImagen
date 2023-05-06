@@ -12,7 +12,7 @@ minimagen = load_minimagen(args.TRAINING_DIRECTORY)
 
 if args.CAPTIONS is None:
     print("\nNo caption supplied - using the default of \"a happy dog\".\n")
-    captions = ['a happy dog']
+    captions = ['a drawing of a green pokemon with red eyes']
 elif not args.CAPTIONS.endswith(".txt"):
     captions = [args.CAPTIONS]
 elif args.CAPTIONS.endswith(".txt"):
@@ -23,7 +23,7 @@ else:
     raise ValueError("Please input a valid argument for --CAPTIONS")
 
 # Can supply a training dictionary to load from for inference
-sample_and_save(captions, training_directory=args.TRAINING_DIRECTORY, sample_args={'cond_scale':3.})
+sample_and_save(captions, training_directory=args.TRAINING_DIRECTORY, sample_args={'cond_scale':10.})
 
 # Otherwise, can supply a MinImagen instance itself. In this case, information about the instance will not be saved.
 # sample_and_save(captions, minimagen=minimagen, sample_args={'cond_scale':3.})
