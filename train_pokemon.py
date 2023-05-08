@@ -28,6 +28,8 @@ parser.add_argument("-ts", "--TIMESTAMP", dest="timestamp", help="Timestamp for 
 
 args = parser.parse_args()
 args.dataset_name = "lambdalabs/pokemon-blip-captions"
+# args.BATCH_SIZE = 1
+
 timestamp = args.timestamp
 
 # Get training timestamp for when running train.py as main rather than via main.py
@@ -72,6 +74,8 @@ else:
 
 
 # Create dataloaders
+args.BATCH_SIZE = 8
+print(f"args.BATCH_SIZE: {args.BATCH_SIZE}")
 dl_opts = {**get_minimagen_dl_opts(device), 'batch_size': args.BATCH_SIZE, 'num_workers': args.NUM_WORKERS}
 train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts)
 # train_dataloader = sample_data(train_dataloader)
@@ -82,8 +86,8 @@ args.TIMESTEPS = 1000
 # Create Unets
 if args.RESTART_DIRECTORY is None:
     imagen_params = dict(
-        image_sizes=[int(args.IMG_SIDE_LEN / 2), args.IMG_SIDE_LEN],
-        # image_sizes = [int(args.IMG_SIDE_LEN / 2)],
+        # image_sizes=[int(args.IMG_SIDE_LEN / 2), args.IMG_SIDE_LEN],
+        image_sizes = [int(args.IMG_SIDE_LEN / 2)],
         timesteps=args.TIMESTEPS,
         cond_drop_prob=0.15,
         text_encoder_name=args.T5_NAME
@@ -92,8 +96,8 @@ if args.RESTART_DIRECTORY is None:
     # If not loading a training from a checkpoint
     if args.TESTING:
         # If testing, use tiny MinImagen for low computational load
-        unets_params = [get_default_args(BaseTest), get_default_args(SuperTest)]
-        # unets_params = [get_default_args(BaseTest)]
+        # unets_params = [get_default_args(BaseTest), get_default_args(SuperTest)]
+        unets_params = [get_default_args(Base)]
 
     # Else if not loading Unet/Imagen settings from a config (parameters) folder, use defaults
     elif not args.PARAMETERS:
@@ -239,7 +243,6 @@ args.mix_precision = False
 args.CHCKPT_NUM = 30
 # args.IMG_SIDE_LEN = 64
 # args.timestamp = timestamp
-args.BATCH_SIZE = 1
 args.VALID_NUM = 16
 # args.SAVE_EVERY = 1000
 # Train the MinImagen instance

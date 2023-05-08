@@ -434,7 +434,7 @@ def ConceptualCaptions(args, smalldata=False, testset=False):
 
 def get_minimagen_dl_opts(device):
     """Returns dictionary of default MinImagen dataloader options"""
-    return {'batch_size': 4,
+    return {'batch_size': 8,
             'shuffle': True,
             'num_workers': 0,
             'drop_last': True,
@@ -488,6 +488,7 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
         if not args.mix_precision:
             for unet_idx in range(len(unets)):
                 loss = imagen(images, text_embeds=encoding, text_masks=mask, unet_number=unet_idx + 1)
+                
                 losses[unet_idx] = loss.detach()
                 running_train_loss[unet_idx] += loss.detach()
                 loss.backward()

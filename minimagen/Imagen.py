@@ -477,6 +477,7 @@ class Imagen(nn.Module):
 
                 # If on a super-resolution model, noise the previously generated images for conditioning
                 if unet.lowres_cond:
+                    # print(f"go through lowres_cond")
                     lowres_noise_times = self.lowres_noise_schedule._get_times(batch_size, lowres_sample_noise_level,
                                                                               device=device)
                     lowres_cond_img = resize_image_to(img, image_size, pad_mode='reflect')
@@ -601,7 +602,7 @@ class Imagen(nn.Module):
         # Get the proper models, objective, etc. for the unet to be trained.
         unet_index = unet_number - 1
         unet = self._get_unet(unet_number)
-
+        # print(f"unet_index: {unet_index}")
         noise_scheduler = self.noise_schedulers[unet_index]
         target_image_size = self.image_sizes[unet_index]
         prev_image_size = self.image_sizes[unet_index - 1] if unet_index > 0 else None
