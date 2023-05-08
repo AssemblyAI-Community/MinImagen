@@ -23,7 +23,7 @@ else:
     raise ValueError("Please input a valid argument for --CAPTIONS")
 
 # Can supply a training dictionary to load from for inference
-sample_and_save(captions, training_directory=args.TRAINING_DIRECTORY, sample_args={'cond_scale':10.})
+sample_and_save(captions, training_directory=args.TRAINING_DIRECTORY, sample_args={'cond_scale':.1})
 
 # Otherwise, can supply a MinImagen instance itself. In this case, information about the instance will not be saved.
 # sample_and_save(captions, minimagen=minimagen, sample_args={'cond_scale':3.})

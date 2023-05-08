@@ -740,10 +740,11 @@ class SuperTest(Unet):
     """
     defaults = dict(
         dim=128,
-        dim_mults=(1, 2, 4, 8),
-        num_resnet_blocks=(2, 4, 8, 8),
-        layer_attns=(False, False, False, True),
-        layer_cross_attns=(False, False, False, True),
+        dim_mults=(1, 2, 4),
+        num_resnet_blocks=(2, 4, 8),
+        layer_attns= (False, False, True),
+        layer_cross_attns= (False, False, True),
+        lowres_cond = True,
         memory_efficient=True
     )
     def __init__(self, *args, **kwargs):

@@ -520,7 +520,7 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
 
         # Every 10% of the way through epoch, save states in case of training failure
         # print(f"epoch: {epoch}, args.CHCKPT_NUM: {args.CHCKPT_NUM}")
-        if epoch % 1 == 0 and batch_num == 0:
+        if epoch % 10 == 0 and batch_num == 0:
             with training_dir():
                 with open('training_progess.txt', 'a') as f:
                     f.write(f'{"-" * 10}Checkpoint created at batch number {batch_num}{"-" * 10}\n')
@@ -564,9 +564,10 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
             # If validation loss less than previous best, save the model weights
             for i, l in enumerate(avg_loss):
                 print(f"Unet {i} avg validation loss: ", l)
-                # wandb.log({"U-Nets Avg Valid Losses": {float(l)}})
-                wandb.log({'Valid Losses': round(l.item(), 3)} )
-                print(f"wandb logged")
+                # wandb.log({"U-Nets Avg Valid Losses": {l.item()}})
+                # print(f" l: {l}")
+                wandb.log({f'Valid Losses {i} model': round(l.item(), 3)} )
+                print(f"wandb not logged")
                 if l < best_loss[i]:
                     best_loss[i] = l
                     with training_dir("state_dicts"):
@@ -595,36 +596,38 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
         running_train_loss = [0. for i in range(len(unets))]
         print(f'\n{"-" * 10}Training...{"-" * 10}')
         for batch_num, batch in tqdm(enumerate(train_dataloader)):
-            try:
-                with _Timeout(timeout):
-                    # If batch is empty, move on to the next one
-                    if not batch:
-                        continue
+            train()
+            # try:
+            #     with _Timeout(timeout):
+            #         # If batch is empty, move on to the next one
+            #         if not batch:
+            #             continue
 
-                    train()
-            except AttributeError:
-                # If batch is empty, move on to the next one
-                if not batch:
-                    continue
+            #         train()
+            # except AttributeError:
+            #     # If batch is empty, move on to the next one
+            #     if not batch:
+            #         continue
 
-                train()
-            # If batch takes longer than `timeout`, go onto the next
-            except _Timeout._Timeout:
-                pass
+            #     train()
+            # # If batch takes longer than `timeout`, go onto the next
+            # except _Timeout._Timeout:
+            #     print(f"Time out at batch {batch_num}")
+            #     pass
             # If the training is interrupted early, save the latest state dicts
-            except Exception as e:
-                # Note that training aborted
-                with training_dir():
-                    with open('training_progess.txt', 'a') as f:
-                        f.write(
-                            f'\n\nTRAINING ABORTED AT EPOCH {epoch}, BATCH NUMBER {batch_num} with exception {e}. MOST RECENT STATE '
-                            f'DICTS SAVED TO ./tmp IN TRAINING FOLDER')
+            # except Exception as e:
+            #     # Note that training aborted
+            #     with training_dir():
+            #         with open('training_progess.txt', 'a') as f:
+            #             f.write(
+            #                 f'\n\nTRAINING ABORTED AT EPOCH {epoch}, BATCH NUMBER {batch_num} with exception {e}. MOST RECENT STATE '
+            #                 f'DICTS SAVED TO ./tmp IN TRAINING FOLDER')
 
-                # Save temporary state dicts
-                with training_dir("tmp"):
-                    for idx in range(len(unets)):
-                        model_path = f"unet_{idx}_tmp.pth"
-                        torch.save(imagen.unets[idx].state_dict(), model_path)
+            #     # Save temporary state dicts
+            #     with training_dir("tmp"):
+            #         for idx in range(len(unets)):
+            #             model_path = f"unet_{idx}_tmp.pth"
+            #             torch.save(imagen.unets[idx].state_dict(), model_path)
         if epoch % args.CHCKPT_NUM == 0 and epoch != 0:
             # captions = ["a blue and red pokemon" ,"a dog with big eyes" ,"a drawing of a green pokemon with red eyes" , "a green and yellow toy with a red nose"]
             captions = ['a blue and red pokemon']
@@ -633,6 +636,7 @@ def MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_datal
             images = sample_and_save(captions, training_directory=folder_name, sample_args={'cond_scale':3.})
             for img in images:
                 wandb_save(img, 'Image', iter_num=f"{epoch}")
+        
             # wandb.log({"images": [wandb.Image(i) for i in images]})
     # def train():
     #     images = batch['image']

@@ -50,7 +50,7 @@ dl_opts = {**get_minimagen_dl_opts(device), 'batch_size': args.BATCH_SIZE, 'num_
 train_dataloader = torch.utils.data.DataLoader(train_dataset, **dl_opts)
 valid_dataloader = torch.utils.data.DataLoader(valid_dataset, **dl_opts)
 
-print(f"next(iter(train_dataloader)) {next(iter(train_dataloader))}")
+# print(f"next(iter(train_dataloader)) {next(iter(train_dataloader))}")
 # Create Unets
 if args.RESTART_DIRECTORY is None:
     imagen_params = dict(
@@ -99,6 +99,7 @@ save_training_info(args, timestamp, unets_params, imagen_params, model_size_MB, 
 
 # Create optimizer
 optimizer = optim.Adam(imagen.parameters(), lr=args.OPTIM_LR)
-
+args.mix_precision = False
+args.EPOCHS = 100
 # Train the MinImagen instance
 MinimagenTrain(timestamp, args, unets, imagen, train_dataloader, valid_dataloader, training_dir, optimizer, timeout=30)
